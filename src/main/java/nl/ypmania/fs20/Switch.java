@@ -4,18 +4,33 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Switch implements Receiver {
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+public class Switch extends Receiver {
+  private static final Logger log = LoggerFactory.getLogger(Switch.class);
+  
   private Set<Address> addresses = new HashSet<Address>();
-  private final String name;
+  private String name;
   private boolean on = false;
+  
+  protected Switch() {}
   
   public Switch (String name, Address... addresses) {
     this.name = name;
     this.addresses.addAll(Arrays.asList(addresses));
   }
 
-  public void handle(Packet packet) {
+  @Override
+  public void receive(Packet packet) {
     if (!addresses.contains(packet.getAddress())) return;
+    log.debug(name + " receiving " + packet);
     switch (packet.getCommand()) {
     case DIM_1:
     case DIM_2:
@@ -50,6 +65,7 @@ public class Switch implements Receiver {
       on = !on;
       break;
     }
+    log.debug("State is now: " + on);
   }
   
   public boolean isOn() {

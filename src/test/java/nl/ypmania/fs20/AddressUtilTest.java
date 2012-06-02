@@ -17,4 +17,15 @@ public class AddressUtilTest {
     assertEquals (255, AddressUtil.fromFS20(4444));
   }
   
+  @Test
+  public void fs20_addresses_are_decoded() {
+    assertEquals (1111, AddressUtil.toFS20(0));
+    assertEquals (1112, AddressUtil.toFS20(1));
+    assertEquals (1113, AddressUtil.toFS20(2));
+    assertEquals (1114, AddressUtil.toFS20(3));
+    assertEquals (1121, AddressUtil.toFS20(4));
+    assertEquals (1211, AddressUtil.toFS20(16));
+    assertEquals (2111, AddressUtil.toFS20(64));
+    assertEquals (4444, AddressUtil.toFS20(255));    
+  }
 }

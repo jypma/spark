@@ -1,5 +1,8 @@
 package nl.ypmania.fs20;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum Command {
   OFF(0),
   DIM_1(1),
@@ -35,9 +38,21 @@ public enum Command {
     this.protocolValue = protocolValue;
   }
   
-  int protocolValue;
+  private int protocolValue;
   
   public int getProtocolValue() {
     return protocolValue;
+  }
+  
+  private static Map<Integer,Command> commandByProtocolValue = new HashMap<Integer,Command>();
+  
+  static {
+    for (Command c: Command.values()) {
+      commandByProtocolValue.put(c.protocolValue, c);
+    }
+  }
+  
+  public static Command byProtocolValue (int command) {
+    return commandByProtocolValue.get(command);
   }
 }

@@ -1,5 +1,6 @@
 package nl.ypmania.fs20;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,9 +11,20 @@ public class Environment {
     this.receivers = Arrays.asList(receivers);
   }
   
-  public void handle (Packet packet) {
+  public void receive (Packet packet) {
     for (Receiver receiver: receivers) {
-      receiver.handle(packet);
+      receiver.receive(packet);
     }
   }
+
+  @SuppressWarnings("unchecked")
+  public <T extends Receiver> List<T> getAll (Class<T> type) {
+    List<T> result = new ArrayList<T>();
+    for (Receiver r: receivers) {
+      if (type.isInstance(r))
+        result.add((T) r);
+    }
+    return result;
+  }
+  
 }

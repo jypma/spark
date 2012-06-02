@@ -12,5 +12,14 @@ public class AddressUtil {
     result += (i - 1);
     return result;
   }
+  
+  public static int toFS20(int i) {
+    int result = 0;
+    result += ((i & 3) + 1);
+    result += (((i >> 2) & 3) + 1) * 10;
+    result += (((i >> 4) & 3) + 1) * 100;
+    result += (((i >> 6) & 3) + 1) * 1000;
+    return result;
+}
 
 }
