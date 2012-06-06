@@ -1,8 +1,15 @@
 package nl.ypmania.node;
 
+import gnu.io.SerialPort;
+import gnu.io.SerialPortEvent;
+import gnu.io.SerialPortEventListener;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.TooManyListenersException;
 
 import nl.ypmania.alarm.AlarmDecoder;
 import nl.ypmania.alarm.AlarmService;
@@ -23,26 +30,44 @@ public class NodeService {
   
   private InputStream in;
   private OutputStream out;
-  private boolean running = true;
-  private Reader reader;
+  private InState inState = new InState();
   
   @Autowired private AlarmService alarmService;
   @Autowired private FS20Service fs20Service;
   
-  public void start(InputStream in, OutputStream out) {
-    this.in = in;
-    this.out = out;
-    this.reader = new Reader();
-    reader.start();
+  public void start(SerialPort port) {
+    try {
+      this.in = port.getInputStream();
+      this.out = port.getOutputStream();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    port.notifyOnDataAvailable(true);
+    try {
+      port.addEventListener(new SerialPortEventListener(){
+        @Override
+        public void serialEvent(SerialPortEvent event) {
+          try {
+            log.debug ("Got event, available: {}", in.available());
+            while (in.available() > 0) 
+              inState.read(in.read());
+          } catch (IOException e) {
+            log.warn("Error reading from serial", e);
+          }
+        }
+      });
+    } catch (TooManyListenersException e) {
+      throw new RuntimeException (e);
+    }
+    inState.reset();
   }
   
   public void stop() {
     log.debug("Stopping");
-    running = false;
     try {
       in.close();
+      out.close();
     } catch (IOException e) {}
-    reader.interrupt();
     log.debug("Stopped.");
   }
   
@@ -81,25 +106,49 @@ public class NodeService {
     }
   }
   
-  private class Reader extends Thread {
-    public Reader() {
-      setDaemon(true);
+  private class InState {
+    private static final int POS_LENGTH = -2;
+    private static final int POS_TYPE = -1;
+    
+    int length;
+    int type;
+    int pos;
+    int[] buf = new int[256];
+    Timer timer = new Timer();
+    TimerTask timeoutTask = null;
+    
+    public synchronized void reset() {
+      pos = POS_LENGTH;
     }
-    @Override
-    public void run() {
-      do {
-        try {
-          int length = in.read();
-          int type = in.read();
+    
+    public synchronized void read (int b) {
+      if (timeoutTask != null) timeoutTask.cancel();
+      
+      switch (pos) {
+      case POS_LENGTH:
+        length = b;
+        pos++;
+        break;
+      case POS_TYPE:
+        type = b;
+        pos++;
+        break;
+      default:
+        buf[pos] = b;
+        pos++;
+        if (pos >= length) {
           int[] packet = new int[length];
-          for (int i = 0; i < length; i++) {
-            packet[i] = in.read();
-          }
+          System.arraycopy(buf, 0, packet, 0, length);
           handle (type, packet);
-        } catch (IOException e) {
-          log.warn("Error reading", e);
+          reset();
         }
-      } while (running);
+      }
+      timeoutTask = new TimerTask(){
+        public void run() {
+          reset();
+        }
+      };
+      timer.schedule(timeoutTask, 300);
     }
   }
 }

@@ -13,6 +13,10 @@
     <priority value="info"/>
   </category>
   
+  <category name="nl.ypmania.node.NodeService">
+    <priority value="warn"/>
+  </category>
+  
   <root>
     <priority value ="debug" />
     <appender-ref ref="console"/>

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import nl.ypmania.decoder.Decoder;
 
 public class AlarmDecoder extends Decoder<Packet> {
+  @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(LoggerFactory.class);
   
   private State state = new State();
@@ -32,11 +33,12 @@ public class AlarmDecoder extends Decoder<Packet> {
   public Packet getResult() {
     if (length != 4) return null;
     
-    int byte4 = (data[4] & 0xFF) | ((data[3] << state.bit) & 0xFF); 
-    int byte3 = ((data[3] >>> (8 - state.bit)) & 0xFF) | ((data[2] << state.bit) & 0xFF); 
-    int byte2 = ((data[2] >>> (8 - state.bit)) & 0xFF) | ((data[1] << state.bit) & 0xFF); 
-    int byte1 = ((data[1] >>> (8 - state.bit)) & 0xFF) | ((data[0] << state.bit) & 0xFF);
-    return new Packet (byte1, byte2, byte3, byte4);
+    int byte5 = (data[4] & 0xFF) | ((data[3] << state.bit) & 0xFF); 
+    int byte4 = ((data[3] >>> (8 - state.bit)) & 0xFF) | ((data[2] << state.bit) & 0xFF); 
+    int byte3 = ((data[2] >>> (8 - state.bit)) & 0xFF) | ((data[1] << state.bit) & 0xFF); 
+    int byte2 = ((data[1] >>> (8 - state.bit)) & 0xFF) | ((data[0] << state.bit) & 0xFF);
+    int byte1 =  (data[0] >>> (8 - state.bit)) & 0xFF;
+    return new Packet (byte1, byte2, byte3, byte4, byte5);
   }
 
   private class State {

@@ -5,7 +5,6 @@ import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import gnu.io.UnsupportedCommOperationException;
 
-import java.io.IOException;
 import java.util.Enumeration;
 
 import javax.annotation.PostConstruct;
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SerialPortService {
-  private Logger log = LoggerFactory.getLogger(LoggerFactory.class);
+  private Logger log = LoggerFactory.getLogger(SerialPortService.class);
   
   @Value ("${node.serialPort}")
   private String serialPort;
@@ -27,7 +26,7 @@ public class SerialPortService {
   @Autowired private NodeService node;
   
   private SerialPort port;
-  
+
   public void setSerialPort(String serialPort) {
     this.serialPort = serialPort;
   }
@@ -37,12 +36,10 @@ public class SerialPortService {
     try {
       port = (SerialPort) findPort().open("NodeService", 2000);
       port.setSerialPortParams(57600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-      node.start(port.getInputStream(), port.getOutputStream());
+      node.start(port);
     } catch (PortInUseException e) {
       throw new RuntimeException (e);
     } catch (UnsupportedCommOperationException e) {
-      throw new RuntimeException (e);
-    } catch (IOException e) {
       throw new RuntimeException (e);
     }
   }
