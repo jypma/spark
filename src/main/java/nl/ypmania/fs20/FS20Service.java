@@ -1,6 +1,7 @@
 package nl.ypmania.fs20;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import nl.ypmania.node.NodeService;
 
@@ -9,10 +10,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 @Component
 public class FS20Service {
   private static final Logger log = LoggerFactory.getLogger(FS20Service.class);
   private final Environment environment;
+  private Cache<Packet, Packet> recentPackets = CacheBuilder.newBuilder()
+      .expireAfterWrite(120, TimeUnit.MILLISECONDS)
+      .build();
   
   @Autowired private NodeService nodeService;
   
@@ -53,8 +60,13 @@ public class FS20Service {
     
   public void handle (Packet packet) {
     if (packet != null) {
-      log.info("Received {}", packet);
-      environment.receive(packet);
+      if (recentPackets.getIfPresent(packet) != null) {
+        log.debug("Received duplicate.");
+      } else {
+        log.info("Received {}", packet);
+        environment.receive(packet);        
+      }
+      recentPackets.put(packet, packet);
     }
   }
 }

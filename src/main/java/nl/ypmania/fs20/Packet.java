@@ -3,13 +3,17 @@ package nl.ypmania.fs20;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 public class Packet {
   private Address address;
   private Command command;
+  private int hashCode;
   
   public Packet(Address address, Command command) {
     this.address = address;
     this.command = command;
+    this.hashCode = new HashCodeBuilder().append(address).append(command).toHashCode();
   }
   
   public Address getAddress() {
@@ -48,5 +52,10 @@ public class Packet {
     if (!(obj instanceof Packet)) return false;
     Packet b = (Packet) obj;
     return address.equals(b.address) && command.equals(b.command);
+  }
+  
+  @Override
+  public int hashCode() {
+    return hashCode;
   }
 }

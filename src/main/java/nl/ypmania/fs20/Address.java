@@ -12,6 +12,7 @@ public class Address {
   private int houseHigh;
   private int houseLow; 
   private int device;
+  private int hashCode;
   
   protected Address() {}
   
@@ -19,14 +20,20 @@ public class Address {
     this.houseHigh = houseHighByte;
     this.houseLow = houseLowByte;
     this.device = deviceByte;
+    calcHashCode();
   }
   
   public Address(int house, int device) {
     this.houseHigh = AddressUtil.fromFS20 (house / 10000);
     this.houseLow = AddressUtil.fromFS20 (house % 10000);
     this.device = AddressUtil.fromFS20 (device);
+    calcHashCode();
   }
   
+  private void calcHashCode() {
+    hashCode = new HashCodeBuilder().append(houseLow).append(houseHigh).append(device).toHashCode();  
+  }
+
   public int getHouseHigh() {
     return houseHigh;
   }
@@ -53,6 +60,6 @@ public class Address {
   
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(houseLow).append(houseHigh).append(device).toHashCode();
+    return hashCode;
   }
 }
