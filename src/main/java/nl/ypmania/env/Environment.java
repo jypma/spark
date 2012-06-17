@@ -1,20 +1,29 @@
-package nl.ypmania.fs20;
+package nl.ypmania.env;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import nl.ypmania.fs20.FS20Packet;
+import nl.ypmania.visonic.VisonicPacket;
+
 public class Environment {
-  private List<Receiver> receivers;
+  private List<Receiver> receivers = new ArrayList<Receiver>();
   
-  public Environment (Receiver... receivers) {
+  public void setReceivers (Receiver... receivers) {
     this.receivers = Arrays.asList(receivers);
   }
   
-  public void receive (Packet packet) {
+  public void receive (FS20Packet packet) {
     for (Receiver receiver: receivers) {
       receiver.receive(packet);
     }
+  }
+  
+  public void receive (VisonicPacket packet) {
+    for (Receiver receiver: receivers) {
+      receiver.receive(packet);
+    }    
   }
 
   @SuppressWarnings("unchecked")

@@ -11,11 +11,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TooManyListenersException;
 
-import nl.ypmania.alarm.AlarmDecoder;
-import nl.ypmania.alarm.AlarmService;
 import nl.ypmania.fs20.FS20Decoder;
-import nl.ypmania.fs20.FS20Encoder;
 import nl.ypmania.fs20.FS20Service;
+import nl.ypmania.visonic.VisonicDecoder;
+import nl.ypmania.visonic.VisonicService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,7 @@ public class NodeService {
   private OutputStream out;
   private InState inState = new InState();
   
-  @Autowired private AlarmService alarmService;
+  @Autowired private VisonicService visonicService;
   @Autowired private FS20Service fs20Service;
   
   public void start(SerialPort port) {
@@ -73,7 +72,7 @@ public class NodeService {
     log.debug("Stopped.");
   }
   
-  public synchronized void sendFS20 (nl.ypmania.fs20.Packet fs20Packet) {
+  public synchronized void sendFS20 (nl.ypmania.fs20.FS20Packet fs20Packet) {
     try {
       log.debug ("Sending FS20: {}", fs20Packet);
       /*
@@ -121,7 +120,7 @@ public class NodeService {
     switch (type) {
     case OOK_TYPE:      
       fs20Service.handle(new FS20Decoder().decode(packet, 4));
-      alarmService.handle(new AlarmDecoder().decode(packet, 4));
+      visonicService.handle(new VisonicDecoder().decode(packet, 4));
       break;
     case RF12_TYPE:
       

@@ -1,11 +1,11 @@
-package nl.ypmania.alarm;
+package nl.ypmania.visonic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import nl.ypmania.decoder.Decoder;
 
-public class AlarmDecoder extends Decoder<Packet> {
+public class VisonicDecoder extends Decoder<VisonicPacket> {
   @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(LoggerFactory.class);
   
@@ -30,7 +30,7 @@ public class AlarmDecoder extends Decoder<Packet> {
   }
 
   @Override
-  public Packet getResult() {
+  public VisonicPacket getResult() {
     if (length != 4) return null;
     
     int byte5 = (data[4] & 0xFF) | ((data[3] << state.bit) & 0xFF); 
@@ -38,7 +38,7 @@ public class AlarmDecoder extends Decoder<Packet> {
     int byte3 = ((data[2] >>> (8 - state.bit)) & 0xFF) | ((data[1] << state.bit) & 0xFF); 
     int byte2 = ((data[1] >>> (8 - state.bit)) & 0xFF) | ((data[0] << state.bit) & 0xFF);
     int byte1 =  (data[0] >>> (8 - state.bit)) & 0xFF;
-    return new Packet (byte1, byte2, byte3, byte4, byte5);
+    return new VisonicPacket (byte1, byte2, byte3, byte4, byte5);
   }
 
   private class State {

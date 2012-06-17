@@ -8,6 +8,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import nl.ypmania.env.Receiver;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,19 +18,19 @@ import org.slf4j.LoggerFactory;
 public class Switch extends Receiver {
   private static final Logger log = LoggerFactory.getLogger(Switch.class);
   
-  private Set<Address> addresses = new HashSet<Address>();
+  private Set<FS20Address> addresses = new HashSet<FS20Address>();
   private String name;
   private boolean on = false;
   
   protected Switch() {}
   
-  public Switch (String name, Address... addresses) {
+  public Switch (String name, FS20Address... addresses) {
     this.name = name;
     this.addresses.addAll(Arrays.asList(addresses));
   }
 
   @Override
-  public void receive(Packet packet) {
+  public void receive(FS20Packet packet) {
     if (!addresses.contains(packet.getAddress())) return;
     log.debug(name + " receiving " + packet);
     switch (packet.getCommand()) {

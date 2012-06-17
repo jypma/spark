@@ -8,22 +8,22 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Address {
+public class FS20Address {
   private int houseHigh;
   private int houseLow; 
   private int device;
   private int hashCode;
   
-  protected Address() {}
+  protected FS20Address() {}
   
-  public Address(int houseHighByte, int houseLowByte, int deviceByte) {
+  public FS20Address(int houseHighByte, int houseLowByte, int deviceByte) {
     this.houseHigh = houseHighByte;
     this.houseLow = houseLowByte;
     this.device = deviceByte;
     calcHashCode();
   }
   
-  public Address(int house, int device) {
+  public FS20Address(int house, int device) {
     this.houseHigh = AddressUtil.fromFS20 (house / 10000);
     this.houseLow = AddressUtil.fromFS20 (house % 10000);
     this.device = AddressUtil.fromFS20 (device);
@@ -53,8 +53,8 @@ public class Address {
   
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof Address)) return false;
-    Address b = (Address) obj;
+    if (!(obj instanceof FS20Address)) return false;
+    FS20Address b = (FS20Address) obj;
     return houseLow == b.houseLow && houseHigh == b.houseHigh && device == b.device;
   }
   

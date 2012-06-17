@@ -2,18 +2,18 @@ package nl.ypmania.fs20;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class Packet {
-  private Address address;
+public class FS20Packet {
+  private FS20Address address;
   private Command command;
   private int hashCode;
   
-  public Packet(Address address, Command command) {
+  public FS20Packet(FS20Address address, Command command) {
     this.address = address;
     this.command = command;
     this.hashCode = new HashCodeBuilder().append(address).append(command).toHashCode();
   }
   
-  public Address getAddress() {
+  public FS20Address getAddress() {
     return address;
   }
   
@@ -21,12 +21,12 @@ public class Packet {
     return command;
   }
   
-  public static Packet fromBytes (int[] data) {
+  public static FS20Packet fromBytes (int[] data) {
     if (data == null) return null;
     if (data.length != 5) return null;
     Command cmd = Command.byProtocolValue(data[3]);
     if (cmd == null) return null;
-    return new Packet (new Address(data[0], data[1], data[2]), cmd);
+    return new FS20Packet (new FS20Address(data[0], data[1], data[2]), cmd);
   }
   
   public int[] toBytes() {
@@ -49,8 +49,8 @@ public class Packet {
   
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof Packet)) return false;
-    Packet b = (Packet) obj;
+    if (!(obj instanceof FS20Packet)) return false;
+    FS20Packet b = (FS20Packet) obj;
     return address.equals(b.address) && command.equals(b.command);
   }
   

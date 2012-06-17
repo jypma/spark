@@ -19,7 +19,7 @@ public class FS20DecoderTest {
       decoder.handlePulse(w * 4);
     }
     assertArrayEquals (new int[] { 27, 27, 3, 18, 81 }, decoder.getData());
-    assertEquals (new Packet(new Address (12341234, 1114), Command.TOGGLE), decoder.getResult());
+    assertEquals (new FS20Packet(new FS20Address (12341234, 1114), Command.TOGGLE), decoder.getResult());
   }
   
   @Test
@@ -28,7 +28,7 @@ public class FS20DecoderTest {
       decoder.handlePulse(w * 4);
     }
     assertArrayEquals (new int[] { 27, 27, 3, 18, 81 }, decoder.getData());
-    assertEquals (new Packet(new Address (12341234, 1114), Command.TOGGLE), decoder.getResult());
+    assertEquals (new FS20Packet(new FS20Address (12341234, 1114), Command.TOGGLE), decoder.getResult());
   }
   
   @Test
@@ -37,7 +37,7 @@ public class FS20DecoderTest {
       decoder.handlePulse(w * 4);
     }
     assertArrayEquals (new int[] { 27, 27, 3, 18, 81 }, decoder.getData());
-    assertEquals (new Packet(new Address (12341234, 1114), Command.TOGGLE), decoder.getResult());
+    assertEquals (new FS20Packet(new FS20Address (12341234, 1114), Command.TOGGLE), decoder.getResult());
   }
 
   @Test
@@ -46,7 +46,7 @@ public class FS20DecoderTest {
       decoder.handlePulse(w * 4);
     }
     assertArrayEquals (new int[] { 27, 27, 3, 18, 81 }, decoder.getData());
-    assertEquals (new Packet(new Address (12341234, 1114), Command.TOGGLE), decoder.getResult());    
+    assertEquals (new FS20Packet(new FS20Address (12341234, 1114), Command.TOGGLE), decoder.getResult());    
   }
   
   @Test
@@ -55,6 +55,6 @@ public class FS20DecoderTest {
       decoder.handlePulse(w * 4);
     }
     assertArrayEquals (new int[] { 27, 27, 3, 18, 81 }, decoder.getData());
-    assertEquals (new Packet(new Address (12341234, 1114), Command.TOGGLE), decoder.getResult());    
+    assertEquals (new FS20Packet(new FS20Address (12341234, 1114), Command.TOGGLE), decoder.getResult());    
   }
 }

@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import nl.ypmania.decoder.Decoder;
 
 
-public class FS20Decoder extends Decoder<Packet> {
+public class FS20Decoder extends Decoder<FS20Packet> {
   private static final Logger log = LoggerFactory.getLogger(FS20Decoder.class);
   
   private State state = new SynchronizationState();
@@ -39,8 +39,8 @@ public class FS20Decoder extends Decoder<Packet> {
   }
   
   @Override
-  public Packet getResult() {
-    return Packet.fromBytes(getData());
+  public FS20Packet getResult() {
+    return FS20Packet.fromBytes(getData());
   }
   
   private abstract class State {
