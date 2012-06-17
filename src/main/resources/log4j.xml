@@ -14,6 +14,13 @@
   </category>
   
   <category name="nl.ypmania.node.NodeService">
+    <priority value="debug"/>
+  </category>
+  
+  <category name="nl.ypmania.fs20.FS20Decoder">
+    <priority value="warn"/>
+  </category>
+  <category name="nl.ypmania.fs20.FS20Encoder">
     <priority value="warn"/>
   </category>
   

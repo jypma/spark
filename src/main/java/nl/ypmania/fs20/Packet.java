@@ -1,8 +1,5 @@
 package nl.ypmania.fs20;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Packet {
@@ -32,14 +29,17 @@ public class Packet {
     return new Packet (new Address(data[0], data[1], data[2]), cmd);
   }
   
-  public void writeBytesTo(OutputStream out) throws IOException {
+  public int[] toBytes() {
+    int[] result = new int[5];
     int checksum = (6 + address.getHouseHigh() + address.getHouseLow() + address.getDevice() 
                       + command.getProtocolValue()) & 0xFF;
-    out.write(address.getHouseHigh());
-    out.write(address.getHouseLow());
-    out.write(address.getDevice());
-    out.write(command.getProtocolValue());
-    out.write(checksum);
+    result[0] = address.getHouseHigh();
+    result[1] = address.getHouseLow();
+    result[2] = address.getDevice();
+    result[3] = command.getProtocolValue();
+    result[4] = checksum; 
+    
+    return result;
   }
   
   @Override

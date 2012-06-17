@@ -1,6 +1,8 @@
 package nl.ypmania.fs20;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import nl.ypmania.node.NodeService;
@@ -22,9 +24,13 @@ public class FS20Service {
       .build();
   
   @Autowired private NodeService nodeService;
+  private Timer timer = new Timer();
+  private long lastPacket = 0;
   
   public FS20Service() {
     final int HOUSE = 12341234;
+    final int BUTTONS = 12344444;
+    
     final Address MASTER = new Address(HOUSE, 4444);
     final Address ALL_LIGHTS = new Address(HOUSE, 4411);
     final Address LIVING_ROOM = new Address(HOUSE, 1144);
@@ -42,14 +48,32 @@ public class FS20Service {
       new Dimmer("Bedroom cupboards", MASTER, ALL_LIGHTS, BEDROOM, new Address(HOUSE, 1311)),
       new Switch("Bedroom LED strip", MASTER, ALL_LIGHTS, BEDROOM, new Address(HOUSE, 1312)),
       
-      new Route(new Address(HOUSE, 3111), Command.ON_FULL) {
+      new Route(new Address(BUTTONS, 1212), Command.OFF) {
         protected void handle() {
-          nodeService.sendFS20(new Packet (LIVING_ROOM, Command.ON_FULL));
+          queueFS20(new Packet (LIVING_ROOM, Command.OFF));
+        }
+      },
+      new Route(new Address(BUTTONS, 1212), Command.ON_PREVIOUS) {
+        protected void handle() {
+          queueFS20(new Packet (LIVING_ROOM, Command.ON_FULL));
         }
       }
     );
   }
   
+  protected void queueFS20(final Packet packet) {
+    if (System.currentTimeMillis() < lastPacket + 200) {
+      timer.schedule(new TimerTask(){
+        @Override
+        public void run() {
+          nodeService.sendFS20(packet);          
+        }
+      }, 200);
+    } else {
+      nodeService.sendFS20(packet);
+    }
+  }
+
   public List<Dimmer> getDimmers() {
     return environment.getAll(Dimmer.class);
   }
@@ -60,6 +84,7 @@ public class FS20Service {
     
   public void handle (Packet packet) {
     if (packet != null) {
+      lastPacket  = System.currentTimeMillis();
       if (recentPackets.getIfPresent(packet) != null) {
         log.debug("Received duplicate.");
       } else {

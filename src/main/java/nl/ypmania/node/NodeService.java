@@ -14,6 +14,7 @@ import java.util.TooManyListenersException;
 import nl.ypmania.alarm.AlarmDecoder;
 import nl.ypmania.alarm.AlarmService;
 import nl.ypmania.fs20.FS20Decoder;
+import nl.ypmania.fs20.FS20Encoder;
 import nl.ypmania.fs20.FS20Service;
 
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ public class NodeService {
   
   private static final int OOK_TYPE = 1;
   private static final int RF12_TYPE = 2;
+  private static final int FS20_TYPE = 3;
   
   private InputStream in;
   private OutputStream out;
@@ -48,7 +50,7 @@ public class NodeService {
         @Override
         public void serialEvent(SerialPortEvent event) {
           try {
-            log.debug ("Got event, available: {}", in.available());
+            //log.debug ("Got event, available: {}", in.available());
             while (in.available() > 0) 
               inState.read(in.read());
           } catch (IOException e) {
@@ -73,9 +75,30 @@ public class NodeService {
   
   public synchronized void sendFS20 (nl.ypmania.fs20.Packet fs20Packet) {
     try {
-      out.write(6); // length
+      log.debug ("Sending FS20: {}", fs20Packet);
+      /*
+      log.info ("Sending FS20: {}", fs20Packet);
+      int[] pulses = new FS20Encoder(fs20Packet.toBytes()).getResult();
+      log.debug ("as {} pulses: {}", pulses.length, pulses);
+      
       out.write(OOK_TYPE);
-      // TODO write durations as 4ms-steps
+      out.write(pulses.length);
+      for (int p: pulses) {
+        out.write (p / 4);
+      }
+      //out.write(4);
+      //for (int i = 0; i < 4; i++) out.write(100);
+      
+      //out.flush();
+      */
+      //TODO wait for ACK
+      out.write(FS20_TYPE);
+      out.write(4);
+      int[] bytes = fs20Packet.toBytes();
+      out.write(bytes[0]);
+      out.write(bytes[1]);
+      out.write(bytes[2]);
+      out.write(bytes[3]);
     } catch (IOException e) {
       throw new RuntimeException (e);
     }    
@@ -107,8 +130,8 @@ public class NodeService {
   }
   
   private class InState {
-    private static final int POS_LENGTH = -2;
-    private static final int POS_TYPE = -1;
+    private static final int POS_TYPE = -2;
+    private static final int POS_LENGTH = -1;
     
     int length;
     int type;
@@ -118,19 +141,23 @@ public class NodeService {
     TimerTask timeoutTask = null;
     
     public synchronized void reset() {
-      pos = POS_LENGTH;
+      pos = POS_TYPE;
+      if (timeoutTask != null) {
+        timeoutTask.cancel();
+        timeoutTask = null;
+      }
     }
     
     public synchronized void read (int b) {
       if (timeoutTask != null) timeoutTask.cancel();
       
       switch (pos) {
-      case POS_LENGTH:
-        length = b;
-        pos++;
-        break;
       case POS_TYPE:
         type = b;
+        pos++;
+        break;
+      case POS_LENGTH:
+        length = b;
         pos++;
         break;
       default:
@@ -141,10 +168,12 @@ public class NodeService {
           System.arraycopy(buf, 0, packet, 0, length);
           handle (type, packet);
           reset();
+          return;
         }
       }
       timeoutTask = new TimerTask(){
         public void run() {
+          log.info("Timeout reading packet after {} of {} bytes.", pos, length);
           reset();
         }
       };

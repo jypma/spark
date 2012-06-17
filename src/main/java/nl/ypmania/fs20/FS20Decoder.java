@@ -1,14 +1,20 @@
 package nl.ypmania.fs20;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import nl.ypmania.decoder.Decoder;
 
 
 public class FS20Decoder extends Decoder<Packet> {
+  private static final Logger log = LoggerFactory.getLogger(FS20Decoder.class);
+  
   private State state = new SynchronizationState();
   private int[] data = new int[25];
   private int length = 0;
   
   protected void reset() {
+    log.info ("Reset after {} bytes", length);
     state.wrapup();
     state = new SynchronizationState();
     length = 0;
@@ -28,6 +34,7 @@ public class FS20Decoder extends Decoder<Packet> {
   public int[] getData() {
     int[] result = new int[length];
     System.arraycopy(data, 0, result, 0, length);
+    log.debug ("Returning {} data: {}", length, result);
     return result;
   }
   
@@ -48,14 +55,14 @@ public class FS20Decoder extends Decoder<Packet> {
     
     @Override
     public State handleZero() {
-      //System.out.println("Sync: 0");
+      log.debug("Sync: 0");
       zeroCount++;
       return this;
     }
     
     @Override
     public State handleOne() {
-      //System.out.println("Sync: 1");
+      log.debug("Sync: 1");
       if (zeroCount > 20) {
         oneCount++;
         if (oneCount == 2) {
@@ -76,10 +83,10 @@ public class FS20Decoder extends Decoder<Packet> {
     
     private void receive (int value) {
       if (hasParityBit() && bit == 8) {
-        //System.out.println("(" + value + ") ");
+        log.debug("Parity: {}", value);
         //TODO check parity
       } else {
-        //System.out.print(value);
+        log.debug("Bit: {}", value);
         data[length] = (data[length] << 1) | value;        
       }
       if (++bit >= getBitsPerByte()) {
