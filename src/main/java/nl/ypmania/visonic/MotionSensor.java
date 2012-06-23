@@ -11,6 +11,8 @@ public class MotionSensor extends Receiver {
   private String name;
   private VisonicAddress address;
   private boolean movement;
+  private boolean lowBattery = false;
+  private boolean tamper = false;
   
   public MotionSensor(String name, VisonicAddress address) {
     this.name = name;
@@ -21,8 +23,10 @@ public class MotionSensor extends Receiver {
   public void receive(VisonicPacket packet) {
     if (packet.getAddress().equals(address)) {
       movement = (packet.getByte4() & 0x01) == 1;
+      lowBattery = (packet.getByte4() & 0x02) == 1;
+      tamper = (packet.getByte4() & 0x08) == 1;
       boolean ping = (packet.getByte4() & 0x04) == 1;
-      String debug = (movement ? " *movement* " : " ") + (ping ? "*ping*" : "");
+      String debug = (movement ? " *movement* " : " ") + (lowBattery ? " *low battery* " : "") + (tamper ? " *tamper* " : "") + (ping ? "*ping*" : "");
       log.debug (name + ": " + VisonicPacket.bits(packet.getByte4()) + "-" + VisonicPacket.bits(packet.getByte5()) + debug);
     }
   }

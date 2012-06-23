@@ -6,8 +6,14 @@ public class FS20Packet {
   private FS20Address address;
   private Command command;
   private int hashCode;
+  private int timerSeconds;
   
   public FS20Packet(FS20Address address, Command command) {
+    this (address, command, 0);
+  }
+  
+  public FS20Packet(FS20Address address, Command command, int timerSeconds) {
+    this.timerSeconds = timerSeconds;
     this.address = address;
     this.command = command;
     this.hashCode = new HashCodeBuilder().append(address).append(command).toHashCode();
@@ -23,12 +29,17 @@ public class FS20Packet {
   
   public static FS20Packet fromBytes (int[] data) {
     if (data == null) return null;
-    if (data.length != 5) return null;
-    Command cmd = Command.byProtocolValue(data[3]);
+    if (data.length != 5 && data.length != 6) return null;
+    Command cmd = Command.byProtocolValue(data[3] & 0x1F);
     if (cmd == null) return null;
-    return new FS20Packet (new FS20Address(data[0], data[1], data[2]), cmd);
+    int timerSeconds = (data.length == 6) ? data[4] : 0;
+    return new FS20Packet (new FS20Address(data[0], data[1], data[2]), cmd, toSeconds(timerSeconds));
   }
   
+  private static int toSeconds(int t) {
+    return (int) (Math.pow(2, ((t >>> 4) & 0x0F)) * (t & 0x0F) * 0.25f);
+  }
+
   public int[] toBytes() {
     int[] result = new int[5];
     int checksum = (6 + address.getHouseHigh() + address.getHouseLow() + address.getDevice() 
@@ -44,14 +55,14 @@ public class FS20Packet {
   
   @Override
   public String toString() {
-    return "" + address + "->" + command;
+    return "" + address + "->" + command + ((timerSeconds != 0) ? "," + timerSeconds + "s" : "");
   }
   
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof FS20Packet)) return false;
     FS20Packet b = (FS20Packet) obj;
-    return address.equals(b.address) && command.equals(b.command);
+    return address.equals(b.address) && command.equals(b.command) && timerSeconds == b.timerSeconds;
   }
   
   @Override

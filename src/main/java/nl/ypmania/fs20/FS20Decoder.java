@@ -27,6 +27,7 @@ public class FS20Decoder extends Decoder<FS20Packet> {
     } else if (width >= 500 & width < 775) {
       state = state.handleOne();
     } else {
+      log.debug ("Unknown pulse width: {}", width);
       reset();
     }
   }
@@ -63,7 +64,7 @@ public class FS20Decoder extends Decoder<FS20Packet> {
     @Override
     public State handleOne() {
       log.debug("Sync: 1");
-      if (zeroCount > 20) {
+      if (zeroCount > 15) {
         oneCount++;
         if (oneCount == 2) {
           return new ByteState();          
@@ -71,6 +72,7 @@ public class FS20Decoder extends Decoder<FS20Packet> {
           return this;
         }
       } else {
+        log.debug("Unexpected sync 1, got only {} zeroes.", zeroCount);
         reset();
         return state;
       }
@@ -120,6 +122,7 @@ public class FS20Decoder extends Decoder<FS20Packet> {
         previousPulse = null;
         return this;
       } else {
+        log.debug("Got unexpected 1 pulse");
         reset();
         return state;
       }
@@ -135,6 +138,7 @@ public class FS20Decoder extends Decoder<FS20Packet> {
         previousPulse = null;
         return this;
       } else {
+        log.debug("Got unexpected 0 pulse");
         reset();
         return state;
       }

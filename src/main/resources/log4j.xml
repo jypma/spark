@@ -28,6 +28,9 @@
     <priority value="warn" />
   </category>
 
+  <category name="nl.ypmania.fs20.FS20Service">
+    <priority value="info" />
+  </category>
 	<category name="nl.ypmania.fs20.FS20Decoder">
 		<priority value="warn" />
 	</category>
