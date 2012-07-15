@@ -28,7 +28,14 @@ public class MotionSensor extends Receiver {
       boolean ping = (packet.getByte4() & 0x04) == 1;
       String debug = (movement ? " *movement* " : " ") + (lowBattery ? " *low battery* " : "") + (tamper ? " *tamper* " : "") + (ping ? "*ping*" : "");
       log.debug (name + ": " + VisonicPacket.bits(packet.getByte4()) + "-" + VisonicPacket.bits(packet.getByte5()) + debug);
+      if (movement) {
+        getEnvironment().getGrowlService().sendMotion(this);
+      }
     }
+  }
+  
+  public String getName() {
+    return name;
   }
   
 }

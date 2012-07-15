@@ -3,6 +3,7 @@ package nl.ypmania.fs20;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TimerTask;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -18,16 +19,35 @@ import org.slf4j.LoggerFactory;
 public class Dimmer extends Receiver {
   private static final Logger log = LoggerFactory.getLogger(Dimmer.class);
   
+  private FS20Address primaryAddress;
   private Set<FS20Address> addresses = new HashSet<FS20Address>();
   private String name;
   private int oldBrightness = 16;
   private int brightness = 0;
+  private TimerTask offTask = null;
   
   protected Dimmer() {}
   
-  public Dimmer (String name, FS20Address... addresses) {
+  public Dimmer (String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
     this.name = name;
-    this.addresses.addAll(Arrays.asList(addresses));
+    this.primaryAddress = primaryAddress;
+    this.addresses.add(primaryAddress);
+    this.addresses.addAll(Arrays.asList(otherAddresses));
+  }
+  
+  public synchronized void timedOn (long durationSeconds) {
+    getEnvironment().getFs20Service().queueFS20(new FS20Packet (primaryAddress, Command.ON_FULL));
+    if (offTask != null) {
+      offTask.cancel();
+      offTask = null;
+    }
+    offTask = new TimerTask() {
+      @Override
+      public void run() {
+        getEnvironment().getFs20Service().queueFS20(new FS20Packet (primaryAddress, Command.OFF));
+      }
+    };
+    getEnvironment().getTimer().schedule(offTask, durationSeconds * 1000);
   }
 
   @Override

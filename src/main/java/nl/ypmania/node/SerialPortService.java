@@ -1,6 +1,7 @@
 package nl.ypmania.node;
 
 import gnu.io.CommPortIdentifier;
+import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import gnu.io.UnsupportedCommOperationException;
@@ -56,7 +57,11 @@ public class SerialPortService {
       if (port.getPortType() == CommPortIdentifier.PORT_SERIAL &&
           port.getName().equals(serialPort)) return port;
     }
-    throw new RuntimeException ("Port " + serialPort + " not found. Available ports: " + ports);
+    try {
+      return CommPortIdentifier.getPortIdentifier(serialPort);
+    } catch (NoSuchPortException e) {
+      throw new RuntimeException ("Port " + serialPort + " not found. Available ports: " + ports, e);
+    }
   }
 
   @PreDestroy

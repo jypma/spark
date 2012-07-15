@@ -27,6 +27,9 @@
   <category name="nl.ypmania.visonic.VisonicService">
     <priority value="warn" />
   </category>
+  <category name="nl.ypmania.visonic.VisonicRoute">
+    <priority value="warn" />
+  </category>
 
   <category name="nl.ypmania.fs20.FS20Service">
     <priority value="info" />

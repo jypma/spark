@@ -29,13 +29,16 @@ public class FS20Service {
   
   public void queueFS20(final FS20Packet packet) {
     if (System.currentTimeMillis() < lastPacket + 200) {
+      log.info("Queueing sending of {}", packet);
       timer.schedule(new TimerTask(){
         @Override
         public void run() {
+          log.info("Sending {}", packet);
           nodeService.sendFS20(packet);          
         }
       }, 200);
     } else {
+      log.info("Sending {}", packet);
       nodeService.sendFS20(packet);
     }
   }

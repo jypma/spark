@@ -12,6 +12,8 @@ import nl.ypmania.visonic.VisonicPacket;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Receiver {
+  private Environment environment;
+  
   private UUID id = UUID.randomUUID();
   
   public void receive (FS20Packet packet) {}
@@ -19,5 +21,13 @@ public abstract class Receiver {
   
   public UUID getId() {
     return id;
+  }
+  
+  public void setEnvironment(Environment environment) {
+    this.environment = environment;
+  }
+  
+  public Environment getEnvironment() {
+    return environment;
   }
 }

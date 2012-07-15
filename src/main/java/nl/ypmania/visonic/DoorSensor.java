@@ -28,7 +28,13 @@ public class DoorSensor extends Receiver {
       boolean event = (packet.getByte4() & 0x01) == 1;
       String debug = (event ? " *event* " : " ") + (lowBattery ? " *low battery* " : "") + (tamper ? " *tamper* " : "") + (open ? "*open*" : "*closed*");
       log.debug (name + ": " + VisonicPacket.bits(packet.getByte4()) + "-" + VisonicPacket.bits(packet.getByte5()) + debug);
+      if (event && open) {
+        getEnvironment().getGrowlService().sendDoorOpen(this);
+      }
     }
   }
   
+  public String getName() {
+    return name;
+  }
 }

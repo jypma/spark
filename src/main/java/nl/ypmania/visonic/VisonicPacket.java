@@ -49,6 +49,22 @@ public class VisonicPacket {
     return hashCode;
   }
   
+  public boolean isEvent() {
+    return (byte4 & 0x01) != 0;
+  }
+  
+  public boolean isClear() {
+    return (byte4 & 0x04) != 0;
+  }
+  
+  public boolean isLowBattery() {
+    return (byte4 & 0x02) != 0;
+  }
+  
+  public boolean isTamper() {
+    return (byte4 & 0x08) != 0;
+  }
+  
   public int getByte4() {
     return byte4;
   }
