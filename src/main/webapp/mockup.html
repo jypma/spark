@@ -1,0 +1,114 @@
+<html>
+<head>
+	<meta name="viewport" content="width=640; initial-scale=0.5; maximum-scale=1.0;" />
+	 
+	<style type="text/css">
+	body {
+		margin: 0px;
+		font-family: Verdana;
+	}
+	.house {
+    background-color: #262626;
+	}
+	.rooms {
+	  width: 638px;
+	  height: 154px;
+	}
+	.room {
+    border: 1px solid #262626;
+    background-color: #F2F2F2;
+    height: 152px;
+	}
+	.room .name {
+	  font-weight: bold;
+	  text-align: center;
+	  padding-bottom: 5px;
+	  color: #0F2913;
+	}
+	.switch {
+	  background-position: 8px 0px;
+	  background-repeat: no-repeat;
+	  height: 40px;
+	  padding-left: 45px;
+	  line-height: 28px;
+	  font-size: 24px;
+	}
+	.switch.on {
+    background-image: url("OnLamp64.png");
+    text-shadow: 0 0 7px #FFF8D9;
+    color: rgba (0,0,0,0.9);
+	}
+  .switch.off {
+    background-image: url("OffLamp64.png");
+  }
+	.room.left {
+	  width: 317px;
+	  float: left;
+	}
+  .room.left .color {
+    width: 317px;
+    height: 152px;
+  }
+  .room.full .color {
+    width: 638px;
+    height: 152px;
+  }
+	</style>
+</head>
+<body>
+  <div class="house">
+    <div class="rooms">
+      <div class="room full">
+        <div class="name">Carport</div>
+        <div class="switch off">Spots</div>
+      </div>
+    </div>
+    <div class="rooms">
+      <div class="room left">
+        <div class="name">Guest room</div>
+      </div>
+      <div class="room left">
+        <div class="name">Bryggers</div>
+        <div class="switch off">Spots</div>
+      </div>
+    </div>
+    <div class="rooms">
+      <div class="room left">
+        <div class="name">Office</div>
+      </div>
+      <div class="room left">
+        <div class="name">Entree</div>
+      </div>
+    </div>
+    <div class="rooms">
+      <div class="room left">
+        <div class="name">Studio</div>
+      </div>
+      <div class="room left">
+        <div class="color" style="background-color: rgba(250,75,110,0.5);">
+          <div class="color" style="background-color: rgba(100,105,245,0.5);">
+            <div class="name">Kitchen</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="rooms">
+      <div class="room left">
+        <div class="color" style="background-color: rgba(250,75,110,0.5);">
+          <div class="color" style="background-color: rgba(100,105,245,0.5);">
+            <div class="name">Living room</div>
+            <div class="switch on">Spots</div>
+            <div class="switch on">Reading lamp</div>
+            <div class="switch off">Table lamp</div>
+          </div>
+        </div>
+      </div>
+	    <div class="room left">
+	      <div class="name">Bedroom</div>
+	      <div class="switch on">LED strip</div>
+        <div class="switch off">Wardrobe</div>
+	    </div>
+    </div>
+  </div>
+</body>
+</html>
