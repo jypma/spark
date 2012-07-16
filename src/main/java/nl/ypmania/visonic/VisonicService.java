@@ -23,6 +23,7 @@ public class VisonicService {
   private @Autowired Environment environment;
   
   public void handle(VisonicPacket packet) {
+    environment.setRf868UsageEnd(1000);
     if (packet != null) {
       if (recentPackets.getIfPresent(packet) != null) {
         log.debug("Received duplicate.");

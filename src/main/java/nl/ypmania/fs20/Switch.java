@@ -1,38 +1,34 @@
 package nl.ypmania.fs20;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import nl.ypmania.env.Receiver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Switch extends Receiver {
+public class Switch extends Actuator {
   private static final Logger log = LoggerFactory.getLogger(Switch.class);
   
-  private Set<FS20Address> addresses = new HashSet<FS20Address>();
-  private String name;
   private boolean on = false;
   
   protected Switch() {}
   
-  public Switch (String name, FS20Address... addresses) {
-    this.name = name;
-    this.addresses.addAll(Arrays.asList(addresses));
+  public Switch (String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
+    super (name, primaryAddress, otherAddresses);
+  }
+  
+  @Override
+  protected Command getOnCommand() {
+    return Command.ON_PREVIOUS;
   }
 
   @Override
   public void receive(FS20Packet packet) {
-    if (!addresses.contains(packet.getAddress())) return;
-    log.debug(name + " receiving " + packet);
+    if (!getAddresses().contains(packet.getAddress())) return;
+    log.debug(getName() + " receiving " + packet);
     switch (packet.getCommand()) {
     case DIM_1:
     case DIM_2:
@@ -72,9 +68,5 @@ public class Switch extends Receiver {
   
   public boolean isOn() {
     return on;
-  }
-  
-  public String getName() {
-    return name;
   }
 }

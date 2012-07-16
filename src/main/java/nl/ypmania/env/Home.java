@@ -36,6 +36,7 @@ public class Home extends Environment {
   private static final FS20Address CARPORT_SPOTS = new FS20Address(HOUSE, 3111);
   
   private static final Dimmer carportSpots = new Dimmer("Carport spots", CARPORT_SPOTS);
+  private static final Switch bryggersSpots = new Switch("Bryggers ceiling", new FS20Address(HOUSE, 1211), MASTER, ALL_LIGHTS, BRYGGERS);
   
   private @Autowired FS20Service fs20Service;
   private @Autowired SFX sfx;
@@ -43,15 +44,15 @@ public class Home extends Environment {
   public Home() {
     setReceivers(
       new Dimmer("Living room ceiling", new FS20Address(HOUSE, 1111), MASTER, ALL_LIGHTS, LIVING_ROOM),  
-      new Switch("Table lamp", MASTER, ALL_LIGHTS, LIVING_ROOM, new FS20Address(HOUSE, 1112)),  
-      new Switch("Reading lamp", MASTER, ALL_LIGHTS, LIVING_ROOM, new FS20Address(HOUSE, 1113)),  
-      new Switch("Corner lamp", MASTER, ALL_LIGHTS, LIVING_ROOM, new FS20Address(HOUSE, 1114)),
+      new Switch("Table lamp", new FS20Address(HOUSE, 1112), MASTER, ALL_LIGHTS, LIVING_ROOM),  
+      new Switch("Reading lamp", new FS20Address(HOUSE, 1113), MASTER, ALL_LIGHTS, LIVING_ROOM),  
+      new Switch("Corner lamp", new FS20Address(HOUSE, 1114), MASTER, ALL_LIGHTS, LIVING_ROOM),
       
-      new Switch("Bryggers ceiling", MASTER, ALL_LIGHTS, BRYGGERS, new FS20Address(HOUSE, 1211)),
+      bryggersSpots,
       new Dimmer("Guest bathroom", new FS20Address(HOUSE, 1212), MASTER, ALL_LIGHTS, BRYGGERS),
       
-      new Dimmer("Bedroom cupboards", MASTER, ALL_LIGHTS, BEDROOM, new FS20Address(HOUSE, 1311)),
-      new Switch("Bedroom LED strip", MASTER, ALL_LIGHTS, BEDROOM, new FS20Address(HOUSE, 1312)),
+      new Dimmer("Bedroom cupboards", new FS20Address(HOUSE, 1311), MASTER, ALL_LIGHTS, BEDROOM),
+      new Switch("Bedroom LED strip", new FS20Address(HOUSE, 1312), MASTER, ALL_LIGHTS, BEDROOM),
       
       carportSpots,
       
@@ -75,7 +76,7 @@ public class Home extends Environment {
           log.info("Motion on left driveway sensor");
           getEnvironment().getGrowlService().sendMotion("Driveway, left side");
           sfx.play("tngchime.wav");
-          if (isNight()) {
+          if (isDark()) {
             carportSpots.timedOn(60);            
           }
         }
@@ -85,7 +86,7 @@ public class Home extends Environment {
           log.info("Motion on right driveway sensor");
           getEnvironment().getGrowlService().sendMotion("Driveway, right side");
           sfx.play("tngchime.wav");
-          if (isNight()) {
+          if (isDark()) {
             carportSpots.timedOn(60);            
           }
         }
@@ -95,22 +96,22 @@ public class Home extends Environment {
           log.info("Motion on carport sensor");
           getEnvironment().getGrowlService().sendMotion("Carport");
           sfx.play("tngchime.wav");
-          if (isNight()) {
+          if (isDark()) {
             carportSpots.timedOn(60);            
           }
         }
       },
       new VisonicRoute.DoorClosed() {
         protected void handle(VisonicPacket packet) {
-          if (isNight()) {
+          if (isDark()) {
             sfx.play("brdgbtn1.wav");
           }
         }        
       },
-      new VisonicRoute.DoorOpen() {
+      new VisonicRoute.DoorOpen(BRYGGERS_DOOR) {
         protected void handle(VisonicPacket packet) {
-          if (isNight()) {
-            sfx.play("voy-doc-plzstate.wav");
+          if (isDark()) {
+            bryggersSpots.timedOn(300);
           }
         }        
       },

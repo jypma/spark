@@ -1,7 +1,5 @@
 package nl.ypmania.fs20;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import nl.ypmania.env.Environment;
@@ -24,28 +22,21 @@ public class FS20Service {
       .build();
   
   @Autowired private NodeService nodeService;
-  private Timer timer = new Timer();
-  private long lastPacket = 0;
   
   public void queueFS20(final FS20Packet packet) {
-    if (System.currentTimeMillis() < lastPacket + 200) {
-      log.info("Queueing sending of {}", packet);
-      timer.schedule(new TimerTask(){
-        @Override
-        public void run() {
-          log.info("Sending {}", packet);
-          nodeService.sendFS20(packet);          
-        }
-      }, 200);
-    } else {
-      log.info("Sending {}", packet);
-      nodeService.sendFS20(packet);
-    }
+    environment.onRf868Clear(new Runnable() {
+      @Override
+      public void run() {
+        environment.setRf868UsageEnd(200);
+        log.info("Sending {}", packet);
+        nodeService.sendFS20(packet);        
+      }
+    });
   }
 
   public void handle (FS20Packet packet) {
+    environment.setRf868UsageEnd(200);
     if (packet != null) {
-      lastPacket  = System.currentTimeMillis();
       if (recentPackets.getIfPresent(packet) != null) {
         log.debug("Received duplicate.");
       } else {
