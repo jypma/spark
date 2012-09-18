@@ -10,9 +10,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RF12Packet {
-  private List<Byte> contents;
+  private List<Integer> contents;
   
-  public List<Byte> getContents() {
+  public List<Integer> getContents() {
     return contents;
   }
   
