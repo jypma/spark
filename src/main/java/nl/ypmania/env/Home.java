@@ -1,5 +1,7 @@
 package nl.ypmania.env;
 
+import javax.annotation.PostConstruct;
+
 import nl.ypmania.fs20.Command;
 import nl.ypmania.fs20.Dimmer;
 import nl.ypmania.fs20.FS20Address;
@@ -12,6 +14,8 @@ import nl.ypmania.visonic.MotionSensor;
 import nl.ypmania.visonic.VisonicAddress;
 import nl.ypmania.visonic.VisonicPacket;
 import nl.ypmania.visonic.VisonicRoute;
+import nl.ypmania.xbmc.XBMCService;
+import nl.ypmania.xbmc.XBMCService.State;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,20 +37,29 @@ public class Home extends Environment {
   private static final FS20Address BEDROOM = new FS20Address(HOUSE, 1344);
   
   private static final VisonicAddress BRYGGERS_DOOR = new VisonicAddress(0x03, 0x19, 0x15);
+  private static final VisonicAddress MAIN_DOOR = new VisonicAddress(0x02, 0xcf, 0xd5);
   private static final FS20Address CARPORT_SPOTS = new FS20Address(HOUSE, 3111);
   
   private static final Dimmer carportSpots = new Dimmer("Carport spots", CARPORT_SPOTS);
   private static final Switch bryggersSpots = new Switch("Bryggers ceiling", new FS20Address(HOUSE, 1211), MASTER, ALL_LIGHTS, BRYGGERS);
   
+  private static final Dimmer livingRoomCeiling = new Dimmer("Living room ceiling", new FS20Address(HOUSE, 1111), MASTER, ALL_LIGHTS, LIVING_ROOM);
+  private static final Switch livingRoomTableLamp = new Switch("Table lamp", new FS20Address(HOUSE, 1112), MASTER, ALL_LIGHTS, LIVING_ROOM);
+  private static final Switch livingRoomReadingLamp = new Switch("Reading lamp", new FS20Address(HOUSE, 1113), MASTER, ALL_LIGHTS, LIVING_ROOM);
+  private static final Switch livingRoomCornerLamp = new Switch("Corner lamp", new FS20Address(HOUSE, 1114), MASTER, ALL_LIGHTS, LIVING_ROOM);
+  
   private @Autowired FS20Service fs20Service;
   private @Autowired SFX sfx;
+  private @Autowired XBMCService xbmcService;
   
-  public Home() {
+  @PostConstruct
+  public void started() {
+    //sfx.play("st-good.wav");
     setReceivers(
-      new Dimmer("Living room ceiling", new FS20Address(HOUSE, 1111), MASTER, ALL_LIGHTS, LIVING_ROOM),  
-      new Switch("Table lamp", new FS20Address(HOUSE, 1112), MASTER, ALL_LIGHTS, LIVING_ROOM),  
-      new Switch("Reading lamp", new FS20Address(HOUSE, 1113), MASTER, ALL_LIGHTS, LIVING_ROOM),  
-      new Switch("Corner lamp", new FS20Address(HOUSE, 1114), MASTER, ALL_LIGHTS, LIVING_ROOM),
+      livingRoomCeiling,  
+      livingRoomTableLamp,  
+      livingRoomReadingLamp,  
+      livingRoomCornerLamp,
       
       bryggersSpots,
       new Dimmer("Guest bathroom", new FS20Address(HOUSE, 1212), MASTER, ALL_LIGHTS, BRYGGERS),
@@ -56,14 +69,37 @@ public class Home extends Environment {
       
       carportSpots,
       
-      new FS20Route(new FS20Address(BUTTONS, 1212), Command.OFF) {
+      new FS20Route(new FS20Address(BUTTONS, 1111), Command.OFF) {
         protected void handle() {
+          livingRoomCeiling.onFull();
+          livingRoomReadingLamp.onFull();
+          livingRoomTableLamp.off();
+          livingRoomCornerLamp.off();
+          fs20Service.queueFS20(new FS20Packet (BEDROOM, Command.OFF));
+        }
+      },
+      new FS20Route(new FS20Address(BUTTONS, 1111), Command.ON_PREVIOUS) {
+        protected void handle() {
+          livingRoomCeiling.dim(1);
+          livingRoomTableLamp.onFull();
+          livingRoomCornerLamp.onFull();
+          livingRoomReadingLamp.off();
+          fs20Service.queueFS20(new FS20Packet (BEDROOM, Command.OFF));
+        }
+      },
+      new FS20Route(new FS20Address(BUTTONS, 1112), Command.OFF) {
+        protected void handle() {
+          fs20Service.queueFS20(new FS20Packet (BEDROOM, Command.ON_PREVIOUS));
           fs20Service.queueFS20(new FS20Packet (LIVING_ROOM, Command.OFF));
         }
       },
-      new FS20Route(new FS20Address(BUTTONS, 1212), Command.ON_PREVIOUS) {
+      new FS20Route(new FS20Address(BUTTONS, 1112), Command.ON_PREVIOUS) {
         protected void handle() {
-          fs20Service.queueFS20(new FS20Packet (LIVING_ROOM, Command.ON_FULL));
+          livingRoomCeiling.dim(1);
+          livingRoomTableLamp.onFull();
+          livingRoomCornerLamp.onFull();
+          livingRoomReadingLamp.off();
+          fs20Service.queueFS20(new FS20Packet (BEDROOM, Command.OFF));
         }
       },
       new FS20Route(new FS20Address(HOUSE, 3111), Command.TIMED_ON_PREVIOUS, Command.TIMED_ON_FULL) {
@@ -75,9 +111,9 @@ public class Home extends Environment {
         protected void handle() {
           log.info("Motion on left driveway sensor");
           getEnvironment().getGrowlService().sendMotion("Driveway, left side");
-          sfx.play("tngchime.wav");
+          //sfx.play("tngchime.wav");
           if (isDark()) {
-            carportSpots.timedOn(60);            
+            carportSpots.timedOn(180);            
           }
         }
       },
@@ -85,9 +121,9 @@ public class Home extends Environment {
         protected void handle() {
           log.info("Motion on right driveway sensor");
           getEnvironment().getGrowlService().sendMotion("Driveway, right side");
-          sfx.play("tngchime.wav");
+          //sfx.play("tngchime.wav");
           if (isDark()) {
-            carportSpots.timedOn(60);            
+            carportSpots.timedOn(180);            
           }
         }
       },
@@ -97,11 +133,18 @@ public class Home extends Environment {
           getEnvironment().getGrowlService().sendMotion("Carport");
           sfx.play("tngchime.wav");
           if (isDark()) {
-            carportSpots.timedOn(60);            
+            carportSpots.timedOn(300);            
           }
         }
       },
-      new VisonicRoute.DoorClosed() {
+      new VisonicRoute.DoorClosed(BRYGGERS_DOOR) {
+        protected void handle(VisonicPacket packet) {
+          if (isDark()) {
+            sfx.play("brdgbtn1.wav");
+          }
+        }        
+      },
+      new VisonicRoute.DoorClosed(MAIN_DOOR) {
         protected void handle(VisonicPacket packet) {
           if (isDark()) {
             sfx.play("brdgbtn1.wav");
@@ -121,9 +164,36 @@ public class Home extends Environment {
       new MotionSensor("Bedroom", new VisonicAddress(0x04, 0xff, 0x1d)),
       new MotionSensor("Studio", new VisonicAddress(0x01, 0x84, 0x83)),
       new MotionSensor("Living room", new VisonicAddress(0x02, 0xc4, 0x83)),
-      new DoorSensor("Main door", new VisonicAddress(0x02, 0xcf, 0xd5)),
+      new DoorSensor("Main door", MAIN_DOOR),
       new DoorSensor("Bryggers door", BRYGGERS_DOOR)
     );
+    
+    xbmcService.on(State.PLAYING, new Runnable() {
+      public void run() {
+        if (isDark()) {
+          livingRoomCeiling.dim(1);
+          livingRoomTableLamp.onFull();
+          livingRoomCornerLamp.onFull();
+          livingRoomReadingLamp.off();                  
+        }
+      }      
+    });
+    xbmcService.on(State.PAUSED, new Runnable() {
+      public void run() {
+        if (isDark()) {
+          livingRoomCeiling.dim(8);
+        }
+      }      
+    });
+    xbmcService.on(State.STOPPED, new Runnable() {
+      public void run() {
+        if (isDark()) {
+          livingRoomCeiling.dim(8);
+          livingRoomCornerLamp.off();
+          livingRoomTableLamp.off();
+        }
+      }      
+    });
   }
 
 }

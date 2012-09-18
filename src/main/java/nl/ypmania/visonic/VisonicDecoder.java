@@ -19,7 +19,7 @@ public class VisonicDecoder extends Decoder<VisonicPacket> {
   
   @Override
   public void handlePulse(int width) {
-    // 400 and 800ms
+    // 400 and 800us
     if (width > 200 & width <= 600) {
       state = state.handleShort();
     } else if (width > 600 & width < 1000) {

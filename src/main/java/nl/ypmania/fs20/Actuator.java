@@ -21,6 +21,10 @@ public abstract class Actuator extends Receiver {
   
   protected Actuator() {}
   
+  public FS20Address getPrimaryAddress() {
+    return primaryAddress;
+  }
+  
   public Actuator (String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
     this.name = name;
     this.primaryAddress = primaryAddress;
@@ -29,7 +33,7 @@ public abstract class Actuator extends Receiver {
   }
   
   public synchronized void timedOn (long durationSeconds) {
-    getEnvironment().getFs20Service().queueFS20(new FS20Packet (primaryAddress, getOnCommand()));
+    dispatch(new FS20Packet (primaryAddress, getOnCommand()));
     if (offTask != null) {
       offTask.cancel();
       offTask = null;
@@ -37,11 +41,23 @@ public abstract class Actuator extends Receiver {
     offTask = new TimerTask() {
       @Override
       public void run() {
-        getEnvironment().getFs20Service().queueFS20(new FS20Packet (primaryAddress, Command.OFF));
+        dispatch(new FS20Packet (primaryAddress, Command.OFF));
       }
     };
     getEnvironment().getTimer().schedule(offTask, durationSeconds * 1000);
   }
+  
+  protected void dispatch (FS20Packet packet) {
+    getEnvironment().getFs20Service().queueFS20(packet);
+  }  
+  
+  public void onFull() {
+    dispatch(new FS20Packet (primaryAddress, getOnCommand()));    
+  }
+  
+  public void off() {
+    dispatch(new FS20Packet (primaryAddress, Command.OFF));    
+  }  
   
   protected Command getOnCommand() {
     return Command.ON_FULL;

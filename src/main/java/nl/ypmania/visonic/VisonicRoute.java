@@ -40,6 +40,7 @@ public abstract class VisonicRoute extends Receiver {
   protected abstract void handle(VisonicPacket packet);
   
   public static abstract class DoorOpen extends VisonicRoute {
+    //TODO check that it's actually a door
     public DoorOpen() {
       super (null, false, true);
     }
@@ -49,6 +50,7 @@ public abstract class VisonicRoute extends Receiver {
   }
 
   public static abstract class DoorClosed extends VisonicRoute {
+    //TODO check that it's actually a door
     public DoorClosed() {
       super (null, true, true);
     }

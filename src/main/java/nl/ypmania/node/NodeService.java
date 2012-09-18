@@ -13,6 +13,7 @@ import java.util.TooManyListenersException;
 
 import nl.ypmania.fs20.FS20Decoder;
 import nl.ypmania.fs20.FS20Service;
+import nl.ypmania.rf12.RF12Packet;
 import nl.ypmania.visonic.VisonicDecoder;
 import nl.ypmania.visonic.VisonicService;
 
@@ -72,9 +73,24 @@ public class NodeService {
     log.debug("Stopped.");
   }
   
+  public synchronized void sendRF12(RF12Packet packet) {
+    log.info ("Sending RF12: " + packet);
+    //TODO wait for ACK
+    try {
+      out.write(RF12_TYPE);
+      int length = Math.min(200, packet.getContents().size());
+      out.write(length);
+      for (int i = 0; i < length; i++) {
+        out.write(packet.getContents().get(i));
+      }
+    } catch (IOException e) {
+      throw new RuntimeException (e);
+    }    
+  }
+  
   public synchronized void sendFS20 (nl.ypmania.fs20.FS20Packet fs20Packet) {
     try {
-      log.debug ("Sending FS20: {}", fs20Packet);
+      log.info ("Sending FS20: {}", fs20Packet);
       /*
       log.info ("Sending FS20: {}", fs20Packet);
       int[] pulses = new FS20Encoder(fs20Packet.toBytes()).getResult();
@@ -179,4 +195,5 @@ public class NodeService {
       timer.schedule(timeoutTask, 300);
     }
   }
+
 }

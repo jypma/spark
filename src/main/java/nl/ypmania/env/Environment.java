@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.annotation.PreDestroy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
@@ -22,6 +24,8 @@ import nl.ypmania.fs20.FS20Service;
 import nl.ypmania.visonic.VisonicPacket;
 
 public class Environment {
+  private static final Logger log = LoggerFactory.getLogger(Environment.class);
+  
   private List<Receiver> receivers = new ArrayList<Receiver>();
   
   private @Autowired GrowlService growlService;
@@ -88,6 +92,7 @@ public class Environment {
     if (rf868UsageEnd < now) {
       action.run();
     } else {
+      log.info ("Queueing action, since RF868 in use until {} (in {} msecs)", new Date(rf868UsageEnd), rf868UsageEnd - now);
       rf868Actions.add(action);
       if (runRf868 == null) {
         scheduleRf868();
@@ -95,14 +100,16 @@ public class Environment {
     }
   }
 
-  private void scheduleRf868() {
+  private synchronized void scheduleRf868() {
     runRf868 = new TimerTask() {
       @Override
       public void run() {
-        if (rf868Actions.isEmpty()) return;
         synchronized (Environment.this) {
+          runRf868 = null;
+          if (rf868Actions.isEmpty()) return;
           long now = System.currentTimeMillis();
           if (rf868UsageEnd > now) {
+            log.debug ("Still waiting in timer, since RF868 in use until {} (in {} msecs)", new Date(rf868UsageEnd), rf868UsageEnd - now);
             scheduleRf868();
             return;
           }
