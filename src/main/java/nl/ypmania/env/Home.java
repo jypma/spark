@@ -194,6 +194,24 @@ public class Home extends Environment {
         }
       }      
     });
+    register(new TimedTask(new FixedTime(7, 00), SUNRISE.plusHours(1), new Runnable() {
+      public void run() {
+        bryggersSpots.onFull();
+      }
+    }, new Runnable() {
+      public void run() {
+        bryggersSpots.off();
+      }
+    }));
+    register(new TimedTask(SUNSET.plusHours(-1), new FixedTime(23,00), new Runnable() {
+      public void run() {
+        bryggersSpots.onFull();
+      }
+    }, new Runnable() {
+      public void run() {
+        bryggersSpots.off();
+      }
+    }));
   }
 
 }

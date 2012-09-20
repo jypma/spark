@@ -1,0 +1,30 @@
+<html ng-app>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js"></script>
+<script src="lamp.js"></script>
+</head>
+<body ng-controller="LampCntl">
+	<table>
+		<tr>
+			<td>Red</td>
+      <td><input type="integer" min="0" max="255" ng-model="r" required></td>
+    </tr>
+    <tr>
+			<td>Green</td>
+      <td><input type="integer" min="0" max="255" ng-model="g" required></td>
+    </tr>
+    <tr>
+      <td>Blue</td>
+      <td><input type="integer" min="0" max="255" ng-model="b" required></td>
+    </tr>
+    <tr>      
+      <td>Brightness</td>
+      <td><input type="integer" min="0" max="255" ng-model="q" required></td>
+    </tr>
+		<tr>
+      <td><button ng-click="send(r,g,b,q)">Send</button></td>
+      <td></td>
+		</tr>
+	</table>
+</body>
+</html>

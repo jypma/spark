@@ -1,0 +1,19 @@
+<html ng-app>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js"></script>
+<script src="lamppick.js"></script>
+</head>
+<body ng-controller="LampCntl" style="padding: 0px; margin: 0px">
+	<canvas id="canvas" width="234" height="199" ng-mousedown="pick($event.pageX, $event.pageY)"></canvas>
+	<script>
+	var img = new Image();
+	img.src = 'colormap.gif';
+	var context = document.getElementById('canvas').getContext('2d');
+	img.onload = function(){
+      context.drawImage(img,0,0,234,199);
+	}
+
+	//window.imgdata = context.getImageData(x, y, 1, 1).data;	
+	</script>
+</body>
+</html>
