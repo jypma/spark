@@ -36,12 +36,12 @@ public class FS20Service {
   }
 
   public void handle (FS20Packet packet) {
-    // We've just received a packet, so there'll be at most 2 repeats of 75msec each
-    environment.setRf868UsageEnd(150);
     if (packet != null) {
       if (recentPackets.getIfPresent(packet) != null) {
         log.debug("Received duplicate.");
       } else {
+        // We've just received a packet, so there'll be at most 2 repeats of 75msec each
+        environment.setRf868UsageEnd(150);
         log.info("Received {}", packet);
         environment.receive(packet);        
       }
