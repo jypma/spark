@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -46,13 +47,13 @@ public class Environment {
   
   @PostConstruct
   public void startTimer() {
-    Calendar midnight = Calendar.getInstance();
-    midnight.set(Calendar.HOUR_OF_DAY, 0);
-    midnight.set(Calendar.MINUTE, 0);
-    midnight.set(Calendar.SECOND, 0);
-    midnight.set(Calendar.MILLISECOND, 0);
-    midnight.add(Calendar.DAY_OF_MONTH, 1);
-    timer.scheduleAtFixedRate(new TimerTask() { public void run() { scheduleTimedTasks(); }}, midnight.getTime(), 1000l * 60 * 60 * 24);
+    Calendar morning = Calendar.getInstance();
+    morning.set(Calendar.HOUR_OF_DAY, 3);
+    morning.set(Calendar.MINUTE, 0);
+    morning.set(Calendar.SECOND, 0);
+    morning.set(Calendar.MILLISECOND, 0);
+    morning.add(Calendar.DAY_OF_MONTH, 1);
+    timer.scheduleAtFixedRate(new TimerTask() { public void run() { scheduleTimedTasks(); }}, morning.getTime(), 1000l * 60 * 60 * 24);
   }
   
   protected synchronized void scheduleTimedTasks() {
@@ -191,6 +192,7 @@ public class Environment {
     public Calendar getTime(Calendar day) {
       day.set(Calendar.HOUR_OF_DAY, hour);
       day.set(Calendar.MINUTE, minute);
+      day.setTimeZone(TimeZone.getTimeZone("Europe/Amsterdam"));
       return day;
     }
   }
@@ -207,36 +209,33 @@ public class Environment {
     };
   };
   
-  public class TimedTask {
+  public abstract class TimedTask {
     TimeOfDay start;
     TimeOfDay stop;
-    Runnable startAction;
-    Runnable stopAction;
-    public TimedTask(TimeOfDay start, TimeOfDay stop, Runnable startAction,
-        Runnable stopAction) {
+    public TimedTask(TimeOfDay start, TimeOfDay stop) {
       this.start = start;
       this.stop = stop;
-      this.startAction = startAction;
-      this.stopAction = stopAction;
     }
     public void setupToday() {
-      Calendar now = Calendar.getInstance();
-      Calendar startToday = start.getTime((Calendar) now.clone());
-      Calendar stopToday = stop.getTime((Calendar) now.clone());
+      final Calendar now = Calendar.getInstance();
+      final Calendar startToday = start.getTime((Calendar) now.clone());
+      final Calendar stopToday = stop.getTime((Calendar) now.clone());
       log.info("Task for today starts {} and ends {}", startToday.getTime(), stopToday.getTime());
       if (startToday == null || stopToday == null) return;
       if (startToday.after(stopToday)) return;
       boolean currentlyOn = startToday.before(now) && now.before(stopToday);
       if (currentlyOn) {
         log.debug("Currently on.");
-        timer.schedule(new TimerTask() { public void run() { startAction.run(); }}, 5000);
+        timer.schedule(new TimerTask() { public void run() { start(stopToday.getTimeInMillis() - now.getTimeInMillis()); }}, 5000);
       }
       if (now.before(startToday)) {
-        timer.schedule(new TimerTask() { public void run() { startAction.run(); }}, startToday.getTime());
+        timer.schedule(new TimerTask() { public void run() { start(stopToday.getTimeInMillis() - startToday.getTimeInMillis()); }}, startToday.getTime());
       }
       if (now.before(stopToday)) {
-        timer.schedule(new TimerTask() { public void run() { stopAction.run(); }}, stopToday.getTime());
+        timer.schedule(new TimerTask() { public void run() { stop(); }}, stopToday.getTime());
       }
     }
+    protected abstract void start(long duration);
+    protected void stop() {}
   }
 }

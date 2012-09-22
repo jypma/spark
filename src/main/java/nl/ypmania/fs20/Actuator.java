@@ -18,6 +18,7 @@ public abstract class Actuator extends Receiver {
   private Set<FS20Address> addresses = new HashSet<FS20Address>();
   private String name;
   private TimerTask offTask = null;
+  private long offTaskTime;
   
   protected Actuator() {}
   
@@ -32,8 +33,13 @@ public abstract class Actuator extends Receiver {
     this.addresses.addAll(Arrays.asList(otherAddresses));
   }
   
-  public synchronized void timedOn (long durationSeconds) {
+  public void timedOn (long durationSeconds) {
+    timedOnMillis (durationSeconds * 1000);
+  }
+  
+  public synchronized void timedOnMillis (long durationMillis) {
     dispatch(new FS20Packet (primaryAddress, getOnCommand()));
+    if (offTaskTime > System.currentTimeMillis() + durationMillis) return;
     if (offTask != null) {
       offTask.cancel();
       offTask = null;
@@ -42,17 +48,30 @@ public abstract class Actuator extends Receiver {
       @Override
       public void run() {
         dispatch(new FS20Packet (primaryAddress, Command.OFF));
+        synchronized(this) {
+          offTaskTime = 0;          
+        }
       }
     };
-    getEnvironment().getTimer().schedule(offTask, durationSeconds * 1000);
+    offTaskTime = System.currentTimeMillis() + durationMillis;
+    getEnvironment().getTimer().schedule(offTask, durationMillis);
   }
   
-  protected void dispatch (FS20Packet packet) {
+  protected void dispatch (final FS20Packet packet) {
     getEnvironment().getFs20Service().queueFS20(packet);
+    getEnvironment().getTimer().schedule(new TimerTask(){
+      public void run() {
+        getEnvironment().getFs20Service().queueFS20(packet);
+        getEnvironment().getFs20Service().queueFS20(packet);
+      }}, 500);
   }  
   
-  public void onFull() {
-    dispatch(new FS20Packet (primaryAddress, getOnCommand()));    
+  public synchronized void onFull() {
+    dispatch(new FS20Packet (primaryAddress, getOnCommand()));
+    if (offTask != null) {
+      offTask.cancel();
+      offTask = null;
+    }
   }
   
   public void off() {

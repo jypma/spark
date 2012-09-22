@@ -95,11 +95,8 @@ public class Home extends Environment {
       },
       new FS20Route(new FS20Address(BUTTONS, 1112), Command.ON_PREVIOUS) {
         protected void handle() {
-          livingRoomCeiling.dim(1);
-          livingRoomTableLamp.onFull();
-          livingRoomCornerLamp.onFull();
-          livingRoomReadingLamp.off();
           fs20Service.queueFS20(new FS20Packet (BEDROOM, Command.OFF));
+          fs20Service.queueFS20(new FS20Packet (LIVING_ROOM, Command.OFF));
         }
       },
       new FS20Route(new FS20Address(HOUSE, 3111), Command.TIMED_ON_PREVIOUS, Command.TIMED_ON_FULL) {
@@ -194,24 +191,18 @@ public class Home extends Environment {
         }
       }      
     });
-    register(new TimedTask(new FixedTime(7, 00), SUNRISE.plusHours(1), new Runnable() {
-      public void run() {
-        bryggersSpots.onFull();
+    register(new TimedTask(new FixedTime(7, 00), SUNRISE.plusHours(1)) {
+      @Override
+      protected void start(long duration) {
+        bryggersSpots.timedOnMillis(duration);
       }
-    }, new Runnable() {
-      public void run() {
-        bryggersSpots.off();
+    });
+    register(new TimedTask(SUNSET.plusHours(-1), new FixedTime(23,00)) {
+      @Override
+      protected void start(long duration) {
+        bryggersSpots.timedOnMillis(duration);
       }
-    }));
-    register(new TimedTask(SUNSET.plusHours(-1), new FixedTime(23,00), new Runnable() {
-      public void run() {
-        bryggersSpots.onFull();
-      }
-    }, new Runnable() {
-      public void run() {
-        bryggersSpots.off();
-      }
-    }));
+    });
   }
 
 }
