@@ -1,5 +1,6 @@
 package nl.ypmania.rgb;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
@@ -22,6 +23,11 @@ public class RGBLamp {
 
   private LampColor color = new LampColor (180, 180, 180, 100);
   private LampColor nextColor = color;
+  
+  @GET
+  public LampColor getColor() {
+    return color;
+  }
   
   @POST
   public synchronized void setColor (LampColor newColor) {

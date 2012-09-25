@@ -41,9 +41,11 @@
        document.addEventListener("touchend", touchHandler, true);
        document.addEventListener("touchcancel", touchHandler, true);    
    }   
+   
+   setTimeout( function(){ window.scrollTo(0, 0) }, 0);
 </script>
 
-<body ng-controller="LampCntl" style="padding: 0px; margin: 0px" ontouchmove="blockMove()">
+<body ng-controller="LampCntl" style="padding: 0px; margin: 0px; min-height: 480px" ontouchmove="blockMove()">
 	<canvas id="canvas" width="320" height="360" 
 	  ng-mousedown="down($event.pageX, $event.pageY)" ng-mousemove="move($event.pageX, $event.pageY)" ng-mouseup="up()"
 	  ng-touchmove="move($event.pageX, $event.pageY)" ng-touchend="up()"
@@ -53,6 +55,8 @@
 	var img = new Image();
 	img.src = 'hsv_wheel.jpg';
 	var context = document.getElementById('canvas').getContext('2d');
+  context.fillStyle="black";
+  context.fillRect(0,38,320,39);
 	img.onload = function(){
       context.drawImage(img,0,40,320,320);
 	}

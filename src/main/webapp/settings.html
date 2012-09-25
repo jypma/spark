@@ -1,0 +1,18 @@
+<html ng-app>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js"></script>
+<script src="settings.js"></script>
+</head>
+<body ng-controller="SettingsCntl">
+  <table>
+    <tr>
+      <td><input type="checkbox" ng-model="settings.muteMotion" ng-change="save()"></td>
+      <td>No sounds on motion</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" ng-model="settings.muteDoors" ng-change="save()"></td>
+      <td>No sounds on doors</td>
+    </tr>
+  </table>
+</body>
+</html>

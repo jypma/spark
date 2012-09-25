@@ -1,6 +1,9 @@
 package nl.ypmania.env;
 
 import javax.annotation.PostConstruct;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
 
 import nl.ypmania.fs20.Command;
 import nl.ypmania.fs20.Dimmer;
@@ -22,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+@Path("/home")
 @Component
 public class Home extends Environment {
   private static final Logger log = LoggerFactory.getLogger(Home.class);
@@ -51,6 +55,8 @@ public class Home extends Environment {
   private @Autowired FS20Service fs20Service;
   private @Autowired SFX sfx;
   private @Autowired XBMCService xbmcService;
+  
+  private Settings settings = new Settings();
   
   @PostConstruct
   public void started() {
@@ -99,11 +105,12 @@ public class Home extends Environment {
           fs20Service.queueFS20(new FS20Packet (LIVING_ROOM, Command.OFF));
         }
       },
+      /* old?
       new FS20Route(new FS20Address(HOUSE, 3111), Command.TIMED_ON_PREVIOUS, Command.TIMED_ON_FULL) {
         protected void handle() {
           sfx.play("tngchime.wav");
         }
-      },
+      }, */
       new FS20Route(new FS20Address(SENSORS, 3111), Command.TIMED_ON_PREVIOUS, Command.TIMED_ON_FULL) {
         protected void handle() {
           log.info("Motion on left driveway sensor");
@@ -128,7 +135,9 @@ public class Home extends Environment {
         protected void handle() {
           log.info("Motion on carport sensor");
           getEnvironment().getGrowlService().sendMotion("Carport");
-          sfx.play("tngchime.wav");
+          if (!settings.isMuteMotion()) {
+            sfx.play("tngchime.wav");
+          }
           if (isDark()) {
             carportSpots.timedOn(300);            
           }
@@ -136,14 +145,14 @@ public class Home extends Environment {
       },
       new VisonicRoute.DoorClosed(BRYGGERS_DOOR) {
         protected void handle(VisonicPacket packet) {
-          if (isDark()) {
+          if (isDark() && !settings.isMuteDoors()) {
             sfx.play("brdgbtn1.wav");
           }
         }        
       },
       new VisonicRoute.DoorClosed(MAIN_DOOR) {
         protected void handle(VisonicPacket packet) {
-          if (isDark()) {
+          if (isDark() && !settings.isMuteDoors()) {
             sfx.play("brdgbtn1.wav");
           }
         }        
@@ -205,4 +214,15 @@ public class Home extends Environment {
     });
   }
 
+  @Path("settings")
+  @GET
+  public synchronized Settings getSettings() {
+    return settings;
+  }
+  
+  @Path("settings")
+  @PUT
+  public synchronized void setSettings(Settings settings) {
+    this.settings = settings;
+  }
 }
