@@ -5,14 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TimerTask;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import nl.ypmania.env.Receiver;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Actuator extends Receiver {
   private FS20Address primaryAddress;
   private Set<FS20Address> addresses = new HashSet<FS20Address>();

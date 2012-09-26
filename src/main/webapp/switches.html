@@ -1,0 +1,15 @@
+<html ng-app>
+<head>
+<meta name="viewport" content="width=320, initial-scale=1"/>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js"></script>
+<script src="switches.js"></script>
+</head>
+
+<body ng-controller="SwitchesCntl">
+  <h2>FS20 Switches</h2>
+  <div ng-repeat="s in switches">
+    <input type="checkbox" ng-model="s.on" ng-change="toggle(s.name, s.on)">
+    {{s.name}}
+  </div>
+</body>
+</html>

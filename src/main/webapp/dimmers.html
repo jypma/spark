@@ -1,0 +1,17 @@
+<html ng-app>
+<head>
+<meta name="viewport" content="width=320, initial-scale=1"/>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js"></script>
+<script src="dimmers.js"></script>
+</head>
+
+<body ng-controller="DimmersCntl">
+  <h2>FS20 Dimmers</h2>
+  <div ng-repeat="d in dimmers" style="margin-bottom: 2px; border-bottom: 1px solid #cccccc; width: 100%;">
+    <div>{{d.name}}</div>
+    <span ng-repeat="b in brightnesses">
+      <input type="radio" ng-model="d.brightness" value="{{b}}" ng-change="toggle(d.name, d.brightness)" style="width: 10px;">
+    </span>
+  </div>
+</body>
+</html>

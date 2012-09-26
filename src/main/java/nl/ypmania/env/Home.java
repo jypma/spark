@@ -39,6 +39,7 @@ public class Home extends Environment {
   private static final FS20Address LIVING_ROOM = new FS20Address(HOUSE, 1144);
   private static final FS20Address BRYGGERS = new FS20Address(HOUSE, 1244);
   private static final FS20Address BEDROOM = new FS20Address(HOUSE, 1344);
+  private static final FS20Address DININGROOM = new FS20Address(HOUSE, 1444);
   
   private static final VisonicAddress BRYGGERS_DOOR = new VisonicAddress(0x03, 0x19, 0x15);
   private static final VisonicAddress MAIN_DOOR = new VisonicAddress(0x02, 0xcf, 0xd5);
@@ -72,6 +73,8 @@ public class Home extends Environment {
       
       new Dimmer("Bedroom cupboards", new FS20Address(HOUSE, 1311), MASTER, ALL_LIGHTS, BEDROOM),
       new Switch("Bedroom LED strip", new FS20Address(HOUSE, 1312), MASTER, ALL_LIGHTS, BEDROOM),
+      
+      new Switch("RGB Lamp", new FS20Address(HOUSE, 1411), DININGROOM),
       
       carportSpots,
       
@@ -206,7 +209,7 @@ public class Home extends Environment {
         bryggersSpots.timedOnMillis(duration);
       }
     });
-    register(new TimedTask(SUNSET.plusHours(-1), new FixedTime(23,00)) {
+    register(new TimedTask(SUNSET.plusHours(-2), new FixedTime(23,00)) {
       @Override
       protected void start(long duration) {
         bryggersSpots.timedOnMillis(duration);
