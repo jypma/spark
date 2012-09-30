@@ -58,17 +58,22 @@ public abstract class Actuator extends Receiver {
         getEnvironment().getFs20Service().queueFS20(packet);
         getEnvironment().getFs20Service().queueFS20(packet);
       }}, 500);
-  }  
+  }
   
-  public synchronized void onFull() {
-    dispatch(new FS20Packet (primaryAddress, getOnCommand()));
+  protected synchronized void cancelOff() {
     if (offTask != null) {
       offTask.cancel();
       offTask = null;
-    }
+    }    
+  }
+  
+  public void onFull() {
+    cancelOff();
+    dispatch(new FS20Packet (primaryAddress, getOnCommand()));
   }
   
   public void off() {
+    cancelOff();
     dispatch(new FS20Packet (primaryAddress, Command.OFF));    
   }  
   

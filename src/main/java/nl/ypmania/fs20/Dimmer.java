@@ -103,6 +103,7 @@ public class Dimmer extends Actuator {
   }
 
   public void dim(int i) {
+    cancelOff();
     if (i < 0) i = 0;
     if (i > 16) i = 16;
     dispatch(new FS20Packet (getPrimaryAddress(), Command.byProtocolValue(i)));

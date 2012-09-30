@@ -43,6 +43,8 @@ public class Home extends Environment {
   
   private static final VisonicAddress BRYGGERS_DOOR = new VisonicAddress(0x03, 0x19, 0x15);
   private static final VisonicAddress MAIN_DOOR = new VisonicAddress(0x02, 0xcf, 0xd5);
+  private static final VisonicAddress LIVING_ROOM_SENSOR = new VisonicAddress(0x02, 0xc4, 0x83);
+  private static final VisonicAddress BEDROOM_SENSOR = new VisonicAddress(0x04, 0xff, 0x1d);
   private static final FS20Address CARPORT_SPOTS = new FS20Address(HOUSE, 3111);
   
   private static final Dimmer carportSpots = new Dimmer("Carport spots", CARPORT_SPOTS);
@@ -52,6 +54,8 @@ public class Home extends Environment {
   private static final Switch livingRoomTableLamp = new Switch("Table lamp", new FS20Address(HOUSE, 1112), MASTER, ALL_LIGHTS, LIVING_ROOM);
   private static final Switch livingRoomReadingLamp = new Switch("Reading lamp", new FS20Address(HOUSE, 1113), MASTER, ALL_LIGHTS, LIVING_ROOM);
   private static final Switch livingRoomCornerLamp = new Switch("Corner lamp", new FS20Address(HOUSE, 1114), MASTER, ALL_LIGHTS, LIVING_ROOM);
+  
+  private static final Switch rgbLamp = new Switch("RGB Lamp", new FS20Address(HOUSE, 1411), DININGROOM);
   
   private @Autowired FS20Service fs20Service;
   private @Autowired SFX sfx;
@@ -74,7 +78,7 @@ public class Home extends Environment {
       new Dimmer("Bedroom cupboards", new FS20Address(HOUSE, 1311), MASTER, ALL_LIGHTS, BEDROOM),
       new Switch("Bedroom LED strip", new FS20Address(HOUSE, 1312), MASTER, ALL_LIGHTS, BEDROOM),
       
-      new Switch("RGB Lamp", new FS20Address(HOUSE, 1411), DININGROOM),
+      rgbLamp,
       
       carportSpots,
       
@@ -100,20 +104,16 @@ public class Home extends Environment {
         protected void handle() {
           fs20Service.queueFS20(new FS20Packet (BEDROOM, Command.ON_PREVIOUS));
           fs20Service.queueFS20(new FS20Packet (LIVING_ROOM, Command.OFF));
+          rgbLamp.off();
         }
       },
       new FS20Route(new FS20Address(BUTTONS, 1112), Command.ON_PREVIOUS) {
         protected void handle() {
           fs20Service.queueFS20(new FS20Packet (BEDROOM, Command.OFF));
           fs20Service.queueFS20(new FS20Packet (LIVING_ROOM, Command.OFF));
+          rgbLamp.off();
         }
       },
-      /* old?
-      new FS20Route(new FS20Address(HOUSE, 3111), Command.TIMED_ON_PREVIOUS, Command.TIMED_ON_FULL) {
-        protected void handle() {
-          sfx.play("tngchime.wav");
-        }
-      }, */
       new FS20Route(new FS20Address(SENSORS, 3111), Command.TIMED_ON_PREVIOUS, Command.TIMED_ON_FULL) {
         protected void handle() {
           log.info("Motion on left driveway sensor");
@@ -167,12 +167,20 @@ public class Home extends Environment {
           }
         }        
       },
+      new VisonicRoute.Motion(LIVING_ROOM_SENSOR) {
+        protected void handle(VisonicPacket packet) {
+          if (isDark() && livingRoomCeiling.getBrightness() == 0) {
+            livingRoomCeiling.dim(8);
+            livingRoomCeiling.timedOn(600);
+          }
+        }        
+      },
       new MotionSensor("Guestroom", new VisonicAddress(0x03, 0x04, 0x83)),
       new MotionSensor("Kitchen", new VisonicAddress(0x04, 0x05, 0x03)),
       new MotionSensor("Office", new VisonicAddress(0x01, 0xc4, 0x83)),
-      new MotionSensor("Bedroom", new VisonicAddress(0x04, 0xff, 0x1d)),
+      new MotionSensor("Bedroom", BEDROOM_SENSOR),
       new MotionSensor("Studio", new VisonicAddress(0x01, 0x84, 0x83)),
-      new MotionSensor("Living room", new VisonicAddress(0x02, 0xc4, 0x83)),
+      new MotionSensor("Living room", LIVING_ROOM_SENSOR),
       new DoorSensor("Main door", MAIN_DOOR),
       new DoorSensor("Bryggers door", BRYGGERS_DOOR)
     );
@@ -213,6 +221,18 @@ public class Home extends Environment {
       @Override
       protected void start(long duration) {
         bryggersSpots.timedOnMillis(duration);
+      }
+    });
+    register(new TimedTask(new FixedTime(7, 00), SUNRISE.plusHours(1)) {
+      @Override
+      protected void start(long duration) {
+        rgbLamp.timedOnMillis(duration);
+      }
+    });
+    register(new TimedTask(SUNSET.plusHours(-1), new FixedTime(22,00)) {
+      @Override
+      protected void start(long duration) {
+        rgbLamp.timedOnMillis(duration);
       }
     });
   }

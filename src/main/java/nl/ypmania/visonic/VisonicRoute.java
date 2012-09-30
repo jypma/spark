@@ -40,22 +40,32 @@ public abstract class VisonicRoute extends Receiver {
   protected abstract void handle(VisonicPacket packet);
   
   public static abstract class DoorOpen extends VisonicRoute {
-    //TODO check that it's actually a door
-    public DoorOpen() {
+    /*public DoorOpen() {
+      //TODO check that it's actually a door
       super (null, false, true);
-    }
+    }*/
     public DoorOpen(VisonicAddress address) {
       super (address, false, true);
     }
   }
 
   public static abstract class DoorClosed extends VisonicRoute {
-    //TODO check that it's actually a door
-    public DoorClosed() {
+    /*public DoorClosed() {
+      //TODO check that it's actually a door
       super (null, true, true);
-    }
+    }*/
     public DoorClosed(VisonicAddress address) {
       super (address, true, true);
     }
   }
+
+  public static abstract class Motion extends VisonicRoute {
+    public Motion() {
+      super (null, null, true);
+    }
+    public Motion(VisonicAddress address) {
+      super (address, null, true);
+    }
+  }
+  
 }

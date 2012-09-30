@@ -1,0 +1,26 @@
+<html ng-app>
+<head>
+<meta name="viewport" content="width=320, initial-scale=1"/>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js"></script>
+<script src="motion.js"></script>
+</head>
+
+<body ng-controller="MotionCntl">
+  <h2>Motion sensors</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Sensor</th>
+        <th>Last motion</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="s in motionsensors">
+        <td>{{s.name}}</td>
+        <td>{{s.lastEvent}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <a href="index.html">Menu</a>
+</body>
+</html>

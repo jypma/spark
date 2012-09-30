@@ -2,6 +2,7 @@ package nl.ypmania.visonic;
 
 import nl.ypmania.env.Receiver;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,7 @@ public class MotionSensor extends Receiver {
   private boolean movement;
   private boolean lowBattery = false;
   private boolean tamper = false;
+  private DateTime lastMovement;
   
   public MotionSensor(String name, VisonicAddress address) {
     this.name = name;
@@ -29,9 +31,14 @@ public class MotionSensor extends Receiver {
       String debug = (movement ? " *movement* " : " ") + (lowBattery ? " *low battery* " : "") + (tamper ? " *tamper* " : "") + (ping ? "*ping*" : "");
       log.debug (name + ": " + VisonicPacket.bits(packet.getByte4()) + "-" + VisonicPacket.bits(packet.getByte5()) + debug);
       if (movement) {
+        lastMovement = DateTime.now();
         getEnvironment().getGrowlService().sendMotion(this);
       }
     }
+  }
+  
+  public DateTime getLastMovement() {
+    return lastMovement;
   }
   
   public String getName() {
