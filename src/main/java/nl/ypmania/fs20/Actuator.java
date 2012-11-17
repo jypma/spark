@@ -28,16 +28,27 @@ public abstract class Actuator extends Receiver {
   }
   
   public void timedOn (long durationSeconds) {
-    timedOnMillis (durationSeconds * 1000);
+    timedOn (getOnCommand(), durationSeconds);
   }
   
-  public synchronized void timedOnMillis (long durationMillis) {
-    dispatch(new FS20Packet (primaryAddress, getOnCommand()));
+  public void timedOn (Command onCommand, long durationSeconds) {
+    timedOnMillis (onCommand, durationSeconds * 1000);
+  }
+  
+  public void timedOnMillis (long durationMillis) {
+    timedOnMillis (getOnCommand(), durationMillis);
+  }
+  
+  public synchronized boolean isTimedOn() {
+    return isOn() && offTask != null;
+  }
+  
+  public abstract boolean isOn();
+
+  public synchronized void timedOnMillis (Command onCommand, long durationMillis) {
+    dispatch(new FS20Packet (primaryAddress, onCommand));
     if (offTaskTime > System.currentTimeMillis() + durationMillis) return;
-    if (offTask != null) {
-      offTask.cancel();
-      offTask = null;
-    }
+    cancelOff();
     offTask = new TimerTask() {
       @Override
       public void run() {

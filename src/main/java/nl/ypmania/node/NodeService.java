@@ -14,6 +14,7 @@ import java.util.TooManyListenersException;
 import nl.ypmania.fs20.FS20Decoder;
 import nl.ypmania.fs20.FS20Service;
 import nl.ypmania.rf12.RF12Packet;
+import nl.ypmania.rf12.RF12Service;
 import nl.ypmania.visonic.VisonicDecoder;
 import nl.ypmania.visonic.VisonicService;
 
@@ -36,6 +37,7 @@ public class NodeService {
   
   @Autowired private VisonicService visonicService;
   @Autowired private FS20Service fs20Service;
+  @Autowired private RF12Service rf12Service;
   
   public void start(SerialPort port) {
     try {
@@ -139,7 +141,8 @@ public class NodeService {
       visonicService.handle(new VisonicDecoder().decode(packet, 4));
       break;
     case RF12_TYPE:
-      
+      // doorbell: 68,66,32,32,107,0
+      rf12Service.handle(new RF12Packet(packet));
       break;
     }
   }

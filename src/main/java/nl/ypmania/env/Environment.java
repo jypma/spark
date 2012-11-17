@@ -16,6 +16,7 @@ import javax.annotation.PreDestroy;
 import nl.ypmania.GrowlService;
 import nl.ypmania.fs20.FS20Packet;
 import nl.ypmania.fs20.FS20Service;
+import nl.ypmania.rf12.RF12Packet;
 import nl.ypmania.visonic.VisonicPacket;
 
 import org.slf4j.Logger;
@@ -159,6 +160,12 @@ public class Environment {
     }    
   }
 
+  public void receive(RF12Packet packet) {
+    for (Receiver receiver: receivers) {
+      receiver.receive(packet);
+    }    
+  }
+  
   @SuppressWarnings("unchecked")
   public <T extends Receiver> List<T> getAll (Class<T> type) {
     List<T> result = new ArrayList<T>();
@@ -238,4 +245,5 @@ public class Environment {
     protected abstract void start(long duration);
     protected void stop() {}
   }
+
 }

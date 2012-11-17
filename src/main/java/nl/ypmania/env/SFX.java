@@ -40,7 +40,7 @@ public class SFX {
   public synchronized void play (String resource) {
     if (clip == null) return;
     if (lastPlayed != null) {
-      if (resource.equals(lastPlayed) && System.currentTimeMillis() < lastTime + 5000) return;
+      if (resource.equals(lastPlayed) && System.currentTimeMillis() < lastTime + 1000) return;
     }
     lastPlayed = resource;
     lastTime = System.currentTimeMillis();

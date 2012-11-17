@@ -8,6 +8,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RF12Packet {
@@ -27,5 +29,17 @@ public class RF12Packet {
   @Override
   public String toString() {
     return "RF12:" + Arrays.toString(contents.toArray());
+  }
+  
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof RF12Packet)) return false;
+    RF12Packet b = (RF12Packet) obj;
+    return ArrayUtils.isEquals(contents.toArray(), b.contents.toArray());
+  }
+  
+  @Override
+  public int hashCode() {
+    return contents.hashCode();
   }
 }

@@ -44,8 +44,8 @@ public class FS20Service {
         environment.setRf868UsageEnd(150);
         log.info("Received {}", packet);
         environment.receive(packet);        
+        recentPackets.put(packet, packet);
       }
-      recentPackets.put(packet, packet);
     }
   }
 }

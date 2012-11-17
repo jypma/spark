@@ -12,6 +12,7 @@ import nl.ypmania.fs20.FS20Packet;
 import nl.ypmania.fs20.FS20Route;
 import nl.ypmania.fs20.FS20Service;
 import nl.ypmania.fs20.Switch;
+import nl.ypmania.rf12.Doorbell;
 import nl.ypmania.visonic.DoorSensor;
 import nl.ypmania.visonic.MotionSensor;
 import nl.ypmania.visonic.VisonicAddress;
@@ -40,6 +41,7 @@ public class Home extends Environment {
   private static final FS20Address BRYGGERS = new FS20Address(HOUSE, 1244);
   private static final FS20Address BEDROOM = new FS20Address(HOUSE, 1344);
   private static final FS20Address DININGROOM = new FS20Address(HOUSE, 1444);
+  private static final FS20Address CARPORT = new FS20Address(HOUSE, 3144);
   
   private static final VisonicAddress BRYGGERS_DOOR = new VisonicAddress(0x03, 0x19, 0x15);
   private static final VisonicAddress MAIN_DOOR = new VisonicAddress(0x02, 0xcf, 0xd5);
@@ -48,6 +50,7 @@ public class Home extends Environment {
   private static final FS20Address CARPORT_SPOTS = new FS20Address(HOUSE, 3111);
   
   private static final Dimmer carportSpots = new Dimmer("Carport spots", CARPORT_SPOTS);
+  private static final Switch carportFlood = new Switch("Carport floodlight", new FS20Address(HOUSE, 3112), MASTER, ALL_LIGHTS, CARPORT);
   private static final Switch bryggersSpots = new Switch("Bryggers ceiling", new FS20Address(HOUSE, 1211), MASTER, ALL_LIGHTS, BRYGGERS);
   
   private static final Dimmer livingRoomCeiling = new Dimmer("Living room ceiling", new FS20Address(HOUSE, 1111), MASTER, ALL_LIGHTS, LIVING_ROOM);
@@ -81,6 +84,7 @@ public class Home extends Environment {
       rgbLamp,
       
       carportSpots,
+      carportFlood,
       
       new FS20Route(new FS20Address(BUTTONS, 1111), Command.OFF) {
         protected void handle() {
@@ -120,6 +124,7 @@ public class Home extends Environment {
           getEnvironment().getGrowlService().sendMotion("Driveway, left side");
           //sfx.play("tngchime.wav");
           if (isDark()) {
+            carportFlood.timedOn(180);
             carportSpots.timedOn(180);            
           }
         }
@@ -130,6 +135,7 @@ public class Home extends Environment {
           getEnvironment().getGrowlService().sendMotion("Driveway, right side");
           //sfx.play("tngchime.wav");
           if (isDark()) {
+            carportFlood.timedOn(180);
             carportSpots.timedOn(180);            
           }
         }
@@ -142,6 +148,7 @@ public class Home extends Environment {
             sfx.play("tngchime.wav");
           }
           if (isDark()) {
+            carportFlood.timedOn(300);
             carportSpots.timedOn(300);            
           }
         }
@@ -164,14 +171,19 @@ public class Home extends Environment {
         protected void handle(VisonicPacket packet) {
           if (isDark()) {
             bryggersSpots.timedOn(300);
+            carportFlood.timedOn(120);
+            carportSpots.timedOn(120);                        
           }
         }        
       },
       new VisonicRoute.Motion(LIVING_ROOM_SENSOR) {
         protected void handle(VisonicPacket packet) {
-          if (isDark() && livingRoomCeiling.getBrightness() == 0) {
-            livingRoomCeiling.dim(8);
-            livingRoomCeiling.timedOn(600);
+          if (isDark()) {
+            if (livingRoomCeiling.getBrightness() == 0) {
+              livingRoomCeiling.timedDim(8, 600);
+            } else if (livingRoomCeiling.isTimedOn()){
+              livingRoomCeiling.timedDim(livingRoomCeiling.getBrightness(), 600);
+            }
           }
         }        
       },
@@ -182,7 +194,16 @@ public class Home extends Environment {
       new MotionSensor("Studio", new VisonicAddress(0x01, 0x84, 0x83)),
       new MotionSensor("Living room", LIVING_ROOM_SENSOR),
       new DoorSensor("Main door", MAIN_DOOR),
-      new DoorSensor("Bryggers door", BRYGGERS_DOOR)
+      new DoorSensor("Bryggers door", BRYGGERS_DOOR),
+      
+      new Doorbell('D','B') {
+        protected void ring(int mV) {
+          if (!settings.isMuteDoorbell()) {
+            sfx.play("doorbell.01.wav");            
+          }
+          getEnvironment().getGrowlService().doorbell(mV);
+        }
+      }
     );
     
     xbmcService.on(State.PLAYING, new Runnable() {

@@ -36,7 +36,7 @@ function LampCntl($scope, $http) {
       if (y > 39) {
     	  drawGradient (imgdata[0], imgdata[1], imgdata[2]);
       }
-      send(imgdata[0], imgdata[1], imgdata[2], 100);	  
+      send(imgdata[0], imgdata[1], imgdata[2], 200);	  
   };
   
   $scope.down = function (x,y) {

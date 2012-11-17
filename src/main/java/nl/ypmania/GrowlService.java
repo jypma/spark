@@ -43,6 +43,13 @@ public class GrowlService {
     notify("Motion detected", sensorName);
   }
   
+  public void doorbell(int mV) {
+    notify("Doorbell", "Somebody is at the door!");
+    if (mV < 2500) {
+      notify("Doorbell", "Warning: low battery at " + mV + "mV");
+    }
+  }
+  
   @PreDestroy
   public void stop() {
     

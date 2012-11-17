@@ -11,11 +11,17 @@ public class Settings {
   
   private boolean muteDoors = false;
   
+  private boolean muteDoorbell = false;
+  
   public boolean isMuteDoors() {
     return muteDoors;
   }
   
   public boolean isMuteMotion() {
     return muteMotion;
+  }
+  
+  public boolean isMuteDoorbell() {
+    return muteDoorbell;
   }
 }

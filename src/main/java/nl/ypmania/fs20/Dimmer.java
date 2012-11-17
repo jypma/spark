@@ -101,7 +101,16 @@ public class Dimmer extends Actuator {
   public int getBrightness() {
     return brightness;
   }
+  
+  @Override
+  public boolean isOn() {
+    return brightness > 0;
+  }
 
+  public void timedDim (int level, int seconds) {
+    timedOn(Command.byProtocolValue(level), seconds);
+  }
+  
   public void dim(int i) {
     cancelOff();
     if (i < 0) i = 0;
