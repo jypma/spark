@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import nl.ypmania.GrowlService;
+import nl.ypmania.NotifyService;
 import nl.ypmania.fs20.FS20Packet;
 import nl.ypmania.fs20.FS20Service;
 import nl.ypmania.rf12.RF12Packet;
@@ -31,7 +31,7 @@ public class Environment {
   
   private List<Receiver> receivers = new ArrayList<Receiver>();
   
-  private @Autowired GrowlService growlService;
+  private @Autowired NotifyService notifyService;
   private @Autowired FS20Service fs20Service;
   private long rf868UsageEnd = System.currentTimeMillis();
   private ConcurrentLinkedQueue<Runnable> rf868Actions = new ConcurrentLinkedQueue<Runnable>();
@@ -92,8 +92,8 @@ public class Environment {
     return timer;
   }
   
-  public GrowlService getGrowlService() {
-    return growlService;
+  public NotifyService getNotifyService() {
+    return notifyService;
   }
   
   public FS20Service getFs20Service() {

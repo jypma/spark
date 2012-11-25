@@ -31,6 +31,9 @@ import org.springframework.stereotype.Component;
 public class Home extends Environment {
   private static final Logger log = LoggerFactory.getLogger(Home.class);
   
+  public static final String ALARM_NIGHT = "NIGHT";
+  public static final String ALARM_ALL = "ALL";
+  
   private static final int HOUSE = 12341234;
   private static final int BUTTONS = 12344444;
   private static final int SENSORS = 12343333;
@@ -121,7 +124,7 @@ public class Home extends Environment {
       new FS20Route(new FS20Address(SENSORS, 3111), Command.TIMED_ON_PREVIOUS, Command.TIMED_ON_FULL) {
         protected void handle() {
           log.info("Motion on left driveway sensor");
-          getEnvironment().getGrowlService().sendMotion("Driveway, left side");
+          getEnvironment().getNotifyService().sendMotion("Driveway, left side");
           //sfx.play("tngchime.wav");
           if (isDark()) {
             carportFlood.timedOn(180);
@@ -132,7 +135,7 @@ public class Home extends Environment {
       new FS20Route(new FS20Address(SENSORS, 3112), Command.TIMED_ON_PREVIOUS, Command.TIMED_ON_FULL) {
         protected void handle() {
           log.info("Motion on right driveway sensor");
-          getEnvironment().getGrowlService().sendMotion("Driveway, right side");
+          getEnvironment().getNotifyService().sendMotion("Driveway, right side");
           //sfx.play("tngchime.wav");
           if (isDark()) {
             carportFlood.timedOn(180);
@@ -143,7 +146,7 @@ public class Home extends Environment {
       new FS20Route(new FS20Address(SENSORS, 3113), Command.TIMED_ON_PREVIOUS, Command.TIMED_ON_FULL) {
         protected void handle() {
           log.info("Motion on carport sensor");
-          getEnvironment().getGrowlService().sendMotion("Carport");
+          getEnvironment().getNotifyService().sendMotion("Carport");
           if (!settings.isMuteMotion()) {
             sfx.play("tngchime.wav");
           }
@@ -187,21 +190,21 @@ public class Home extends Environment {
           }
         }        
       },
-      new MotionSensor("Guestroom", new VisonicAddress(0x03, 0x04, 0x83)),
-      new MotionSensor("Kitchen", new VisonicAddress(0x04, 0x05, 0x03)),
-      new MotionSensor("Office", new VisonicAddress(0x01, 0xc4, 0x83)),
-      new MotionSensor("Bedroom", BEDROOM_SENSOR),
-      new MotionSensor("Studio", new VisonicAddress(0x01, 0x84, 0x83)),
-      new MotionSensor("Living room", LIVING_ROOM_SENSOR),
-      new DoorSensor("Main door", MAIN_DOOR),
-      new DoorSensor("Bryggers door", BRYGGERS_DOOR),
+      new MotionSensor("Guestroom", new VisonicAddress(0x03, 0x04, 0x83), ALARM_NIGHT, ALARM_ALL),
+      new MotionSensor("Kitchen", new VisonicAddress(0x04, 0x05, 0x03), ALARM_NIGHT, ALARM_ALL),
+      new MotionSensor("Office", new VisonicAddress(0x01, 0xc4, 0x83), ALARM_NIGHT, ALARM_ALL),
+      new MotionSensor("Bedroom", BEDROOM_SENSOR, ALARM_ALL),
+      new MotionSensor("Studio", new VisonicAddress(0x01, 0x84, 0x83), ALARM_NIGHT, ALARM_ALL),
+      new MotionSensor("Living room", LIVING_ROOM_SENSOR, ALARM_NIGHT, ALARM_ALL),
+      new DoorSensor("Main door", MAIN_DOOR, ALARM_NIGHT, ALARM_ALL),
+      new DoorSensor("Bryggers door", BRYGGERS_DOOR, ALARM_NIGHT, ALARM_ALL),
       
       new Doorbell('D','B') {
         protected void ring(int mV) {
           if (!settings.isMuteDoorbell()) {
             sfx.play("doorbell.01.wav");            
           }
-          getEnvironment().getGrowlService().doorbell(mV);
+          getEnvironment().getNotifyService().doorbell(mV);
         }
       }
     );

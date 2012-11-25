@@ -15,10 +15,12 @@ public class MotionSensor extends Receiver {
   private boolean lowBattery = false;
   private boolean tamper = false;
   private DateTime lastMovement;
+  private final String[] zones;
   
-  public MotionSensor(String name, VisonicAddress address) {
+  public MotionSensor(String name, VisonicAddress address, String... zones) {
     this.name = name;
     this.address = address;
+    this.zones = zones;
   }
   
   @Override
@@ -32,7 +34,7 @@ public class MotionSensor extends Receiver {
       log.debug (name + ": " + VisonicPacket.bits(packet.getByte4()) + "-" + VisonicPacket.bits(packet.getByte5()) + debug);
       if (movement) {
         lastMovement = DateTime.now();
-        getEnvironment().getGrowlService().sendMotion(this);
+        getEnvironment().getNotifyService().sendMotion(this, zones);
       }
     }
   }

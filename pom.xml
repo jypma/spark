@@ -197,5 +197,42 @@
 			<artifactId>prettytime</artifactId>
 			<version>1.0.8.Final</version>
 		</dependency>
+		<dependency>
+		<groupId>commons-net</groupId>
+		<artifactId>commons-net</artifactId>
+		<version>3.1</version>
+	</dependency>
+            
+<!-- 
+<dependency>
+  <groupId>com.sun.mail</groupId>
+  <artifactId>smtp</artifactId>
+  <version>1.4.4</version>
+</dependency>
+<dependency>
+  <groupId>com.sun.mail</groupId>
+  <artifactId>javax.mail</artifactId>
+  <version>1.4.4</version>
+</dependency>
+		-->
+		<!-- 
+<dependency>
+  <groupId>org.apache.geronimo.javamail</groupId>
+  <artifactId>geronimo-javamail_1.4_provider</artifactId>
+  <version>1.8.3</version>
+</dependency>
+                        		<dependency>
+  <groupId>org.apache.geronimo.specs</groupId>
+  <artifactId>geronimo-javamail_1.4_spec</artifactId>
+  <version>1.7.1</version>
+</dependency>
+         -->   
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>Java.Net</id>
+			<url>http://download.java.net/maven/2/</url>
+		</repository>
+	</repositories>	
 </project>
