@@ -29,7 +29,7 @@ public class Doorbell extends Receiver {
       }
       int i = v / 100;
       String f = "" + (v % 100);
-      while (f.length() < 3) f = "0" + f;
+      while (f.length() < 2) f = "0" + f;
       log.info("Doorbell is ringing, capacitor charged to {}.{}0mV.", i, f);
       lastRing = now;
       ring(v * 10);

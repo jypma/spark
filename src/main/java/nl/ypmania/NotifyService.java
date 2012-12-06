@@ -59,9 +59,10 @@ public class NotifyService {
   
   public void doorbell(int mV) {
     notify("Doorbell", "Somebody is at the door!", null);
-    // TODO send e-mail if alarmMode == ON
     if (mV < 2500) {
       notify("Doorbell", "Warning: low battery at " + mV + "mV", null);
+      emailService.sendMail("Doorbell", "Warning: Doorbell capacitor was only charged to " + mV + 
+          "mV.\nThe battery might need to be recharged / replaced.");
     }
   }
   

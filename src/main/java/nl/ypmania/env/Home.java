@@ -170,8 +170,18 @@ public class Home extends Environment {
           }
         }        
       },
+      new VisonicRoute.DoorOpen(MAIN_DOOR) {
+        protected void handle(VisonicPacket packet) {
+          if (!settings.isMuteDoors()) {
+            sfx.play("tngchime.wav");            
+          }
+        }        
+      },
       new VisonicRoute.DoorOpen(BRYGGERS_DOOR) {
         protected void handle(VisonicPacket packet) {
+          if (!settings.isMuteDoors()) {
+            sfx.play("tngchime.wav");            
+          }
           if (isDark()) {
             bryggersSpots.timedOn(300);
             carportFlood.timedOn(120);
