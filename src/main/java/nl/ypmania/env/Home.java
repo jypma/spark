@@ -1,5 +1,7 @@
 package nl.ypmania.env;
 
+import java.util.TimerTask;
+
 import javax.annotation.PostConstruct;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -21,6 +23,7 @@ import nl.ypmania.visonic.VisonicRoute;
 import nl.ypmania.xbmc.XBMCService;
 import nl.ypmania.xbmc.XBMCService.State;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +64,10 @@ public class Home extends Environment {
   private static final Switch livingRoomReadingLamp = new Switch("Reading lamp", new FS20Address(HOUSE, 1113), MASTER, ALL_LIGHTS, LIVING_ROOM);
   private static final Switch livingRoomCornerLamp = new Switch("Corner lamp", new FS20Address(HOUSE, 1114), MASTER, ALL_LIGHTS, LIVING_ROOM);
   
+  private static final MotionSensor guestRoom = new MotionSensor("Guestroom", new VisonicAddress(0x03, 0x04, 0x83), ALARM_NIGHT, ALARM_ALL);
+  private static final MotionSensor kitchen = new MotionSensor("Kitchen", new VisonicAddress(0x04, 0x05, 0x03), ALARM_NIGHT, ALARM_ALL);
+  private static final MotionSensor office = new MotionSensor("Office", new VisonicAddress(0x01, 0xc4, 0x83), ALARM_NIGHT, ALARM_ALL);
+  
   private static final Switch rgbLamp = new Switch("RGB Lamp", new FS20Address(HOUSE, 1411), DININGROOM);
   
   private @Autowired FS20Service fs20Service;
@@ -68,6 +75,36 @@ public class Home extends Environment {
   private @Autowired XBMCService xbmcService;
   
   private Settings settings = new Settings();
+  
+  private DateTime doorOpenNotified = null;
+  
+  private boolean recently(DateTime time) {
+    return time != null && time.isAfter(DateTime.now().minusSeconds(15));
+  }
+
+  private void handleOpenDoor() {
+    boolean obvious = recently(guestRoom.getLastMovement()) || recently(kitchen.getLastMovement()) || recently(office.getLastMovement());
+    if (!settings.isMuteDoors() && !obvious) {
+      doorOpenNotified = DateTime.now();
+      sfx.play("tngchime.wav");         
+      getTimer().schedule(new TimerTask(){
+        @Override
+        public void run() {
+          doorOpenNotified = null;
+        }
+      }, 60000);
+    }
+  }
+  
+  private void handleCloseDoor() {
+    if (doorOpenNotified != null) {
+      if (DateTime.now().isAfter(doorOpenNotified.plusSeconds(30))) {
+        sfx.play("brdgbtn1.wav");        
+      }
+    }
+    
+    doorOpenNotified = null;
+  }
   
   @PostConstruct
   public void started() {
@@ -158,30 +195,22 @@ public class Home extends Environment {
       },
       new VisonicRoute.DoorClosed(BRYGGERS_DOOR) {
         protected void handle(VisonicPacket packet) {
-          if (isDark() && !settings.isMuteDoors()) {
-            sfx.play("brdgbtn1.wav");
-          }
+          handleCloseDoor();
         }        
       },
       new VisonicRoute.DoorClosed(MAIN_DOOR) {
         protected void handle(VisonicPacket packet) {
-          if (isDark() && !settings.isMuteDoors()) {
-            sfx.play("brdgbtn1.wav");
-          }
+          handleCloseDoor();
         }        
       },
       new VisonicRoute.DoorOpen(MAIN_DOOR) {
         protected void handle(VisonicPacket packet) {
-          if (!settings.isMuteDoors()) {
-            sfx.play("tngchime.wav");            
-          }
+          handleOpenDoor();
         }        
       },
       new VisonicRoute.DoorOpen(BRYGGERS_DOOR) {
         protected void handle(VisonicPacket packet) {
-          if (!settings.isMuteDoors()) {
-            sfx.play("tngchime.wav");            
-          }
+          handleOpenDoor();
           if (isDark()) {
             bryggersSpots.timedOn(300);
             carportFlood.timedOn(120);
@@ -192,6 +221,8 @@ public class Home extends Environment {
       new VisonicRoute.Motion(LIVING_ROOM_SENSOR) {
         protected void handle(VisonicPacket packet) {
           if (isDark()) {
+            log.debug("Considering turning on living room. Current brightness {}, timed: {}", 
+                livingRoomCeiling.getBrightness(), livingRoomCeiling.isTimedOn());
             if (livingRoomCeiling.getBrightness() == 0) {
               livingRoomCeiling.timedDim(8, 600);
             } else if (livingRoomCeiling.isTimedOn()){
@@ -200,9 +231,9 @@ public class Home extends Environment {
           }
         }        
       },
-      new MotionSensor("Guestroom", new VisonicAddress(0x03, 0x04, 0x83), ALARM_NIGHT, ALARM_ALL),
-      new MotionSensor("Kitchen", new VisonicAddress(0x04, 0x05, 0x03), ALARM_NIGHT, ALARM_ALL),
-      new MotionSensor("Office", new VisonicAddress(0x01, 0xc4, 0x83), ALARM_NIGHT, ALARM_ALL),
+      guestRoom,
+      kitchen,
+      office,
       new MotionSensor("Bedroom", BEDROOM_SENSOR, ALARM_ALL),
       new MotionSensor("Studio", new VisonicAddress(0x01, 0x84, 0x83), ALARM_NIGHT, ALARM_ALL),
       new MotionSensor("Living room", LIVING_ROOM_SENSOR, ALARM_NIGHT, ALARM_ALL),
@@ -239,13 +270,13 @@ public class Home extends Environment {
     xbmcService.on(State.STOPPED, new Runnable() {
       public void run() {
         if (isDark()) {
-          livingRoomCeiling.dim(8);
+          livingRoomCeiling.timedDim(8, 900);
           livingRoomCornerLamp.off();
           livingRoomTableLamp.off();
         }
       }      
     });
-    register(new TimedTask(new FixedTime(7, 00), SUNRISE.plusHours(1)) {
+    register(new TimedTask(new FixedTime(7, 00).duringWeekendPlusHours(2), SUNRISE.plusHours(1)) {
       @Override
       protected void start(long duration) {
         bryggersSpots.timedOnMillis(duration);

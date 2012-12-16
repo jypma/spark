@@ -59,7 +59,7 @@ public class NotifyService {
   
   public void doorbell(int mV) {
     notify("Doorbell", "Somebody is at the door!", null);
-    if (mV < 2500) {
+    if (mV < 2500 && mV != 0) {
       notify("Doorbell", "Warning: low battery at " + mV + "mV", null);
       emailService.sendMail("Doorbell", "Warning: Doorbell capacitor was only charged to " + mV + 
           "mV.\nThe battery might need to be recharged / replaced.");

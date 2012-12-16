@@ -187,6 +187,18 @@ public class Environment {
         }
       };
     }
+    public TimeOfDay duringWeekendPlusHours(final int hours) {
+      return new TimeOfDay() {
+        public Calendar getTime(Calendar day) {
+          Calendar time = TimeOfDay.this.getTime(day);
+          int dayOfWeek = day.get(Calendar.DAY_OF_WEEK);
+          if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
+            time.add(Calendar.HOUR, hours);            
+          }
+          return time;
+        }
+      };      
+    }
   }
   
   public class FixedTime extends TimeOfDay {
