@@ -15,6 +15,7 @@ import nl.ypmania.fs20.FS20Route;
 import nl.ypmania.fs20.FS20Service;
 import nl.ypmania.fs20.Switch;
 import nl.ypmania.rf12.Doorbell;
+import nl.ypmania.rf12.RoomSensor;
 import nl.ypmania.visonic.DoorSensor;
 import nl.ypmania.visonic.MotionSensor;
 import nl.ypmania.visonic.VisonicAddress;
@@ -247,7 +248,9 @@ public class Home extends Environment {
           }
           getEnvironment().getNotifyService().doorbell(mV);
         }
-      }
+      },
+      
+      new RoomSensor()
     );
     
     xbmcService.on(State.PLAYING, new Runnable() {

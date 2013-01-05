@@ -14,9 +14,11 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import nl.ypmania.NotifyService;
+import nl.ypmania.cosm.CosmService;
 import nl.ypmania.fs20.FS20Packet;
 import nl.ypmania.fs20.FS20Service;
 import nl.ypmania.rf12.RF12Packet;
+import nl.ypmania.rf12.RF12Service;
 import nl.ypmania.visonic.VisonicPacket;
 
 import org.slf4j.Logger;
@@ -33,6 +35,8 @@ public class Environment {
   
   private @Autowired NotifyService notifyService;
   private @Autowired FS20Service fs20Service;
+  private @Autowired RF12Service rf12Service;
+  private @Autowired CosmService cosmService;
   private long rf868UsageEnd = System.currentTimeMillis();
   private ConcurrentLinkedQueue<Runnable> rf868Actions = new ConcurrentLinkedQueue<Runnable>();
   private Timer timer = new Timer();
@@ -55,6 +59,10 @@ public class Environment {
     morning.set(Calendar.MILLISECOND, 0);
     morning.add(Calendar.DAY_OF_MONTH, 1);
     timer.scheduleAtFixedRate(new TimerTask() { public void run() { scheduleTimedTasks(); }}, morning.getTime(), 1000l * 60 * 60 * 24);
+  }
+  
+  public CosmService getCosmService() {
+    return cosmService;
   }
   
   protected synchronized void scheduleTimedTasks() {
@@ -98,6 +106,10 @@ public class Environment {
   
   public FS20Service getFs20Service() {
     return fs20Service;
+  }
+  
+  public RF12Service getRf12Service() {
+    return rf12Service;
   }
   
   public void setReceivers (Receiver... receivers) {

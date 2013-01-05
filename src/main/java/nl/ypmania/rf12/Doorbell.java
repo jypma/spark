@@ -18,14 +18,17 @@ public class Doorbell extends Receiver {
   
   @Override
   public void receive(RF12Packet packet) {
-    long now = System.currentTimeMillis();
-    if (now - lastRing < 1000) return;
-    if (packet.getContents().size() > 1 && 
+    if (packet.getContents().size() >= 5 && 
         packet.getContents().get(0) == id1 && 
-        packet.getContents().get(1) == id2) {
+        packet.getContents().get(1) == id2 &&
+        packet.getContents().get(4) == 1) {
+      sendAck();
+      
+      long now = System.currentTimeMillis();
+      if (now - lastRing < 1000) return;
       int v = 0;
-      if (packet.getContents().size() >= 6) {
-        v = packet.getContents().get(5) * 256 + v * packet.getContents().get(4);
+      if (packet.getContents().size() >= 7) {
+        v = packet.getContents().get(6) * 256 + packet.getContents().get(5);
       }
       int i = v / 100;
       String f = "" + (v % 100);
@@ -36,5 +39,15 @@ public class Doorbell extends Receiver {
     }
   }
   
+  private void sendAck() {
+    int[] contents = new int[5];
+    contents[0] = 'S';
+    contents[1] = 'P';
+    contents[2] = 'D';
+    contents[3] = 'B';
+    contents[4] = 2;
+    getEnvironment().getRf12Service().queue(new RF12Packet(contents));
+  }
+
   protected void ring(int mV) {}
 }
