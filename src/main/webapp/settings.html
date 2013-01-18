@@ -19,6 +19,10 @@
       <td>No sounds on doorbell</td>
     </tr>
     <tr>
+      <td><input type="checkbox" ng-model="settings.noAutoLights" ng-change="save()"></td>
+      <td>No auto-lights</td>
+    </tr>
+    <tr>
       <td><input type="radio" ng-model="settings.alarmMode" value="OFF" ng-change="save()"></td>
       <td>Alarm - off&nbsp;&nbsp;</td>
     </tr>

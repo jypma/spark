@@ -1,0 +1,4 @@
+<span class="name">{{device.name}}</span>
+<span class="status" ng-show="device.brightness == 16">On</span>
+<span class="status" ng-show="device.brightness < 16 && device.brightness > 0">Dim {{device.brightness / 16.0 * 100 | number:0}}%</span>
+<span class="status" ng-show="!device.on">Off</span>

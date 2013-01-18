@@ -21,7 +21,7 @@ public class VisonicResource {
   @Path("motionsensors")
   public ListWrapper<SensorDTO> getMotionSensors() {
     List<SensorDTO> result = new ArrayList<SensorDTO>();
-    for (MotionSensor d: environment.getAll(MotionSensor.class)) result.add (new SensorDTO(d));
+    for (VisonicMotionSensor d: environment.getAll(VisonicMotionSensor.class)) result.add (new SensorDTO(d));
     return ListWrapper.wrap(result);
   }
 

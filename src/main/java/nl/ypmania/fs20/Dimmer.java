@@ -1,5 +1,7 @@
 package nl.ypmania.fs20;
 
+import nl.ypmania.env.Zone;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,8 +13,8 @@ public class Dimmer extends Actuator {
   
   protected Dimmer() {}
   
-  public Dimmer (String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
-    super (name, primaryAddress, otherAddresses);
+  public Dimmer (Zone zone, String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
+    super (zone, name, primaryAddress, otherAddresses);
   }
   
   @Override
@@ -116,5 +118,10 @@ public class Dimmer extends Actuator {
     if (i < 0) i = 0;
     if (i > 16) i = 16;
     dispatch(new FS20Packet (getPrimaryAddress(), Command.byProtocolValue(i)));
+  }
+  
+  @Override
+  public String getType() {
+    return "Dimmer";
   }
 }

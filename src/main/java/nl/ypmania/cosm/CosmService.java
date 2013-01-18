@@ -31,17 +31,14 @@ public class CosmService {
     log.debug("Inited");
   }
   
-  public void bryggers(double value) {
-    System.out.println("Bruggers to " + value);
-    log.warn("Updating bryggers to {}", value);
-    updateDatapoint("Bryggers", value);
-  }
-  
-  private void updateDatapoint (String datastream, double value) {
+  public void updateDatapoint (String datastream, double value) {
     log.debug("Updating {} to {}", datastream, value);
     WebResource resource = client.resource("https://api.cosm.com/v2/feeds/" + feed + "/datastreams/" + datastream);
-    String result = resource.header("X-ApiKey", apiKey).entity("{\"current_value\": \"" + value + "\"}", "application/json").put(String.class);
-    log.debug(result);
+    try {
+      resource.header("X-ApiKey", apiKey).entity("{\"current_value\": \"" + value + "\"}", "application/json").put(String.class);
+    } catch (Exception x) {
+      log.error ("Error updating cosm", x);
+    }
   }
 
 }

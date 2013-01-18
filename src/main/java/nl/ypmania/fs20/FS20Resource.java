@@ -9,6 +9,7 @@ import javax.ws.rs.Path;
 
 import nl.ypmania.ListWrapper;
 import nl.ypmania.env.Environment;
+import nl.ypmania.visonic.SensorDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,14 @@ public class FS20Resource {
     return ListWrapper.wrap(result);
   }
 
+  @GET
+  @Path("motionsensors")
+  public ListWrapper<SensorDTO> getMotionSensors() {
+    List<SensorDTO> result = new ArrayList<SensorDTO>();
+    for (FS20MotionSensor d: environment.getAll(FS20MotionSensor.class)) result.add (new SensorDTO(d));
+    return ListWrapper.wrap(result);
+  }
+  
   @POST
   public void apply(ActuatorDTO actuator) {
     for (Dimmer d: environment.getAll(Dimmer.class)) {

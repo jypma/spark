@@ -5,22 +5,26 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TimerTask;
 
-import nl.ypmania.env.Receiver;
+import javax.xml.bind.annotation.XmlTransient;
 
-public abstract class Actuator extends Receiver {
+import nl.ypmania.env.Device;
+import nl.ypmania.env.Zone;
+
+public abstract class Actuator extends Device {
   private FS20Address primaryAddress;
   private Set<FS20Address> addresses = new HashSet<FS20Address>();
   private String name;
   private TimerTask offTask = null;
   private long offTaskTime;
   
-  protected Actuator() {}
+  protected Actuator() { super(null); }
   
-  public FS20Address getPrimaryAddress() {
+  @XmlTransient public FS20Address getPrimaryAddress() {
     return primaryAddress;
   }
   
-  public Actuator (String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
+  public Actuator (Zone zone, String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
+    super(zone);
     this.name = name;
     this.primaryAddress = primaryAddress;
     this.addresses.add(primaryAddress);
@@ -96,7 +100,7 @@ public abstract class Actuator extends Receiver {
     return name;
   }
   
-  public Set<FS20Address> getAddresses() {
+  @XmlTransient public Set<FS20Address> getAddresses() {
     return addresses;
   }
 }

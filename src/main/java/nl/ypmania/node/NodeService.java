@@ -135,6 +135,7 @@ public class NodeService {
       separator = ",";
     }
     log.info ("Received {}", s);
+    try {
     switch (type) {
     case OOK_TYPE:      
       fs20Service.handle(new FS20Decoder().decode(packet, 4));
@@ -144,6 +145,10 @@ public class NodeService {
       // doorbell: 68,66,32,32,107,0
       rf12Service.handle(new RF12Packet(packet));
       break;
+    }
+    } catch (RuntimeException x) {
+      log.error("Error handling packet", x);
+      throw x;
     }
   }
   
@@ -191,7 +196,7 @@ public class NodeService {
       }
       timeoutTask = new TimerTask(){
         public void run() {
-          log.info("Timeout reading packet after {} of {} bytes.", pos, length);
+          log.error("Timeout reading packet after {} of {} bytes.", pos, length);
           reset();
         }
       };

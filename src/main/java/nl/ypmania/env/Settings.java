@@ -16,6 +16,8 @@ public class Settings {
   private boolean muteDoorbell = false;
   
   private String alarmMode = "OFF";
+
+  private boolean noAutoLights = false;
   
   public boolean isMuteDoors() {
     return muteDoors;
@@ -27,6 +29,10 @@ public class Settings {
   
   public boolean isMuteDoorbell() {
     return muteDoorbell;
+  }
+  
+  public boolean isNoAutoLights() {
+    return noAutoLights;
   }
   
   public String getAlarmMode() {

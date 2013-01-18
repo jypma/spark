@@ -1,17 +1,25 @@
 package nl.ypmania.rf12;
 
+import javax.xml.bind.annotation.XmlTransient;
+
+import nl.ypmania.env.Device;
+import nl.ypmania.env.Zone;
+import nl.ypmania.env.ZoneEvent;
+
+import org.joda.time.DateTime;
+import org.ocpsoft.pretty.time.PrettyTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.ypmania.env.Receiver;
-
-public class Doorbell extends Receiver {
+public class Doorbell extends Device {
   private static final Logger log = LoggerFactory.getLogger(Doorbell.class);
   
   private int id1, id2;
-  private long lastRing = 0;
+  private DateTime lastRing = null;
+  private Double battery;
   
-  public Doorbell (char id1, char id2) {
+  public Doorbell (Zone zone, char id1, char id2) {
+    super(zone);
     this.id1 = (int) id1;
     this.id2 = (int) id2;
   }
@@ -22,21 +30,45 @@ public class Doorbell extends Receiver {
         packet.getContents().get(0) == id1 && 
         packet.getContents().get(1) == id2 &&
         packet.getContents().get(4) == 1) {
+      log.debug("Sending ack for doorbell");
       sendAck();
       
-      long now = System.currentTimeMillis();
-      if (now - lastRing < 1000) return;
-      int v = 0;
-      if (packet.getContents().size() >= 7) {
-        v = packet.getContents().get(6) * 256 + packet.getContents().get(5);
-      }
-      int i = v / 100;
-      String f = "" + (v % 100);
-      while (f.length() < 2) f = "0" + f;
-      log.info("Doorbell is ringing, capacitor charged to {}.{}0mV.", i, f);
-      lastRing = now;
-      ring(v * 10);
+      if (lastRing != null && lastRing.plusMillis(1000).isAfterNow()) return;
+      log.info("Doorbell is ringing");
+      lastRing = DateTime.now();
+      ring();
+      event(ZoneEvent.ring());
+      getEnvironment().getNotifyService().doorbell();
+    } else if (packet.getContents().size() >= 9 && 
+       packet.getContents().get(0) == id1 && 
+       packet.getContents().get(1) == id2 &&
+       packet.getContents().get(4) == 3) {
+      
+       int v = (packet.getContents().get(6).byteValue()) * 256 + packet.getContents().get(5);
+       double temp = v / 100.0;
+       log.info("Got temperature {}.", temp);
+        
+       battery = (packet.getContents().get(8) * 256 + packet.getContents().get(7)) / 100.0;
+       log.info("Battery of is {} mV.", battery);
+       if (battery < 3) {
+         getEnvironment().getNotifyService().lowBattery("Doorbell", battery);
+       }
+       if (temp > -30 && temp < 40)
+         getEnvironment().getCosmService().updateDatapoint("Carport", temp);
+       event(ZoneEvent.temperature(temp, battery));        
     }
+  }   
+  
+  @XmlTransient public DateTime getLastRing() {
+    return lastRing;
+  }
+  
+  public String getLastRingPretty() {
+    return lastRing == null ? "unknown" : new PrettyTime().format(lastRing.toDate());
+  }
+  
+  public Double getBattery() {
+    return battery;
   }
   
   private void sendAck() {
@@ -49,5 +81,10 @@ public class Doorbell extends Receiver {
     getEnvironment().getRf12Service().queue(new RF12Packet(contents));
   }
 
-  protected void ring(int mV) {}
+  protected void ring() {}
+  
+  @Override
+  public String getType() {
+    return "Doorbell";
+  }
 }

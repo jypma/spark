@@ -41,6 +41,10 @@
 		<priority value="warn" />
 	</category>
 
+  <category name="nl.ypmania.rf12.RF12Service">
+    <priority value="debug" />
+  </category>
+  
 	<root>
 		<priority value="debug" />
 		<appender-ref ref="console" />

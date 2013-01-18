@@ -1,5 +1,7 @@
 package nl.ypmania.fs20;
 
+import nl.ypmania.env.Zone;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,8 +12,8 @@ public class Switch extends Actuator {
   
   protected Switch() {}
   
-  public Switch (String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
-    super (name, primaryAddress, otherAddresses);
+  public Switch (Zone zone, String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
+    super (zone, name, primaryAddress, otherAddresses);
   }
   
   @Override
@@ -62,5 +64,10 @@ public class Switch extends Actuator {
   
   public boolean isOn() {
     return on;
+  }
+  
+  @Override
+  public String getType() {
+    return "Switch";
   }
 }

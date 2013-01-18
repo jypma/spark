@@ -1,13 +1,15 @@
 package nl.ypmania.visonic;
 
-import nl.ypmania.env.Receiver;
+import nl.ypmania.env.Device;
+import nl.ypmania.env.Zone;
+import nl.ypmania.env.ZoneEvent;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MotionSensor extends Receiver {
-  private static final Logger log = LoggerFactory.getLogger(MotionSensor.class);
+public class VisonicMotionSensor extends Device {
+  private static final Logger log = LoggerFactory.getLogger(VisonicMotionSensor.class);
   
   private String name;
   private VisonicAddress address;
@@ -15,12 +17,11 @@ public class MotionSensor extends Receiver {
   private boolean lowBattery = false;
   private boolean tamper = false;
   private DateTime lastMovement;
-  private final String[] zones;
   
-  public MotionSensor(String name, VisonicAddress address, String... zones) {
+  public VisonicMotionSensor(Zone zone, String name, VisonicAddress address) {
+    super(zone);
     this.name = name;
     this.address = address;
-    this.zones = zones;
   }
   
   @Override
@@ -34,10 +35,13 @@ public class MotionSensor extends Receiver {
       log.debug (name + ": " + VisonicPacket.bits(packet.getByte4()) + "-" + VisonicPacket.bits(packet.getByte5()) + debug);
       if (movement) {
         lastMovement = DateTime.now();
-        getEnvironment().getNotifyService().sendMotion(this, zones);
+        event(ZoneEvent.motion());
+        motion();
       }
     }
   }
+  
+  protected void motion() {}
   
   public DateTime getLastMovement() {
     return lastMovement;
@@ -47,4 +51,8 @@ public class MotionSensor extends Receiver {
     return name;
   }
   
+  @Override
+  public String getType() {
+    return "VisonicMotionSensor";
+  }
 }

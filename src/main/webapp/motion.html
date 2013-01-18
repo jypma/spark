@@ -6,18 +6,30 @@
 </head>
 
 <body ng-controller="MotionCntl">
-  <h2>Motion sensors</h2>
+  <h2>Events</h2>
   <table>
     <thead>
       <tr>
         <th>Sensor</th>
-        <th>Last motion</th>
+        <th>Last event</th>
+        <th>Battery</th>
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="s in motionsensors">
+      <tr ng-repeat="s in visonicmotionsensors">
         <td>{{s.name}}</td>
         <td>{{s.lastEvent}}</td>
+        <td></td>
+      </tr>
+      <tr ng-repeat="s in fs20motionsensors">
+        <td>{{s.name}}</td>
+        <td>{{s.lastEvent}}</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Doorbell</td>
+        <td>{{doorbell.lastEvent}}</td>
+        <td>{{doorbell.battery}}</td>
       </tr>
     </tbody>
   </table>

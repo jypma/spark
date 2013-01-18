@@ -114,9 +114,6 @@ public class Environment {
   
   public void setReceivers (Receiver... receivers) {
     this.receivers = Arrays.asList(receivers);
-    for (Receiver r: receivers) {
-      r.setEnvironment(this);
-    }
   }
   
   public synchronized void setRf868UsageEnd (long delayFromNow) {

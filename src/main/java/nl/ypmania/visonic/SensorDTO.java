@@ -4,6 +4,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import nl.ypmania.fs20.FS20MotionSensor;
+import nl.ypmania.rf12.Doorbell;
+
 import org.joda.time.DateTime;
 import org.ocpsoft.pretty.time.PrettyTime;
 
@@ -11,11 +14,26 @@ import org.ocpsoft.pretty.time.PrettyTime;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SensorDTO {
   private String name;
+  private String battery;
   private String lastEvent;
   
-  public SensorDTO(MotionSensor d) {
+  public SensorDTO(VisonicMotionSensor d) {
     setName(d.getName());
     setLastEventFrom(d.getLastMovement());
+  }
+
+  public SensorDTO(FS20MotionSensor d) {
+    setName(d.getName());
+    setLastEventFrom(d.getLastMovement());
+  }
+
+  public SensorDTO(Doorbell doorbell) {
+    setName("Doorbell");
+    setLastEventFrom(doorbell.getLastRing());
+    Double mV = doorbell.getBattery();
+    if (mV != null && mV > 0) {
+      battery = "" + mV + " mV";
+    }
   }
 
   public void setName(String name) {
@@ -41,4 +59,11 @@ public class SensorDTO {
       lastEvent = "unknown";
   }
 
+  public String getBattery() {
+    return battery;
+  }
+  
+  public void setBattery(String battery) {
+    this.battery = battery;
+  }
 }

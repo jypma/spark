@@ -1,0 +1,15 @@
+<div class="zone" ng-controller="ZoneCntl">
+  <span class="name">
+    <span class="indent{{indent}}">{{zone.name}}</span>
+  </span>
+  <span class="status"><span ng-show="!!zone.temperature">{{zone.temperature | number:1}} &#x2103</span></span>
+  <span class="action">{{zone.lastAction}}</span>
+  <div class="device" ng-repeat="device in zone.devices">
+    <div class="{{device.type}}">
+      <ng-include src="'zone-' + device.type + '.html'"/>
+    </div>
+  </div>
+  <div ng-repeat="zone in zone.subZones">
+    <ng-include src="'zone.html'"/>
+  </div>
+</div>
