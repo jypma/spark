@@ -30,6 +30,8 @@ public class FS20MotionSensor extends Device {
     if (packet.getCommand() == Command.OFF || 
         packet.getCommand() == Command.RESET || 
         packet.getCommand() == Command.SEND_STATUS) return;
+    if (lastMovement != null && lastMovement.plusSeconds(1).isAfterNow()) return;
+    
     log.debug("Motion on {}", name);
     event(ZoneEvent.motion());
     lastMovement = DateTime.now();

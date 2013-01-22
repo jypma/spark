@@ -31,8 +31,9 @@ public class SFX {
   }
   
   public synchronized void play (String resource) {
-    if (clip != null && clip.isOpen()) {
-      clip.close();
+    if (clip != null && clip.isActive()) {
+      clip.stop();
+      clip.flush();
     } else try {
       clip = AudioSystem.getClip();
       clip.addLineListener(new LineListener() {
@@ -45,7 +46,7 @@ public class SFX {
       return;
     }      
     if (lastPlayed != null) {
-      if (resource.equals(lastPlayed) && System.currentTimeMillis() < lastTime + 1000) return;
+      if (resource.equals(lastPlayed) && System.currentTimeMillis() < lastTime + 3000) return;
     }
     lastPlayed = resource;
     lastTime = System.currentTimeMillis();

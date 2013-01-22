@@ -6,13 +6,13 @@ body { background-color: #fff; }
 .labels span { display: inline-block; }
 .zone span { display: inline-block; }
 
-.labels > .name { width: 140px; }
-.labels > .status { width: 65px; }
+.labels > .name { width: 133px; }
+.labels > .status { width: 72px; }
 
 .zone { padding-top: 2px; background-color: #eee; border-top: 1px solid #ddd; }
 
-.zone > .name { width: 140px; }
-.zone > .status { width: 65px; }
+.zone > .name { width: 133px; }
+.zone > .status { width: 72px; }
 
 .indent1 { padding-left: 5px; margin-left: 5px; }
 .indent2 { padding-left: 10px; margin-left: 10px; }

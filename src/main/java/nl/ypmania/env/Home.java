@@ -16,6 +16,7 @@ import nl.ypmania.fs20.FS20Route;
 import nl.ypmania.fs20.FS20Service;
 import nl.ypmania.fs20.Switch;
 import nl.ypmania.rf12.Doorbell;
+import nl.ypmania.rf12.HumidityRoomSensor;
 import nl.ypmania.rf12.RoomSensor;
 import nl.ypmania.visonic.DoorSensor;
 import nl.ypmania.visonic.SensorDTO;
@@ -63,8 +64,8 @@ public class Home extends Environment {
   private Settings settings = new Settings();
   
   private DateTime doorOpenNotified = null;
-  Zone drivewayLeft = new Zone(this, "Driveway, left");
-  Zone drivewayRight = new Zone(this, "Driveway, right");
+  Zone drivewayLeft = new Zone(this, "Driveway, l");
+  Zone drivewayRight = new Zone(this, "Driveway, r");
   Zone carport = new Zone(this, "Carport");
   Zone outside = new Zone(this, "Outside", drivewayLeft, drivewayRight, carport);
   Zone bryggers = new Zone(this, "Bryggers");
@@ -248,7 +249,8 @@ public class Home extends Environment {
       doorbell,
       
       new RoomSensor(bryggers, "Bryggers", (int)'1'),
-      new RoomSensor(livingRoom, "Stue", (int)'2')
+      new RoomSensor(livingRoom, "Stue", (int)'2'),
+      new HumidityRoomSensor(bedRoom, "Bedroom", (int)'4')
     );
     
     xbmcService.on(State.PLAYING, new Runnable() {

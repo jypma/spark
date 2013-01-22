@@ -68,11 +68,13 @@ public abstract class Actuator extends Device {
   
   protected void dispatch (final FS20Packet packet) {
     getEnvironment().getFs20Service().queueFS20(packet);
+    /*
     getEnvironment().getTimer().schedule(new TimerTask(){
       public void run() {
         getEnvironment().getFs20Service().queueFS20(packet);
         getEnvironment().getFs20Service().queueFS20(packet);
       }}, 500);
+      */
   }
   
   protected synchronized void cancelOff() {

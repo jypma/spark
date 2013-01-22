@@ -2,7 +2,9 @@
   <span class="name">
     <span class="indent{{indent}}">{{zone.name}}</span>
   </span>
-  <span class="status"><span ng-show="!!zone.temperature">{{zone.temperature | number:1}} &#x2103</span></span>
+  <span class="status">
+    <span ng-show="!!zone.temperature">{{zone.temperature | number:1}}&#x00B0</span><span ng-show="!!zone.humidity">, {{zone.humidity | number:0}}%</span>
+  </span>
   <span class="action">{{zone.lastAction}}</span>
   <div class="device" ng-repeat="device in zone.devices">
     <div class="{{device.type}}">

@@ -6,6 +6,7 @@ public class ZoneEvent {
   private final DateTime time;
   private final Type type;
   
+  //TODO refactor battery out, each value its own event
   private final double batteryMillivolt;
   private final long count;
   private final double temperature;
@@ -46,8 +47,12 @@ public class ZoneEvent {
     return new ZoneEvent(Type.TEMPERATURE, 0, 0, temperature);
   }
   
+  public static ZoneEvent humidity (double humidity) {
+    return new ZoneEvent(Type.HUMIDITY, 0, 0, humidity);
+  }
+  
   public enum Type {
-    MOTION, OPENED, CLOSED, COUNT, RING, TEMPERATURE
+    MOTION, OPENED, CLOSED, COUNT, RING, TEMPERATURE, HUMIDITY
   }
    
   public DateTime getTime() {
@@ -66,7 +71,7 @@ public class ZoneEvent {
     return count;
   }
   
-  public double getTemperature() {
+  public double getValue() {
     return temperature;
   }
 }

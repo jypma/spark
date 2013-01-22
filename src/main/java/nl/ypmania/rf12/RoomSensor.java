@@ -29,26 +29,50 @@ public class RoomSensor extends Device {
     if (packet.getContents().size() >= 7 && 
         packet.getContents().get(0) == sensorId &&
         packet.getContents().get(1) == roomId) {
+      lastPacket = now;
+      
       int v = packet.getContents().get(6) * 256 + packet.getContents().get(5);
       double temp = v / 100.0;
       log.info("Got temperature {} in {}.", temp, name);
       
-      if (packet.getContents().size() >= 9) {
-         battery = (packet.getContents().get(8).byteValue() * 256 + packet.getContents().get(7)) / 100.0;
-         log.info("Battery of {} is {} mV.", name, battery);
-         if (battery < 3.1) {
-           getEnvironment().getNotifyService().lowBattery("Room sensor in " + name, battery);
-         }
-      }
-      lastPacket = now;
       if (temp > -30 && temp < 40)
-        getEnvironment().getCosmService().updateDatapoint(name, temp);
+        uploadTemp(temp);
       if (battery != null) {
         event(ZoneEvent.temperature(temp, battery));        
       } else {
         event(ZoneEvent.temperature(temp));
       }
+      
+      if (packet.getContents().size() >= 9) {
+        battery = (packet.getContents().get(8).byteValue() * 256 + packet.getContents().get(7)) / 100.0;
+        log.info("Battery of {} is {} mV.", name, battery);
+        if (battery < 3.1) {
+          getEnvironment().getNotifyService().lowBattery("Room sensor in " + name, battery);
+        }
+      }
+      
+      if (packet.getContents().size() >= 11) {
+        int h = packet.getContents().get(10) * 256 + packet.getContents().get(9);
+        double humidity = h / 100.0;
+        log.info("Got humidity {} in {}.", humidity, name);
+        event(ZoneEvent.humidity(humidity));
+        if (humidity >= 0 && humidity < 100) {
+          uploadHumidity(humidity);          
+        }
+      }
     }
+  }
+
+  protected void uploadHumidity(double humidity) {
+    
+  }
+
+  protected void uploadTemp(double temp) {
+    getEnvironment().getCosmService().updateDatapoint(name, temp);
+  }
+  
+  public String getName() {
+    return name;
   }
   
   @Override

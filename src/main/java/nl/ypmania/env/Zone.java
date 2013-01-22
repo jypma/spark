@@ -21,6 +21,10 @@ public class Zone {
   
   private Double temperature;
   private Double calculatedTemperature;
+  
+  private Double humidity;
+  private Double calculatedHumidity;
+  
   private DateTime lastAction;
   private Environment env;
   
@@ -61,12 +65,21 @@ public class Zone {
         break;
         
       case TEMPERATURE:
-        temperature = event.getTemperature();
+        temperature = event.getValue();
         calculatedTemperature = null;
         if (parent != null) {
           parent.calculateTemperature();
         }
         break;
+        
+      case HUMIDITY:
+        humidity = event.getValue();
+        calculatedHumidity = null;
+        if (parent != null) {
+          parent.calculateHumidity();
+        }
+        break;
+        
     }
   }
   
@@ -90,6 +103,26 @@ public class Zone {
     }
   }
 
+  private synchronized void calculateHumidity() {
+    if (humidity == null) {
+      double t = 0;
+      int count = 0;
+      for (Zone z: subZones) {
+        Double zoneT = z.getHumidity();
+        if (zoneT != null) {
+          t += zoneT;
+          count++;
+        }
+      }
+      if (count > 0) {
+        calculatedHumidity = t / count;
+        if (parent != null) {
+          parent.calculateHumidity();
+        }
+      }
+    }
+  }
+  
   private void setParent(Zone parent) {
     this.parent = parent;
   }
@@ -105,6 +138,10 @@ public class Zone {
   
   public Double getTemperature() {
     return temperature != null ? temperature : calculatedTemperature;
+  }
+  
+  public Double getHumidity() {
+    return humidity != null ? humidity : calculatedHumidity;
   }
   
   @XmlTransient public DateTime getLastActionTime() {

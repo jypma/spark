@@ -18,7 +18,7 @@ public class FS20Service {
   private static final Logger log = LoggerFactory.getLogger(FS20Service.class);
   private @Autowired Environment environment;
   private Cache<FS20Packet, FS20Packet> recentPackets = CacheBuilder.newBuilder()
-      .expireAfterWrite(120, TimeUnit.MILLISECONDS)
+      .expireAfterWrite(150, TimeUnit.MILLISECONDS)
       .build();
   
   @Autowired private NodeService nodeService;
