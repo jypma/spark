@@ -6,8 +6,18 @@ function DimmersCntl($scope, $http) {
 		$scope.dimmers = data.items;
 	});
 	
-	$scope.toggle = function(name, brightness) {
+	$scope.dim = function(zoneName, name, brightness) {
 		console.log("" + name  + " has just been toggled " + brightness);
-		$http.post('./rest/fs20', {name: name, brightness: brightness});
+		$http.post('./rest/fs20', {zoneName: zoneName, name: name, brightness: brightness});
 	}
+	
+	$http.get('./rest/fs20/switches').success(function(data) {
+		console.log(data);
+		$scope.switches = data.items;
+	});
+	
+	$scope.toggle = function(zoneName, name, state) {
+		console.log("" + name  + " has just been toggled " + state);
+		$http.post('./rest/fs20', {zoneName: zoneName, name: name, on: state});
+	}	
 }

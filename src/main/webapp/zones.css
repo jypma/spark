@@ -11,8 +11,8 @@ body { background-color: #fff; }
 
 .zone { padding-top: 2px; background-color: #eee; border-top: 1px solid #ddd; }
 
-.zone > .name { width: 133px; }
-.zone > .status { width: 72px; }
+.zone > .name { width: 128px; }
+.zone > .status { width: 77px; }
 
 .indent1 { padding-left: 5px; margin-left: 5px; }
 .indent2 { padding-left: 10px; margin-left: 10px; }
@@ -20,5 +20,5 @@ body { background-color: #fff; }
 
 .device { padding-left: 3px; padding-right: 3px; background-color: #fff; border-left: 8px solid #eee; border-right: 8px solid #eee;  }
 
-.device .name { width: 132px; }
-.device .status { width: 70px; }
+.device .name { width: 127px; }
+.device .status { width: 75px; }

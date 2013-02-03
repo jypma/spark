@@ -6,12 +6,16 @@
 </head>
 
 <body ng-controller="DimmersCntl">
-  <h2>FS20 Dimmers</h2>
+  <h2>Lights</h2>
   <div ng-repeat="d in dimmers" style="margin-bottom: 2px; border-bottom: 1px solid #cccccc; width: 100%;">
-    <div>{{d.name}}</div>
+    <div>{{d.name}} in {{d.zoneName}}</div>
     <span ng-repeat="b in brightnesses">
-      <input type="radio" ng-model="d.brightness" value="{{b}}" ng-change="toggle(d.name, d.brightness)" style="width: 10px;">
+      <input type="radio" ng-model="d.brightness" value="{{b}}" ng-change="dim(d.zoneName, d.name, d.brightness)" style="width: 10px;">
     </span>
+  </div>
+  <div ng-repeat="s in switches">
+    <input type="checkbox" ng-model="s.on" ng-change="toggle(s.zoneName, s.name, s.on)">
+    {{s.name}} in {{s.zoneName}}
   </div>
   <a href="index.html">Menu</a>  
 </body>

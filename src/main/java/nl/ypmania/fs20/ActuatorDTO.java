@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ActuatorDTO {
   private String name;
+  private String zoneName;
   private Boolean on;
   private Integer brightness;
   private String type;
@@ -17,6 +18,7 @@ public class ActuatorDTO {
   public ActuatorDTO(Switch s) {
     type = "switch";
     name = s.getName();
+    zoneName = s.getZone().getName();
     on = s.isOn();
     brightness = on ? 16 : 0;
   }
@@ -24,8 +26,15 @@ public class ActuatorDTO {
   public ActuatorDTO(Dimmer d) {
     type = "dimmer";
     name = d.getName();
+    zoneName = d.getZone().getName();
     on = d.getBrightness() > 0;
     brightness = d.getBrightness();
+  }
+  public String getZoneName() {
+    return zoneName;
+  }
+  public void setZoneName(String zoneName) {
+    this.zoneName = zoneName;
   }
   public String getName() {
     return name;

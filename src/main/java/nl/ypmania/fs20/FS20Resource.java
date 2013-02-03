@@ -46,11 +46,11 @@ public class FS20Resource {
   @POST
   public void apply(ActuatorDTO actuator) {
     for (Dimmer d: environment.getAll(Dimmer.class)) {
-      if (d.getName().equals(actuator.getName()))
+      if (d.getZone().getName().equals(actuator.getZoneName()) && d.getName().equals(actuator.getName()))
         apply(actuator, d);
     }
     for (Switch s: environment.getAll(Switch.class)) {
-      if (s.getName().equals(actuator.getName()))
+      if (s.getZone().getName().equals(actuator.getZoneName()) && s.getName().equals(actuator.getName()))
         apply(actuator, s);      
     }
   }

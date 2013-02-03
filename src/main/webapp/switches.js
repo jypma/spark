@@ -4,8 +4,8 @@ function SwitchesCntl($scope, $http) {
 		$scope.switches = data.items;
 	});
 	
-	$scope.toggle = function(name, state) {
+	$scope.toggle = function(zoneName, name, state) {
 		console.log("" + name  + " has just been toggled " + state);
-		$http.post('./rest/fs20', {name: name, on: state});
+		$http.post('./rest/fs20', {zoneName: zoneName, name: name, on: state});
 	}
 }

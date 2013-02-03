@@ -8,8 +8,8 @@
 <body ng-controller="SwitchesCntl">
   <h2>FS20 Switches</h2>
   <div ng-repeat="s in switches">
-    <input type="checkbox" ng-model="s.on" ng-change="toggle(s.name, s.on)">
-    {{s.name}}
+    <input type="checkbox" ng-model="s.on" ng-change="toggle(s.zoneName, s.name, s.on)">
+    {{s.name}} in {{s.zoneName}}
   </div>
   <a href="index.html">Menu</a>  
 </body>

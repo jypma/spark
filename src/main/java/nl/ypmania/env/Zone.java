@@ -2,6 +2,7 @@ package nl.ypmania.env;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimerTask;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -27,6 +28,7 @@ public class Zone {
   
   private DateTime lastAction;
   private Environment env;
+  private TimerTask tempResetTask, humResetTask;
   
   public Zone(Environment env, String name, Zone... subZones) {
     this.env = env;
@@ -65,22 +67,54 @@ public class Zone {
         break;
         
       case TEMPERATURE:
-        temperature = event.getValue();
-        calculatedTemperature = null;
-        if (parent != null) {
-          parent.calculateTemperature();
-        }
+        scheduleResetTemp();
+        setTemperature(event.getValue());
         break;
         
       case HUMIDITY:
-        humidity = event.getValue();
-        calculatedHumidity = null;
-        if (parent != null) {
-          parent.calculateHumidity();
-        }
+        scheduleResetHum();
+        setHumidity(event.getValue());
         break;
         
     }
+  }
+
+  private synchronized void scheduleResetTemp() {
+    if (tempResetTask != null) tempResetTask.cancel();
+    tempResetTask = new TimerTask() {
+      public void run() {
+        setTemperature(null);
+      }
+    };
+    env.getTimer().schedule(tempResetTask, 3600 * 1000);
+  }
+
+  private synchronized void scheduleResetHum() {
+    if (humResetTask != null) humResetTask.cancel();
+    humResetTask = new TimerTask() {
+      public void run() {
+        setHumidity(null);
+      }
+    };
+    env.getTimer().schedule(humResetTask, 3600 * 1000);
+  }
+
+  private synchronized void setHumidity(Double h) {
+    humidity = h;
+    calculatedHumidity = null;
+    calculateHumidity();
+    if (parent != null) {
+      parent.calculateHumidity();
+    }
+  }
+  
+  private synchronized void setTemperature (Double t) {
+    temperature = t;
+    calculatedTemperature = null;
+    calculateTemperature();
+    if (parent != null) {
+      parent.calculateTemperature();
+    }    
   }
   
   private synchronized void calculateTemperature() {
