@@ -181,7 +181,7 @@ public class Home extends Environment {
       },
       new FS20MotionSensor(drivewayLeft, "Driveway, left side", new FS20Address(SENSORS, 3111)) {
         protected void motion() {
-          if (isDark()) {
+          if (isDark() && !settings.isNoAutoLights()) {
             carportFlood.timedOn(180);
             carportSpots.timedOn(180);            
           }
@@ -189,7 +189,7 @@ public class Home extends Environment {
       },
       new FS20MotionSensor(drivewayRight, "Driveway, right side", new FS20Address(SENSORS, 3112)) {
         protected void motion() {
-          if (isDark()) {
+          if (isDark() && !settings.isNoAutoLights()) {
             carportFlood.timedOn(180);
             carportSpots.timedOn(180);            
           }
@@ -200,7 +200,7 @@ public class Home extends Environment {
           if (!settings.isMuteMotion()) {
             sfx.play("tngchime.wav");
           }
-          if (isDark()) {
+          if (isDark() && !settings.isNoAutoLights()) {
             carportFlood.timedOn(300);
             carportSpots.timedOn(300);            
           }
