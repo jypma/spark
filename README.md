@@ -1,1 +1,1 @@
-Please refer to the [wiki]() for an extensive description.
+Please refer to the [wiki](http://github.com/jypma/spark/wiki) for documentation.
