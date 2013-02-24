@@ -9,6 +9,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import nl.ypmania.fs20.Actuator;
+
 import org.joda.time.DateTime;
 import org.ocpsoft.pretty.time.PrettyTime;
 
@@ -32,6 +34,7 @@ public class Zone {
   
   public Zone(Environment env, String name, Zone... subZones) {
     this.env = env;
+    env.addZone(this);
     this.name = name;
     for (Zone z: subZones) {
       z.setParent(this);
@@ -76,6 +79,14 @@ public class Zone {
         setHumidity(event.getValue());
         break;
         
+    }
+  }
+  
+  public void lightsOff() {
+    for (Device device: devices) {
+      if (device instanceof Actuator) {
+        ((Actuator)device).off();
+      }
     }
   }
 
@@ -197,4 +208,13 @@ public class Zone {
   public List<Device> getDevices() {
     return devices;
   }
+
+  public boolean noActionSinceMinutes(int minutes) {
+    return lastAction != null && lastAction.plusMinutes(minutes).isBeforeNow();
+  }
+  
+  public boolean actionSinceSeconds(int seconds) {
+    return lastAction != null && lastAction.plusSeconds(seconds).isAfterNow();
+  }
+  
 }

@@ -32,6 +32,7 @@ public class Environment {
   private static final Logger log = LoggerFactory.getLogger(Environment.class);
   
   private List<Receiver> receivers = new ArrayList<Receiver>();
+  private List<Zone> zones = new ArrayList<Zone>();
   
   private @Autowired NotifyService notifyService;
   private @Autowired FS20Service fs20Service;
@@ -110,6 +111,10 @@ public class Environment {
   
   public RF12Service getRf12Service() {
     return rf12Service;
+  }
+  
+  public List<Zone> getZones() {
+    return zones;
   }
   
   public void setReceivers (Receiver... receivers) {
@@ -265,6 +270,10 @@ public class Environment {
     }
     protected abstract void start(long duration);
     protected void stop() {}
+  }
+
+  public void addZone(Zone zone) {
+    zones.add(zone);
   }
 
 }

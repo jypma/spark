@@ -99,7 +99,7 @@ public class Home extends Environment {
       if (!settings.isMuteDoorbell()) {
         sfx.play("doorbell.01.wav");            
       }
-      if (inside.getLastActionTime().plusMinutes(30).isBeforeNow()) {
+      if (inside.noActionSinceMinutes(30)) {
         if (lastDoorbellEmail == null || lastDoorbellEmail.plusMinutes(3).isBeforeNow()) {
           emailService.sendMail("Doorbell", "Somebody just rang the doorbell, but it seems nobody is home.");
           lastDoorbellEmail = DateTime.now();
@@ -108,12 +108,8 @@ public class Home extends Environment {
     }
   };
   
-  private boolean recently(DateTime time) {
-    return time != null && time.isAfter(DateTime.now().minusSeconds(15));
-  }
-
   private void handleOpenDoor() {
-    boolean obvious = recently(guestRoom.getLastActionTime()) || recently(kitchen.getLastActionTime()) || recently(office.getLastActionTime());
+    boolean obvious = guestRoom.actionSinceSeconds(15) || kitchen.actionSinceSeconds(15) || office.actionSinceSeconds(15);
     if (!settings.isMuteDoors() && !obvious) {
       doorOpenNotified = DateTime.now();
       sfx.play("tngchime.wav");         
@@ -313,6 +309,7 @@ public class Home extends Environment {
         rgbLamp.timedOnMillis(duration);
       }
     });
+    new LightWatchdog(this, bedRoom, livingRoom);
   }
   
   @Path("zone")
