@@ -47,6 +47,10 @@ public class DoorSensor extends Device {
     return name;
   }
   
+  public boolean isOpen() {
+    return open;
+  }
+  
   protected void opened() {}
   protected void closed() {}
   

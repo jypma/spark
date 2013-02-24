@@ -128,6 +128,20 @@ public class Home extends Environment {
     doorOpenNotified = null;
   }
   
+  DoorSensor bryggersDoor = new DoorSensor(bryggers, "Bryggers door", BRYGGERS_DOOR) {
+    protected void opened() {
+      handleOpenDoor();
+      if (isDark()) {
+        bryggersSpots.timedOn(300);
+        carportFlood.timedOn(120);
+        carportSpots.timedOn(120);                        
+      }
+    }
+    protected void closed() {
+      handleCloseDoor();
+    }        
+  };
+  
   @PostConstruct
   public void started() {
     
@@ -197,7 +211,7 @@ public class Home extends Environment {
       },
       new FS20MotionSensor(carport, "Carport", new FS20Address(SENSORS, 3113)) {
         protected void motion() {
-          if (!settings.isMuteMotion()) {
+          if (!settings.isMuteMotion() && !bryggersDoor.isOpen()) {
             sfx.play("tngchime.wav");
           }
           if (isDark() && !settings.isNoAutoLights()) {
@@ -232,19 +246,7 @@ public class Home extends Environment {
           handleCloseDoor();
         }
       },
-      new DoorSensor(bryggers, "Bryggers door", BRYGGERS_DOOR) {
-        protected void opened() {
-          handleOpenDoor();
-          if (isDark()) {
-            bryggersSpots.timedOn(300);
-            carportFlood.timedOn(120);
-            carportSpots.timedOn(120);                        
-          }
-        }
-        protected void closed() {
-          handleCloseDoor();
-        }        
-      },
+      bryggersDoor,
       
       doorbell,
       
