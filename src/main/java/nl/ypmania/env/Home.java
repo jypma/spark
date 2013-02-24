@@ -60,6 +60,7 @@ public class Home extends Environment {
   private @Autowired FS20Service fs20Service;
   private @Autowired SFX sfx;
   private @Autowired XBMCService xbmcService;
+  private @Autowired EMailService emailService;
   
   private Settings settings = new Settings();
   
@@ -92,10 +93,17 @@ public class Home extends Environment {
   
   Switch rgbLamp = new Switch(livingRoom, "RGB Lamp", new FS20Address(HOUSE, 1411), DININGROOM);
   
+  DateTime lastDoorbellEmail = null;
   private final Doorbell doorbell = new Doorbell(carport, 'D','B') {
     @Override protected void ring() {
       if (!settings.isMuteDoorbell()) {
         sfx.play("doorbell.01.wav");            
+      }
+      if (inside.getLastActionTime().plusMinutes(30).isBeforeNow()) {
+        if (lastDoorbellEmail == null || lastDoorbellEmail.plusMinutes(3).isBeforeNow()) {
+          emailService.sendMail("Doorbell", "Somebody just rang the doorbell, but it seems nobody is home.");
+          lastDoorbellEmail = DateTime.now();
+        }
       }
     }
   };
