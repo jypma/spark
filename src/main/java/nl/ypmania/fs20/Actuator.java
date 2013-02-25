@@ -19,6 +19,13 @@ public abstract class Actuator extends Device {
   
   protected Actuator() { super(null); }
   
+  public synchronized Integer getTimedOnMinutesLeft() {
+    if (offTask != null) {
+      long minutes = (offTaskTime - System.currentTimeMillis()) / (1000 * 60);
+      if (minutes <= 0) return null; else return (int)minutes; 
+    } else return null;
+  }
+  
   @XmlTransient public FS20Address getPrimaryAddress() {
     return primaryAddress;
   }

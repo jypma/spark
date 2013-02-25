@@ -1,3 +1,4 @@
 <span class="name">{{device.name}}</span>
-<span class="status" ng-show="device.on">On</span>
-<span class="status" ng-hide="device.on">Off</span>
+<span class="status on" ng-show="device.on">&#x2600;</span>
+<span class="status off" ng-hide="device.on">&#x2022;</span>
+<span class="time" ng-show="device.timedOnMinutesLeft">({{device.timedOnMinutesLeft}} min)</span>
