@@ -9,8 +9,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import nl.ypmania.fs20.Actuator;
-
 import org.joda.time.DateTime;
 import org.ocpsoft.pretty.time.PrettyTime;
 
@@ -82,14 +80,6 @@ public class Zone {
     }
   }
   
-  public void lightsOff() {
-    for (Device device: devices) {
-      if (device instanceof Actuator) {
-        ((Actuator)device).off();
-      }
-    }
-  }
-
   private synchronized void scheduleResetTemp() {
     if (tempResetTask != null) tempResetTask.cancel();
     tempResetTask = new TimerTask() {

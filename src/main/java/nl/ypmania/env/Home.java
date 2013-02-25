@@ -309,7 +309,7 @@ public class Home extends Environment {
         rgbLamp.timedOnMillis(duration);
       }
     });
-    new LightWatchdog(this, bedRoom, livingRoom);
+    new LightWatchdog(this, bedRoom, livingRoom).ignore(rgbLamp);
   }
   
   @Path("zone")
