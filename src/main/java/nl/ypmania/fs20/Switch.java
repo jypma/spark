@@ -1,6 +1,7 @@
 package nl.ypmania.fs20;
 
 import nl.ypmania.env.Zone;
+import nl.ypmania.env.ZoneEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +61,9 @@ public class Switch extends Actuator {
       break;
     }
     log.debug("State is now: " + on);
+    if (packet.isReceived()) {
+      getZone().event(ZoneEvent.buttonPressed());
+    }
   }
   
   public boolean isOn() {

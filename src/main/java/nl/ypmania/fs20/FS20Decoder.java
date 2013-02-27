@@ -41,7 +41,7 @@ public class FS20Decoder extends Decoder<FS20Packet> {
   
   @Override
   public FS20Packet getResult() {
-    return FS20Packet.fromBytes(getData());
+    return FS20Packet.fromBytes(getData(), true);
   }
   
   private abstract class State {

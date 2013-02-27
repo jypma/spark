@@ -167,6 +167,7 @@ public class Home extends Environment {
       
       new FS20Route(new FS20Address(BUTTONS, 1111), Command.OFF) {
         protected void handle() {
+          livingRoom.event(ZoneEvent.buttonPressed());
           livingRoomCeiling.onFull();
           livingRoomReadingLamp.onFull();
           livingRoomTableLamp.off();
@@ -176,6 +177,7 @@ public class Home extends Environment {
       },
       new FS20Route(new FS20Address(BUTTONS, 1111), Command.ON_PREVIOUS) {
         protected void handle() {
+          livingRoom.event(ZoneEvent.buttonPressed());
           livingRoomCeiling.dim(1);
           livingRoomTableLamp.onFull();
           livingRoomCornerLamp.onFull();
@@ -185,6 +187,7 @@ public class Home extends Environment {
       },
       new FS20Route(new FS20Address(BUTTONS, 1112), Command.OFF) {
         protected void handle() {
+          livingRoom.event(ZoneEvent.buttonPressed());
           fs20Service.queueFS20(new FS20Packet (BEDROOM, Command.ON_PREVIOUS));
           fs20Service.queueFS20(new FS20Packet (LIVING_ROOM, Command.OFF));
           rgbLamp.off();
@@ -192,6 +195,7 @@ public class Home extends Environment {
       },
       new FS20Route(new FS20Address(BUTTONS, 1112), Command.ON_PREVIOUS) {
         protected void handle() {
+          livingRoom.event(ZoneEvent.buttonPressed());
           fs20Service.queueFS20(new FS20Packet (BEDROOM, Command.OFF));
           fs20Service.queueFS20(new FS20Packet (LIVING_ROOM, Command.OFF));
           rgbLamp.off();

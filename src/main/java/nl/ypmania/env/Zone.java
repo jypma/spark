@@ -77,6 +77,8 @@ public class Zone {
         setHumidity(event.getValue());
         break;
         
+      case BUTTON:
+        action(event);
     }
   }
   

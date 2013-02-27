@@ -51,8 +51,12 @@ public class ZoneEvent {
     return new ZoneEvent(Type.HUMIDITY, 0, 0, humidity);
   }
   
+  public static ZoneEvent buttonPressed() {
+    return new ZoneEvent(Type.BUTTON, 0, 0, 0);
+  }
+  
   public enum Type {
-    MOTION, OPENED, CLOSED, COUNT, RING, TEMPERATURE, HUMIDITY
+    MOTION, OPENED, CLOSED, COUNT, RING, TEMPERATURE, HUMIDITY, BUTTON
   }
    
   public DateTime getTime() {
