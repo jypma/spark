@@ -4,8 +4,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.lang3.StringUtils;
-
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Settings {
@@ -37,13 +35,5 @@ public class Settings {
   
   public String getAlarmMode() {
     return alarmMode;
-  }
-
-  public boolean shouldAlarmFor(String[] zones) {
-    if (StringUtils.isBlank(alarmMode) || alarmMode.equalsIgnoreCase("off")) return false;
-    if (alarmMode.equalsIgnoreCase("on")) return true;
-    for (String zone: zones)
-      if (alarmMode.contains(zone)) return true;
-    return false;
   }
 }

@@ -4,7 +4,6 @@ function ZonesCntl($scope, $http, $timeout) {
 	} else {
 		var load = function() {
 			$http.get('./rest/home/zone').success(function(data) {
-				console.log(data);
 				$scope.zone = data;
 				$timeout(load, 3000);
 			}).error(function(){

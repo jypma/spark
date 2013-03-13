@@ -23,16 +23,20 @@
       <td>No auto-lights</td>
     </tr>
     <tr>
-      <td><input type="radio" ng-model="settings.alarmMode" value="OFF" ng-change="save()"></td>
+      <td><input type="radio" ng-model="settings.alarmMode" value="off" ng-change="save()"></td>
       <td>Alarm - off&nbsp;&nbsp;</td>
     </tr>
     <tr>
-      <td><input type="radio" ng-model="settings.alarmMode" value="NIGHT" ng-change="save()"></td>
-      <td>Alarm - night mode&nbsp;&nbsp;</td>
+      <td><input type="radio" ng-model="settings.alarmMode" value="day" ng-change="save()"></td>
+      <td>Alarm - night areas&nbsp;&nbsp;</td>
     </tr>
     <tr>
-      <td><input type="radio" ng-model="settings.alarmMode" value="ON" ng-change="save()"></td>
-      <td>Alarm - on&nbsp;&nbsp;</td>
+      <td><input type="radio" ng-model="settings.alarmMode" value="inside" ng-change="save()"></td>
+      <td>Alarm - indoor areas&nbsp;&nbsp;</td>
+    </tr>
+    <tr>
+      <td><input type="radio" ng-model="settings.alarmMode" value="area" ng-change="save()"></td>
+      <td>Alarm - all areas&nbsp;&nbsp;</td>
     </tr>
   </table>
   <a href="index.html">Menu</a>

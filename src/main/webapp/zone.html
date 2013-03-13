@@ -8,7 +8,12 @@
   <span class="action">{{zone.lastAction}}</span>
   <div class="device" ng-repeat="device in zone.devices">
     <div class="{{device.type}}">
-      <ng-include src="'zone-' + device.type + '.html'"/>
+      <ng:switch on="device.type">
+        <div ng:switch-when="Dimmer"><ng-include src="'zone-Dimmer.html'"/></div>
+        <div ng:switch-when="Doorbell"><ng-include src="'zone-Doorbell.html'"/></div>
+        <div ng:switch-when="RoomSensor"><ng-include src="'zone-RoomSensor.html'"/></div>
+        <div ng:switch-when="Switch"><ng-include src="'zone-Switch.html'"/></div>
+      </ng:switch>
     </div>
   </div>
   <div ng-repeat="zone in zone.subZones">

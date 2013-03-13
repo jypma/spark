@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
 
-public class Environment {
+public abstract class Environment {
   private static final Logger log = LoggerFactory.getLogger(Environment.class);
   
   private List<Receiver> receivers = new ArrayList<Receiver>();
@@ -38,6 +38,8 @@ public class Environment {
   private @Autowired FS20Service fs20Service;
   private @Autowired RF12Service rf12Service;
   private @Autowired CosmService cosmService;
+  private @Autowired EMailService emailService;
+  
   private long rf868UsageEnd = System.currentTimeMillis();
   private ConcurrentLinkedQueue<Runnable> rf868Actions = new ConcurrentLinkedQueue<Runnable>();
   private Timer timer = new Timer();
@@ -64,6 +66,10 @@ public class Environment {
   
   public CosmService getCosmService() {
     return cosmService;
+  }
+  
+  public EMailService getEmailService() {
+    return emailService;
   }
   
   protected synchronized void scheduleTimedTasks() {
@@ -276,4 +282,5 @@ public class Environment {
     zones.add(zone);
   }
 
+  public abstract boolean isAlarmArmed(Zone zone);
 }

@@ -50,12 +50,14 @@ public class Zone {
     switch (event.getType()) {
       case MOTION:
         env.getNotifyService().sendMotion(name);        
-        action(event); 
+        action(event);
+        possibleAlarm(event);
         break;
         
       case OPENED:
         env.getNotifyService().sendDoorOpen(name);
         action(event); 
+        possibleAlarm(event);
         break;
         
       case CLOSED:
@@ -167,6 +169,14 @@ public class Zone {
   private void action(ZoneEvent event) {
     lastAction = event.getTime();
     if (parent != null) parent.action(event);
+  }
+  
+  private void possibleAlarm(ZoneEvent event) {
+    if (getEnvironment().isAlarmArmed(this))
+      getEnvironment().getEmailService().sendMail(
+          "Alarm in " + name, "An alarm was triggered in " + name + 
+          ", because of " + event.getType() + ".");
+    if (parent != null) parent.possibleAlarm(event);
   }
   
   public String getName() {

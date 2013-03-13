@@ -24,6 +24,7 @@ import nl.ypmania.visonic.VisonicAddress;
 import nl.ypmania.visonic.VisonicMotionSensor;
 import nl.ypmania.xbmc.XBMCService;
 import nl.ypmania.xbmc.XBMCService.State;
+import nl.ypmania.zoneminder.ZoneMinderService;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public class Home extends Environment {
   private @Autowired FS20Service fs20Service;
   private @Autowired SFX sfx;
   private @Autowired XBMCService xbmcService;
-  private @Autowired EMailService emailService;
+  private @Autowired ZoneMinderService zoneMinderService;
   
   private Settings settings = new Settings();
   
@@ -96,12 +97,13 @@ public class Home extends Environment {
   DateTime lastDoorbellEmail = null;
   private final Doorbell doorbell = new Doorbell(carport, 'D','B') {
     @Override protected void ring() {
+      zoneMinderService.triggerEvent(1, 15, 255, "Doorbell", "Doorbell");
       if (!settings.isMuteDoorbell()) {
         sfx.play("doorbell.01.wav");            
       }
       if (inside.noActionSinceMinutes(30)) {
         if (lastDoorbellEmail == null || lastDoorbellEmail.plusMinutes(3).isBeforeNow()) {
-          emailService.sendMail("Doorbell", "Somebody just rang the doorbell, but it seems nobody is home.");
+          getEmailService().sendMail("Doorbell", "Somebody just rang the doorbell, but it seems nobody is home.");
           lastDoorbellEmail = DateTime.now();
         }
       }
@@ -219,6 +221,7 @@ public class Home extends Environment {
       },
       new FS20MotionSensor(carport, "Carport", new FS20Address(SENSORS, 3113)) {
         protected void motion() {
+          zoneMinderService.triggerEvent(1, 10, 255, "CarportMotion", "Motion on carport");
           if (!settings.isMuteMotion() && !bryggersDoor.isOpen()) {
             sfx.play("tngchime.wav");
           }
@@ -314,6 +317,15 @@ public class Home extends Environment {
       }
     });
     new LightWatchdog(this, bedRoom, livingRoom).ignore(rgbLamp);
+  }
+  
+  @Override
+  public boolean isAlarmArmed(Zone zone) {
+    String alarm = settings.getAlarmMode();
+    if (alarm != null) {
+      return zone.getName().equalsIgnoreCase(alarm);
+    } else
+      return false;
   }
   
   @Path("zone")

@@ -6,8 +6,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import nl.ypmania.env.EMailService;
-import nl.ypmania.env.Home;
-import nl.ypmania.env.SFX;
 import nl.ypmania.visonic.VisonicMotionSensor;
 
 import org.chamerling.javagrowl.GrowlNetwork;
@@ -25,8 +23,6 @@ public class NotifyService {
   
   private GrowlNetwork g1, g2;
   private String password = "lemur";
-  private @Autowired Home home;
-  private @Autowired SFX sfx;
 
   @Autowired private EMailService emailService;
   
@@ -34,38 +30,32 @@ public class NotifyService {
   public void start() {
     g1 = GrowlNetwork.register("Spark", password, "192.168.0.191"); 
     g2 = GrowlNetwork.register("Spark", password, "192.168.0.193"); 
-    notify("Ready", "Spark is ready", null);
+    notify("Ready", "Spark is ready");
   }
   
-  private void notify(String title, String msg, String[] zones) {
+  private void notify(String title, String msg) {
     g1.notify("Spark", title, msg, password);
     g2.notify("Spark", title, msg, password);
-    /*
-    if (zones != null && home.getSettings().shouldAlarmFor(zones)) {
-      sfx.play("alarm.wav");
-      emailService.sendMail(title, "=============== ALARM at " + new Date() + "=====================\n\n" + msg);
-    }
-    */
   }
 
-  public void sendDoorOpen (String name, String... zones) {
-    notify("Door opened", name, zones);
+  public void sendDoorOpen (String name) {
+    notify("Door opened", name);
   }
   
   public void sendDoorClosed (String name) {
-    notify("Door closed", name, null);
+    notify("Door closed", name);
   }
   
-  public void sendMotion (VisonicMotionSensor sensor, String... zones) {
-    notify("Motion detected", sensor.getName(), zones);
+  public void sendMotion (VisonicMotionSensor sensor) {
+    notify("Motion detected", sensor.getName());
   }
   
-  public void sendMotion (String sensorName, String... zones) {
-    notify("Motion detected", sensorName, zones);
+  public void sendMotion (String sensorName) {
+    notify("Motion detected", sensorName);
   }
   
   public void doorbell() {
-    notify("Doorbell", "Somebody is at the door!", null);
+    notify("Doorbell", "Somebody is at the door!");
   }
   
   @PreDestroy
