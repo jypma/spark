@@ -18,7 +18,7 @@ public class LightWatchdog {
     env.getTimer().schedule(new TimerTask(){
       public void run() {
         for (Zone zone: zones) {
-          if (zone.noActionSinceMinutes(15)) {
+          if (zone.noActionSinceMinutes(25)) {
             for (Device device: zone.getDevices()) {
               if (!ignores.contains(device)) {
                 if (device instanceof Actuator) {
