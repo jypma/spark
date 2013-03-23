@@ -1,11 +1,11 @@
 package nl.ypmania.fs20;
 
 
-import java.util.Arrays;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class FS20DecoderTest {
   private FS20Decoder decoder;

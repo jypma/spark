@@ -81,6 +81,11 @@ public class Zone {
         
       case BUTTON:
         action(event);
+        break;
+        
+      case MOVIE:
+        action(event);
+        break;
     }
   }
   

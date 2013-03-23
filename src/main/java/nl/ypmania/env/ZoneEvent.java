@@ -55,8 +55,13 @@ public class ZoneEvent {
     return new ZoneEvent(Type.BUTTON, 0, 0, 0);
   }
   
+  public static ZoneEvent moviePlaying() {
+    return new ZoneEvent(Type.MOVIE, 0, 0, 0);
+  }
+
+  
   public enum Type {
-    MOTION, OPENED, CLOSED, COUNT, RING, TEMPERATURE, HUMIDITY, BUTTON
+    MOTION, OPENED, CLOSED, COUNT, RING, TEMPERATURE, HUMIDITY, BUTTON, MOVIE
   }
    
   public DateTime getTime() {

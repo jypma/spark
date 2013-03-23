@@ -262,10 +262,11 @@ public class Home extends Environment {
       doorbell,
       
       new RoomSensor(bryggers, "Bryggers", (int)'1'),
-      new RoomSensor(livingRoom, "Stue", (int)'2'),
-      new HumidityRoomSensor(bedRoom, "Bedroom", (int)'4')
+      new HumidityRoomSensor(livingRoom, "Stue", "Stue_H", (int)'2'),
+      new HumidityRoomSensor(bedRoom, "Bedroom_T", "Bedroom_H", (int)'4')
     );
     
+    xbmcService.setLocation(livingRoom);
     xbmcService.on(State.PLAYING, new Runnable() {
       public void run() {
         if (isDark()) {

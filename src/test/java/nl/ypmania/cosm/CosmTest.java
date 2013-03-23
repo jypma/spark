@@ -1,12 +1,14 @@
 package nl.ypmania.cosm;
 
+//import org.junit.Test;
+
 
 public class CosmTest {
   
-  //@Test
+//  @Test
   public void test() {
     CosmService s = new CosmService();
     s.init();
-    s.updateDatapoint("Bryggers", 21.0);
+    s.updateDatapoint("Bryggers", 21.1);
   }
 }

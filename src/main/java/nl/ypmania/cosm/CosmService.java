@@ -2,6 +2,9 @@ package nl.ypmania.cosm;
 
 import javax.annotation.PostConstruct;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -20,6 +23,8 @@ public class CosmService {
   private int feed = 94446;
   private Client client;
   
+  private static final DateTimeFormatter fmt = ISODateTimeFormat.dateTimeNoMillis().withZoneUTC(); 
+  
   @PostConstruct
   public void init() {
     log.debug("Initing");
@@ -33,11 +38,15 @@ public class CosmService {
   
   public void updateDatapoint (String datastream, double value) {
     log.debug("Updating {} to {}", datastream, value);
-    WebResource resource = client.resource("https://api.cosm.com/v2/feeds/" + feed + "/datastreams/" + datastream);
+    WebResource resource = client.resource("https://api.cosm.com/v2/feeds/" + feed + "/datastreams/" + datastream + "/datapoints");
+    String response = "";
     try {
-      resource.header("X-ApiKey", apiKey).entity("{\"current_value\": \"" + value + "\"}", "application/json").put(String.class);
+      String time = fmt.print(DateTime.now());
+      String body = "{\"datapoints\":[{\"at\": \"" + time + "\", \"value\": \"" + value + "\"}]}";
+      log.debug(body);
+      response = resource.header("X-ApiKey", apiKey).entity(body).post(String.class);
     } catch (Exception x) {
-      log.error ("Error updating cosm", x);
+      log.error ("Error updating cosm: " + response, x);
     }
   }
 

@@ -10,6 +10,9 @@ import java.util.TimerTask;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import nl.ypmania.env.Zone;
+import nl.ypmania.env.ZoneEvent;
+
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +34,11 @@ public class XBMCService {
   private State state = State.STOPPED;
   private int lastSeconds = -1;
   private Map<State,List<Runnable>> callbacks = new HashMap<State,List<Runnable>>();
+  private Zone location;
+  
+  public void setLocation(Zone location) {
+    this.location = location;
+  }
   
   @PostConstruct
   public void init() {
@@ -49,9 +57,16 @@ public class XBMCService {
         }
         if (newState != state) {
           log.info ("State is now " + newState);
-          callback(newState);
+          try {
+            callback(newState);
+          } catch (Exception x) {
+            log.error("Error in callback", x);
+          }
         }
         state = newState;
+        if (state == State.PLAYING && location != null) {
+          location.event(ZoneEvent.moviePlaying());
+        }
       }
     }, 5000, 5000);
   }

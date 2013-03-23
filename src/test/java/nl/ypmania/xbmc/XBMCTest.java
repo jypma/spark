@@ -1,6 +1,6 @@
 package nl.ypmania.xbmc;
 
-import org.junit.Test;
+//import org.junit.Test;
 
 public class XBMCTest {
   //@Test
