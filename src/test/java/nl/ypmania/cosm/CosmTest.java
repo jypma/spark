@@ -1,14 +1,17 @@
 package nl.ypmania.cosm;
 
-//import org.junit.Test;
+import nl.ypmania.cosm.CosmService.DataPoint;
 
-
+import org.junit.Test;
 public class CosmTest {
   
-//  @Test
+//@Test
   public void test() {
     CosmService s = new CosmService();
     s.init();
-    s.updateDatapoint("Bryggers", 21.1);
+    DataPoint pt = s.getDatapoint("El_Energy");
+    System.out.println("va: " + pt.asLong());
+    System.out.println("at: " + pt.getAt());
+    System.out.println("at: " + pt.getTime());
   }
 }

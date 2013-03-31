@@ -16,6 +16,7 @@ import nl.ypmania.fs20.FS20Route;
 import nl.ypmania.fs20.FS20Service;
 import nl.ypmania.fs20.Switch;
 import nl.ypmania.rf12.Doorbell;
+import nl.ypmania.rf12.ElectricityMeter;
 import nl.ypmania.rf12.HumidityRoomSensor;
 import nl.ypmania.rf12.RoomSensor;
 import nl.ypmania.visonic.DoorSensor;
@@ -263,7 +264,8 @@ public class Home extends Environment {
       
       new RoomSensor(bryggers, "Bryggers", (int)'1'),
       new HumidityRoomSensor(livingRoom, "Stue", "Stue_H", (int)'2'),
-      new HumidityRoomSensor(bedRoom, "Bedroom_T", "Bedroom_H", (int)'4')
+      new HumidityRoomSensor(bedRoom, "Bedroom_T", "Bedroom_H", (int)'4'),
+      new ElectricityMeter(bryggers, (int)'1', "El_Power", "El_Energy")
     );
     
     xbmcService.setLocation(livingRoom);

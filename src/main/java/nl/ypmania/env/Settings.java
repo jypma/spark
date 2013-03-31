@@ -13,7 +13,7 @@ public class Settings {
   
   private boolean muteDoorbell = false;
   
-  private String alarmMode = "OFF";
+  private String alarmMode = "off";
 
   private boolean noAutoLights = false;
   
