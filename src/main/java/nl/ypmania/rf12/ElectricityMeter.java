@@ -72,6 +72,10 @@ public class ElectricityMeter extends Device {
         ((long)packet.getContents().get(12) << 56)
     ;
     log.debug("Received electricity: {} Wh", Wh);
+    if (Wh + electricityWhOffset > electricityWh + 1000) {
+      log.warn ("More than 1000 Wh above current electrity. Ignoring bogus packet.");
+      return;
+    }
     if (Wh + electricityWhOffset < electricityWh) {
       log.debug ("Received {} smaller than existing {}. Assuming difference as offset.", Wh, electricityWh);
       electricityWhOffset = (electricityWh - Wh);
