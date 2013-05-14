@@ -1,35 +1,60 @@
 package nl.ypmania.rgb;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import java.util.TimerTask;
 
-import nl.ypmania.env.Environment;
+import nl.ypmania.env.Device;
+import nl.ypmania.env.Zone;
 import nl.ypmania.rf12.RF12Packet;
-import nl.ypmania.rf12.RF12Service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
-@Path("/rgblamp")
-public class RGBLamp {
+public class RGBLamp extends Device {
+
+  public RGBLamp(Zone zone, String name, int id1, int id2) {
+    super(zone);
+    this.id1 = id1;
+    this.id2 = id2;
+    this.name = name;
+  }
+
   private static final Logger log = LoggerFactory.getLogger(RGBLamp.class);
   
-  private @Autowired Environment environment;
-  private @Autowired RF12Service rf12Service;
-
   private LampColor color = new LampColor (180, 180, 180, 100);
   private LampColor nextColor = color;
   
-  @GET
+  private final int id1, id2; // R G , L 2
+  private final String name;
+
+  @Override
+  public String getType() {
+    return "RGBLamp";
+  }
+  
+  public String getName() {
+    return name;
+  }
+  
   public LampColor getColor() {
     return color;
   }
   
-  @POST
+  @Override
+  public void receive(RF12Packet packet) {
+    if (packet.getContents().size() >= 6) {
+      if (packet.getContents().get(0) == id1 &&
+          packet.getContents().get(1) == id2 &&
+          packet.getContents().get(4) == 5) { // ping
+        sendNextColor();
+        getEnvironment().getTimer().schedule(new TimerTask() {
+          public void run() {
+            sendNextColor();
+          }
+        }, 300);
+      }
+    }
+  }
+  
   public synchronized void setColor (LampColor newColor) {
     if (nextColor.equals(newColor)) return;
     log.info ("Queueing change from {} to {}", color, newColor);
@@ -37,16 +62,15 @@ public class RGBLamp {
     nextColor = newColor;
     if (!waiting) {
       log.debug ("Scheduling a change");
-      environment.onRf868Clear(new Runnable() {
-        @Override
-        public void run() {
-          synchronized(this) {
-            log.info ("Changing from {} to {}", color, nextColor);
-            rf12Service.queue(new RF12Packet(new int[] { 1,1,82,71,nextColor.getR(),nextColor.getG(),nextColor.getB(),nextColor.getQ(),0,0,0,0 } ));
-            color = nextColor;
-          }
-        }
-      });      
+      synchronized(this) {
+        log.info ("Changing from {} to {}", color, nextColor);
+        sendNextColor();
+      }      
     }
+  }
+
+  private void sendNextColor() {
+    getEnvironment().getRf12Service().queue(new RF12Packet(new int[] { 1,1,id1,id2,nextColor.getR(),nextColor.getG(),nextColor.getB(),nextColor.getQ(),0,0,0,0 } ));
+    color = nextColor;
   }
 }

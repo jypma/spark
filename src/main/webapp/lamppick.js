@@ -1,8 +1,9 @@
-function LampCntl($scope, $http) {
+function LampCntl($scope, $http, $location) {
   $scope.r = 180;
   $scope.g = 180;
   $scope.b = 180;
   $scope.q = 100;
+  var lampName = $location.search().name;
   
   var drawGradient = function(r,g,b) {
       var context = document.getElementById('canvas').getContext('2d');
@@ -15,7 +16,7 @@ function LampCntl($scope, $http) {
       context.fillRect(0,0,320,38);    	  	  
   };
   
-  $http.get('./rest/rgblamp').success(function(data) {
+  $http.get('./rest/rgblamps/' + lampName).success(function(data) {
 	  console.log(data);
 	  $scope.r = data.r;
 	  $scope.g = data.g;
@@ -27,7 +28,7 @@ function LampCntl($scope, $http) {
   var send = function (r,g,b,q) {
 	  console.log("Sending " + r + " " + g + " " + b + " " + q);
 	  //$http.post('./rest/node/rf12', { contents : [ 1,1,82,71,r,g,b,q,0,0,0,0 ]});
-	  $http.post('./rest/rgblamp', { r:r, g:g, b:b, q:q });
+	  $http.put('./rest/rgblamps/' + lampName, { r:r, g:g, b:b, q:q });
   };
   
   var touchedAt = function (x,y) {

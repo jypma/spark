@@ -100,7 +100,7 @@ public class XBMCService {
   
   protected State retrieveState() {
     try {
-      WebResource resource = client.resource("http://192.168.0.192:8080/jsonrpc");
+      WebResource resource = client.resource("http://192.168.0.190:8080/jsonrpc");
       JSONObject result = resource.entity("{\"jsonrpc\": \"2.0\", \"method\": \"Player.GetProperties\", \"id\":1, \"params\":{\"playerid\": 1, \"properties\": [\"time\"]}}", "application/json").post(JSONObject.class);
       if (result.has("result")) {
         result = result.getJSONObject("result");

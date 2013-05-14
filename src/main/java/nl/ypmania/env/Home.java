@@ -19,6 +19,7 @@ import nl.ypmania.rf12.Doorbell;
 import nl.ypmania.rf12.ElectricityMeter;
 import nl.ypmania.rf12.HumidityRoomSensor;
 import nl.ypmania.rf12.RoomSensor;
+import nl.ypmania.rgb.RGBLamp;
 import nl.ypmania.visonic.DoorSensor;
 import nl.ypmania.visonic.SensorDTO;
 import nl.ypmania.visonic.VisonicAddress;
@@ -265,7 +266,10 @@ public class Home extends Environment {
       new RoomSensor(bryggers, "Bryggers", (int)'1'),
       new HumidityRoomSensor(livingRoom, "Stue", "Stue_H", (int)'2'),
       new HumidityRoomSensor(bedRoom, "Bedroom_T", "Bedroom_H", (int)'4'),
-      new ElectricityMeter(bryggers, (int)'1', "El_Power", "El_Energy")
+      new ElectricityMeter(bryggers, (int)'1', "El_Power", "El_Energy"),
+      
+      new RGBLamp(livingRoom, "Plantlamp", (int)'R', (int)'G'),
+      new RGBLamp(bedRoom, "Sleepstrip", (int)'L', (int)'2')
     );
     
     xbmcService.setLocation(livingRoom);
