@@ -41,7 +41,7 @@ public class RGBLamp extends Device {
   
   @Override
   public void receive(RF12Packet packet) {
-    if (packet.getContents().size() >= 6) {
+    if (packet.getContents().size() >= 5) {
       if (packet.getContents().get(0) == id1 &&
           packet.getContents().get(1) == id2 &&
           packet.getContents().get(4) == 5) { // ping
