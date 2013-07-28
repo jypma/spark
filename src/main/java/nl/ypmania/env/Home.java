@@ -224,7 +224,8 @@ public class Home extends Environment {
       new FS20MotionSensor(carport, "Carport", new FS20Address(SENSORS, 3113)) {
         protected void motion() {
           zoneMinderService.triggerEvent(1, 10, 255, "CarportMotion", "Motion on carport");
-          if (!settings.isMuteMotion() && !bryggersDoor.isOpen()) {
+          if (!settings.isMuteMotion() && 
+              (bryggersDoor.isClosed() || bryggersDoor.isOpenAtLeastSeconds(60))) {
             sfx.play("tngchime.wav");
           }
           if (isDark() && !settings.isNoAutoLights()) {

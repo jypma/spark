@@ -50,7 +50,32 @@ public class RGBLamp extends Device {
           public void run() {
             sendNextColor();
           }
-        }, 300);
+        }, 100);
+        getEnvironment().getTimer().schedule(new TimerTask() {
+          public void run() {
+            sendNextColor();
+          }
+        }, 200);
+        getEnvironment().getTimer().schedule(new TimerTask() {
+          public void run() {
+            sendNextColor();
+          }
+        }, 500);
+        getEnvironment().getTimer().schedule(new TimerTask() {
+          public void run() {
+            sendNextColor();
+          }
+        }, 1000);
+        getEnvironment().getTimer().schedule(new TimerTask() {
+          public void run() {
+            sendNextColor();
+          }
+        }, 1500);
+        getEnvironment().getTimer().schedule(new TimerTask() {
+          public void run() {
+            sendNextColor();
+          }
+        }, 2000);
       }
     }
   }

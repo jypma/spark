@@ -4,6 +4,7 @@ import nl.ypmania.env.Device;
 import nl.ypmania.env.Zone;
 import nl.ypmania.env.ZoneEvent;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +13,7 @@ public class DoorSensor extends Device {
   
   private String name;
   private VisonicAddress address;
-  private boolean open = false;
+  private DateTime opened = null;
   private boolean lowBattery = false;
   private boolean tamper = false;
   
@@ -25,7 +26,12 @@ public class DoorSensor extends Device {
   @Override
   public void receive(VisonicPacket packet) {
     if (packet.getAddress().equals(address)) {
-      open = (packet.getByte4() & 0x04) == 0;
+      boolean open = (packet.getByte4() & 0x04) == 0;
+      if (open && opened == null) {
+        opened = DateTime.now();
+      } else if (!open) {
+        opened = null;
+      }
       lowBattery = (packet.getByte4() & 0x02) == 1;
       tamper = (packet.getByte4() & 0x08) == 1;
       boolean event = (packet.getByte4() & 0x01) == 1;
@@ -48,7 +54,12 @@ public class DoorSensor extends Device {
   }
   
   public boolean isOpen() {
-    return open;
+    return opened != null;
+  }
+  
+  public boolean isOpenAtLeastSeconds(int seconds) {
+    if (opened == null) return false;
+    return opened.plusSeconds(seconds).isBeforeNow();
   }
   
   protected void opened() {}
@@ -58,4 +69,9 @@ public class DoorSensor extends Device {
   public String getType() {
     return "DoorSensor";
   }
+
+  public boolean isClosed() {
+    return !isOpen();
+  }
+
 }
