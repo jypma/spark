@@ -1,7 +1,5 @@
 package nl.ypmania.rgb;
 
-import java.util.TimerTask;
-
 import nl.ypmania.env.Device;
 import nl.ypmania.env.Zone;
 import nl.ypmania.rf12.RF12Packet;
@@ -46,36 +44,6 @@ public class RGBLamp extends Device {
           packet.getContents().get(1) == id2 &&
           packet.getContents().get(4) == 5) { // ping
         sendNextColor();
-        getEnvironment().getTimer().schedule(new TimerTask() {
-          public void run() {
-            sendNextColor();
-          }
-        }, 100);
-        getEnvironment().getTimer().schedule(new TimerTask() {
-          public void run() {
-            sendNextColor();
-          }
-        }, 200);
-        getEnvironment().getTimer().schedule(new TimerTask() {
-          public void run() {
-            sendNextColor();
-          }
-        }, 500);
-        getEnvironment().getTimer().schedule(new TimerTask() {
-          public void run() {
-            sendNextColor();
-          }
-        }, 1000);
-        getEnvironment().getTimer().schedule(new TimerTask() {
-          public void run() {
-            sendNextColor();
-          }
-        }, 1500);
-        getEnvironment().getTimer().schedule(new TimerTask() {
-          public void run() {
-            sendNextColor();
-          }
-        }, 2000);
       }
     }
   }
@@ -95,7 +63,15 @@ public class RGBLamp extends Device {
   }
 
   private void sendNextColor() {
-    getEnvironment().getRf12Service().queue(new RF12Packet(new int[] { 1,1,id1,id2,nextColor.getR(),nextColor.getG(),nextColor.getB(),nextColor.getQ(),0,0,0,0 } ));
-    color = nextColor;
+    getEnvironment().onRf868Clear(new Runnable() {
+      @Override
+      public void run() {
+        getEnvironment().setRf868UsageEnd(100);
+        RF12Packet packet = new RF12Packet(new int[] { 1,1,id1,id2,nextColor.getR(),nextColor.getG(),nextColor.getB(),nextColor.getQ(),0,0,0,0 });
+        log.info("Sending {}", packet);
+        getEnvironment().getNodeService().sendRF12(packet);
+        color = nextColor;
+      }
+    });
   }
 }
