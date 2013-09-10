@@ -7,7 +7,9 @@ public class XBMCTest {
   public void test() throws InterruptedException {
     XBMCService service = new XBMCService();
     service.init();
-    service.getState();
-    Thread.sleep(60000);
+    while (true) {
+      System.out.println(service.getState());
+      Thread.sleep(1000);      
+    }
   }
 }
