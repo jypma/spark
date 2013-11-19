@@ -17,6 +17,7 @@ import nl.ypmania.NotifyService;
 import nl.ypmania.cosm.CosmService;
 import nl.ypmania.fs20.FS20Packet;
 import nl.ypmania.fs20.FS20Service;
+import nl.ypmania.node.NodeService;
 import nl.ypmania.rf12.RF12Packet;
 import nl.ypmania.rf12.RF12Service;
 import nl.ypmania.visonic.VisonicPacket;
@@ -39,6 +40,7 @@ public abstract class Environment {
   private @Autowired RF12Service rf12Service;
   private @Autowired CosmService cosmService;
   private @Autowired EMailService emailService;
+  private @Autowired NodeService nodeService;
   
   private long rf868UsageEnd = System.currentTimeMillis();
   private ConcurrentLinkedQueue<Runnable> rf868Actions = new ConcurrentLinkedQueue<Runnable>();
@@ -70,6 +72,10 @@ public abstract class Environment {
   
   public EMailService getEmailService() {
     return emailService;
+  }
+  
+  public NodeService getNodeService() {
+    return nodeService;
   }
   
   protected synchronized void scheduleTimedTasks() {

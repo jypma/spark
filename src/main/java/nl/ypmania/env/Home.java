@@ -207,7 +207,7 @@ public class Home extends Environment {
       },
       new FS20MotionSensor(drivewayLeft, "Driveway, left side", new FS20Address(SENSORS, 3111)) {
         protected void motion() {
-          if (isDark() && !settings.isNoAutoLights()) {
+          if (isDark() && !settings.isNoAutoLightsCarport()) {
             carportFlood.timedOn(180);
             carportSpots.timedOn(180);            
           }
@@ -215,7 +215,7 @@ public class Home extends Environment {
       },
       new FS20MotionSensor(drivewayRight, "Driveway, right side", new FS20Address(SENSORS, 3112)) {
         protected void motion() {
-          if (isDark() && !settings.isNoAutoLights()) {
+          if (isDark() && !settings.isNoAutoLightsCarport()) {
             carportFlood.timedOn(180);
             carportSpots.timedOn(180);            
           }
@@ -228,7 +228,7 @@ public class Home extends Environment {
               (bryggersDoor.isClosed() || bryggersDoor.isOpenAtLeastSeconds(60))) {
             sfx.play("tngchime.wav");
           }
-          if (isDark() && !settings.isNoAutoLights()) {
+          if (isDark() && !settings.isNoAutoLightsCarport()) {
             carportFlood.timedOn(300);
             carportSpots.timedOn(300);            
           }
@@ -241,7 +241,7 @@ public class Home extends Environment {
       new VisonicMotionSensor(studio, "Studio", new VisonicAddress(0x01, 0x84, 0x83)),
       new VisonicMotionSensor(livingRoom, "Living room", LIVING_ROOM_SENSOR) {
         protected void motion() {
-          if (isDark() && !settings.isNoAutoLights()) {
+          if (isDark() && !settings.isNoAutoLightsLiving()) {
             log.debug("Considering turning on living room. Current brightness {}, timed: {}", 
                 livingRoomCeiling.getBrightness(), livingRoomCeiling.isTimedOn());
             if (livingRoomCeiling.getBrightness() == 0) {
