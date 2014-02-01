@@ -19,6 +19,7 @@ public class ElectricityMeter extends Device {
   private long electricityWhOffset = 0;
   private long electricityWhTime = 0;
   private long electricityW;
+  private boolean bigIncrement = false;
 
   public ElectricityMeter (Zone zone, int roomId, String powerStream, String energyStream) {
     super(zone);
@@ -73,7 +74,13 @@ public class ElectricityMeter extends Device {
     ;
     log.debug("Received electricity: {} Wh", Wh);
     if (Wh + electricityWhOffset > electricityWh + 1000) {
+      if (bigIncrement) {
+        log.warn ("Second time, more than 1000 Wh above current electrity. Resetting to new values.");
+        electricityWhOffset = (electricityWh - Wh);
+        return;
+      }
       log.warn ("More than 1000 Wh above current electrity. Ignoring bogus packet.");
+      bigIncrement = true;
       return;
     }
     if (Wh + electricityWhOffset < electricityWh) {
@@ -82,7 +89,7 @@ public class ElectricityMeter extends Device {
     }
     Wh += electricityWhOffset;
     log.debug("Actual electricity: {} Wh", Wh);    
-    long now = System.currentTimeMillis();
+    final long now = System.currentTimeMillis();
     if (this.electricityWhTime != 0) {
       long ms = now - electricityWhTime;
       long W = (Wh - electricityWh) * 3600000 / ms;
@@ -90,6 +97,7 @@ public class ElectricityMeter extends Device {
       this.electricityW = W;
     }
     getEnvironment().getCosmService().updateDatapoint(energyStream, Wh);
+    bigIncrement = false;
     this.electricityWhTime = now;
     this.electricityWh = Wh;
   }

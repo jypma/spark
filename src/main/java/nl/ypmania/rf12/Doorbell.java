@@ -46,7 +46,7 @@ public class Doorbell extends Device {
       
        int v = (packet.getContents().get(6).byteValue()) * 256 + packet.getContents().get(5);
        double temp = v / 100.0;
-       log.info("Got temperature {}.", temp);
+       log.info("Old temperature packet. Got temperature {}.", temp);
         
        battery = (packet.getContents().get(8) * 256 + packet.getContents().get(7)) / 100.0;
        log.info("Battery of is {} mV.", battery);
@@ -56,7 +56,24 @@ public class Doorbell extends Device {
        if (temp > -30 && temp < 40)
          getEnvironment().getCosmService().updateDatapoint("Carport", temp);
        event(ZoneEvent.temperature(temp, battery));        
-    }
+    } else if (packet.getContents().size() >= 9 && 
+        packet.getContents().get(0) == id1 && 
+        packet.getContents().get(1) == id2 &&
+        packet.getContents().get(4) == 4) {
+       
+        int v = (packet.getContents().get(6).byteValue()) * 256 + packet.getContents().get(5);
+        double temp = v / 100.0;
+        log.info("Got temperature {}.", temp);
+         
+        battery = (packet.getContents().get(8) * 256.0 + packet.getContents().get(7));
+        log.info("Battery of is {}%.", battery);
+        if (battery < 5) {
+          getEnvironment().getNotifyService().lowBattery("Doorbell", battery);
+        }
+        if (temp > -30 && temp < 40)
+          getEnvironment().getCosmService().updateDatapoint("Carport", temp);
+        event(ZoneEvent.temperature(temp, battery));        
+     }
   }   
   
   @XmlTransient public DateTime getLastRing() {

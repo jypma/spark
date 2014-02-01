@@ -67,7 +67,7 @@ public class NotifyService {
     if (batteryWarnings.getIfPresent(name) == null) {
       batteryWarnings.put(name, name);
       emailService.sendMail(name, "Warning: Battery of " + name + " is at " + battery + 
-          "mV.\nThe battery might need to be recharged / replaced.");
+          "%.\nThe battery might need to be recharged / replaced.");
     }
   }
 }

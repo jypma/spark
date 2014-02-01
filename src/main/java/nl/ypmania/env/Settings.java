@@ -19,6 +19,8 @@ public class Settings {
   
   private boolean noAutoLightsCarport = false;
   
+  private boolean noAutoLightsKitchen = false;
+  
   public boolean isMuteDoors() {
     return muteDoors;
   }
@@ -37,6 +39,10 @@ public class Settings {
   
   public boolean isNoAutoLightsCarport() {
     return noAutoLightsCarport;
+  }
+  
+  public boolean isNoAutoLightsKitchen() {
+    return noAutoLightsKitchen;
   }
   
   public String getAlarmMode() {

@@ -40,6 +40,9 @@
 	<category name="nl.ypmania.fs20.FS20Encoder">
 		<priority value="warn" />
 	</category>
+	<category name="nl.ypmania.cosm.CosmService">
+		<priority value="warn" />
+	</category>
 
   <category name="nl.ypmania.rf12.RF12Service">
     <priority value="debug" />

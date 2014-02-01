@@ -94,12 +94,14 @@ public class Home extends Environment {
   Switch livingRoomReadingLamp = new Switch(livingRoom, "Reading lamp", new FS20Address(HOUSE, 1113), MASTER, ALL_LIGHTS, LIVING_ROOM);
   Switch livingRoomCornerLamp = new Switch(livingRoom, "Corner lamp", new FS20Address(HOUSE, 1114), MASTER, ALL_LIGHTS, LIVING_ROOM);
   
+  Switch xmasLights = new Switch(kitchen, "X-Mas Lights", new FS20Address(HOUSE, 2211));
+  
   Switch rgbLamp = new Switch(livingRoom, "RGB Lamp", new FS20Address(HOUSE, 1411), DININGROOM);
   
   DateTime lastDoorbellEmail = null;
   private final Doorbell doorbell = new Doorbell(carport, 'D','B') {
     @Override protected void ring() {
-      zoneMinderService.triggerEvent(1, 15, 255, "Doorbell", "Doorbell");
+      zoneMinderService.triggerEvent(1, 15, 10, "Doorbell", "Doorbell");
       if (!settings.isMuteDoorbell()) {
         sfx.play("doorbell.01.wav");            
       }
@@ -168,6 +170,7 @@ public class Home extends Environment {
       rgbLamp,
       carportSpots,
       carportFlood,
+      xmasLights,
       
       new FS20Route(new FS20Address(BUTTONS, 1111), Command.OFF) {
         protected void handle() {
@@ -194,6 +197,7 @@ public class Home extends Environment {
           livingRoom.event(ZoneEvent.buttonPressed());
           fs20Service.queueFS20(new FS20Packet (BEDROOM, Command.ON_PREVIOUS));
           fs20Service.queueFS20(new FS20Packet (LIVING_ROOM, Command.OFF));
+          livingRoomReadingLamp.off();
           rgbLamp.off();
         }
       },
@@ -202,6 +206,7 @@ public class Home extends Environment {
           livingRoom.event(ZoneEvent.buttonPressed());
           fs20Service.queueFS20(new FS20Packet (BEDROOM, Command.OFF));
           fs20Service.queueFS20(new FS20Packet (LIVING_ROOM, Command.OFF));
+          livingRoomReadingLamp.off();
           rgbLamp.off();
         }
       },
@@ -223,7 +228,7 @@ public class Home extends Environment {
       },
       new FS20MotionSensor(carport, "Carport", new FS20Address(SENSORS, 3113)) {
         protected void motion() {
-          zoneMinderService.triggerEvent(1, 10, 255, "CarportMotion", "Motion on carport");
+          zoneMinderService.triggerEvent(1, 10, 10, "CarportMotion", "Motion on carport");
           if (!settings.isMuteMotion() && 
               (bryggersDoor.isClosed() || bryggersDoor.isOpenAtLeastSeconds(60))) {
             sfx.play("tngchime.wav");
@@ -235,19 +240,29 @@ public class Home extends Environment {
         }
       },
       new VisonicMotionSensor(guestRoom, "Guestroom", new VisonicAddress(0x03, 0x04, 0x83)),
-      new VisonicMotionSensor(kitchen, "Kitchen", new VisonicAddress(0x04, 0x05, 0x03)),
+      new VisonicMotionSensor(kitchen, "Kitchen", new VisonicAddress(0x04, 0x05, 0x03)) {
+        protected void motion() {
+          if (isDark() && !settings.isNoAutoLightsKitchen()) {
+            xmasLights.timedOn(900);
+          }
+        }
+      },
       new VisonicMotionSensor(office, "Office", new VisonicAddress(0x01, 0xc4, 0x83)),
       new VisonicMotionSensor(bedRoom, "Bedroom", BEDROOM_SENSOR),
       new VisonicMotionSensor(studio, "Studio", new VisonicAddress(0x01, 0x84, 0x83)),
       new VisonicMotionSensor(livingRoom, "Living room", LIVING_ROOM_SENSOR) {
         protected void motion() {
-          if (isDark() && !settings.isNoAutoLightsLiving()) {
+          if (isDark()) {
             log.debug("Considering turning on living room. Current brightness {}, timed: {}", 
                 livingRoomCeiling.getBrightness(), livingRoomCeiling.isTimedOn());
             if (livingRoomCeiling.getBrightness() == 0) {
-              livingRoomCeiling.timedDim(8, 600);
+              if (settings.isNoAutoLightsLiving()) {
+                log.debug("Not turning on, disabled in settings.");
+              } else {                
+                livingRoomCeiling.timedDim(8, 900);
+              }
             } else if (livingRoomCeiling.isTimedOn()){
-              livingRoomCeiling.timedDim(livingRoomCeiling.getBrightness(), 600);
+              livingRoomCeiling.timedDim(livingRoomCeiling.getBrightness(), 900);
             }
           }
         }

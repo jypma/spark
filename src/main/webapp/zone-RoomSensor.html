@@ -1,2 +1,2 @@
 <span class="name" ng-show="!!device.battery">Room sensor</span>
-<span class="status" ng-show="!!device.battery">{{device.battery}}V ({{((device.battery - 3) / 0.3 * 100) | number:0}}%).</span>
+<span class="status" ng-show="!!device.battery">{{device.battery | number:0}}% bat.</span>
