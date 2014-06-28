@@ -42,7 +42,7 @@ public class RoomSensor extends Device {
     
     int v = packet.getContents().get(6) * 256 + packet.getContents().get(5);
     double temp = v / 100.0;
-    log.info("Got temperature {} in {}.", temp, name);
+    log.info("Got temperature {} in {}.", temp, getZone().getName());
     
     if (temp > -30 && temp < 40)
       uploadTemp(temp);
@@ -58,21 +58,21 @@ public class RoomSensor extends Device {
         // already OK
       } else {
         battery = battery / 100; // now in Volt
-        log.info("Battery of {} is {}V.", name, battery);
+        log.info("Battery of {} is {}V.", getZone().getName(), battery);
         if (battery > 4.2) battery = 4.2;
         if (battery < 3.0) battery = 3.0;
         battery = (battery - 3.0) / (4.2 - 3.0) * 100;
       }
-      log.info("Battery of {} is {}%.", name, battery);
-      if (battery < 5) {
-        getEnvironment().getNotifyService().lowBattery("Room sensor in " + name, battery);
+      log.info("Battery of {} is {}%.", getZone().getName(), battery);
+      if (battery < 10 && battery > 0) {
+        getEnvironment().getNotifyService().lowBattery("Room sensor in " + getZone().getName(), battery);
       }
     }
     
     if (packet.getContents().size() >= 11) {
       int h = packet.getContents().get(10) * 256 + packet.getContents().get(9);
       double humidity = h / 100.0;
-      log.info("Got humidity {} in {}.", humidity, name);
+      log.info("Got humidity {} in {}.", humidity, getZone().getName());
       event(ZoneEvent.humidity(humidity));
       if (humidity >= 0 && humidity < 100) {
         uploadHumidity(humidity);          
@@ -85,7 +85,9 @@ public class RoomSensor extends Device {
   }
 
   protected void uploadTemp(double temp) {
-    getEnvironment().getCosmService().updateDatapoint(name, temp);
+    if (name != null) {
+      getEnvironment().getCosmService().updateDatapoint(name, temp);      
+    }
   }
   
   public String getName() {

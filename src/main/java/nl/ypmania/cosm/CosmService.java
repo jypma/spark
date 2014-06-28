@@ -32,8 +32,8 @@ public class CosmService {
     ClientConfig clientConfig = new DefaultClientConfig();
     clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
     client = Client.create(clientConfig);
-    client.setConnectTimeout(5000);
-    client.setReadTimeout(5000);
+    client.setConnectTimeout(1000);
+    client.setReadTimeout(1000);
     log.debug("Inited");
   }
   
@@ -87,6 +87,7 @@ public class CosmService {
   
   public void updateDatapoint (String datastream, String value) {
     log.debug("Updating {} to {}", datastream, value);
+    /*
     WebResource resource = client.resource("https://api.cosm.com/v2/feeds/" + feed + "/datastreams/" + datastream + "/datapoints");
     String response = "";
     try {
@@ -97,6 +98,7 @@ public class CosmService {
     } catch (Exception x) {
       log.error ("Error updating cosm: " + response, x);
     }
+    */
   }
 
 }

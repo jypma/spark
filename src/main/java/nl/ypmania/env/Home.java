@@ -94,14 +94,14 @@ public class Home extends Environment {
   Switch livingRoomReadingLamp = new Switch(livingRoom, "Reading lamp", new FS20Address(HOUSE, 1113), MASTER, ALL_LIGHTS, LIVING_ROOM);
   Switch livingRoomCornerLamp = new Switch(livingRoom, "Corner lamp", new FS20Address(HOUSE, 1114), MASTER, ALL_LIGHTS, LIVING_ROOM);
   
-  Switch xmasLights = new Switch(kitchen, "X-Mas Lights", new FS20Address(HOUSE, 2211));
+//  Switch xmasLights = new Switch(kitchen, "X-Mas Lights", new FS20Address(HOUSE, 2211));
   
   Switch rgbLamp = new Switch(livingRoom, "RGB Lamp", new FS20Address(HOUSE, 1411), DININGROOM);
   
   DateTime lastDoorbellEmail = null;
   private final Doorbell doorbell = new Doorbell(carport, 'D','B') {
     @Override protected void ring() {
-      zoneMinderService.triggerEvent(1, 15, 10, "Doorbell", "Doorbell");
+      zoneMinderService.triggerEvent(1, 30, 10, "Doorbell", "Doorbell");
       if (!settings.isMuteDoorbell()) {
         sfx.play("doorbell.01.wav");            
       }
@@ -170,7 +170,7 @@ public class Home extends Environment {
       rgbLamp,
       carportSpots,
       carportFlood,
-      xmasLights,
+//      xmasLights,
       
       new FS20Route(new FS20Address(BUTTONS, 1111), Command.OFF) {
         protected void handle() {
@@ -228,7 +228,7 @@ public class Home extends Environment {
       },
       new FS20MotionSensor(carport, "Carport", new FS20Address(SENSORS, 3113)) {
         protected void motion() {
-          zoneMinderService.triggerEvent(1, 10, 10, "CarportMotion", "Motion on carport");
+          zoneMinderService.triggerEvent(1, 30, 10, "CarportMotion", "Motion on carport");
           if (!settings.isMuteMotion() && 
               (bryggersDoor.isClosed() || bryggersDoor.isOpenAtLeastSeconds(60))) {
             sfx.play("tngchime.wav");
@@ -243,7 +243,7 @@ public class Home extends Environment {
       new VisonicMotionSensor(kitchen, "Kitchen", new VisonicAddress(0x04, 0x05, 0x03)) {
         protected void motion() {
           if (isDark() && !settings.isNoAutoLightsKitchen()) {
-            xmasLights.timedOn(900);
+  //          xmasLights.timedOn(900);
           }
         }
       },
@@ -259,7 +259,7 @@ public class Home extends Environment {
               if (settings.isNoAutoLightsLiving()) {
                 log.debug("Not turning on, disabled in settings.");
               } else {                
-                livingRoomCeiling.timedDim(8, 900);
+                livingRoomCeiling.timedDim(1, 900);
               }
             } else if (livingRoomCeiling.isTimedOn()){
               livingRoomCeiling.timedDim(livingRoomCeiling.getBrightness(), 900);
@@ -279,9 +279,11 @@ public class Home extends Environment {
       
       doorbell,
       
-      new RoomSensor(bryggers, "Bryggers", (int)'1'),
+//      new RoomSensor(bryggers, "Bryggers", (int)'1'),
       new HumidityRoomSensor(livingRoom, "Stue", "Stue_H", (int)'2'),
       new HumidityRoomSensor(bedRoom, "Bedroom_T", "Bedroom_H", (int)'4'),
+      new HumidityRoomSensor(studio, null, null, (int)'5'),
+      new HumidityRoomSensor(guestRoom, null, null, (int)'6'),
       new ElectricityMeter(bryggers, (int)'1', "El_Power", "El_Energy"),
       
       new RGBLamp(livingRoom, "Plantlamp", (int)'R', (int)'G'),

@@ -11,12 +11,8 @@ public class HumidityRoomSensor extends RoomSensor {
   }
   
   protected void uploadHumidity(double humidity) {
-    getEnvironment().getCosmService().updateDatapoint(hum_name, humidity);
+    if (hum_name != null) {
+      getEnvironment().getCosmService().updateDatapoint(hum_name, humidity);      
+    }
   }
-
-  protected void uploadTemp(double temp) {
-    getEnvironment().getCosmService().updateDatapoint(getName(), temp);
-  }
-  
-  
 }
