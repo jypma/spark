@@ -1,7 +1,12 @@
 package nl.ypmania.env;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.PreDestroy;
 import javax.sound.sampled.AudioSystem;
@@ -18,9 +23,26 @@ import org.springframework.stereotype.Component;
 @Component
 public class SFX {
   private static final Logger log = LoggerFactory.getLogger(SFX.class);
+  
+  private List<Server> remoteServers = new ArrayList<Server>();
   private Clip clip;
   private String lastPlayed;
   private long lastTime;
+  
+  public SFX() {
+    String sfxServers = System.getProperty("SFX.servers");
+    if (sfxServers != null) {
+      for (String s: sfxServers.trim().split(",")) {
+        try {
+          remoteServers.add(new Server(s));
+          log.info("Added remote server " + s);
+        } catch (RuntimeException x) {
+          log.warn ("Couldn't parse server " + s + ": " + x);
+        }
+      }
+    }
+  }
+  
   
   @PreDestroy
   public synchronized void close() {
@@ -31,6 +53,9 @@ public class SFX {
   }
   
   public synchronized void play (String resource) {
+    for (Server server: remoteServers) {
+      server.play(resource);
+    }
     if (clip != null && clip.isActive()) {
       clip.stop();
       clip.flush();
@@ -67,6 +92,31 @@ public class SFX {
     } catch (UnsupportedAudioFileException e) {
       log.warn("Can't play file, disabling playback of " + resource, e);
       close();
+    }
+  }
+  
+  private class Server {
+    private final String host;
+    private final int port;
+    
+    public Server (String desc) {
+      String[] comps = desc.trim().split(":");
+      if (comps.length != 2) throw new IllegalArgumentException ("Server must be address:host");
+      this.host = comps[0];
+      this.port = Integer.parseInt(comps[1]);
+    }
+
+    public void play(String resource) {
+      try (Socket s = new Socket()) {
+        s.setSoTimeout(500);
+        s.connect(new InetSocketAddress(host, port), 500);
+        try (OutputStream out = s.getOutputStream()) {
+          out.write(resource.getBytes());
+          out.write("\n".getBytes());
+        }
+      } catch (IOException x) {
+        log.warn("Could not play " + resource + " on " + host + ":" + port, x);
+      }
     }
   }
 }
