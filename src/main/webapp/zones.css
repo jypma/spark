@@ -1,4 +1,4 @@
-body { background-color: #fff; }
+body { background-color: #fff; font-family: sans-self; font-size: 10px }
 
 .zones { width: 320px; border-bottom: 4px solid #eee; }
 
@@ -9,7 +9,7 @@ body { background-color: #fff; }
 .labels > .name { width: 133px; }
 .labels > .status { width: 72px; }
 
-.zone { padding-top: 2px; background-color: #eee; border-top: 1px solid #ddd; }
+.zone { padding-top: 2px; background-color: #eee; border-top: 10px solid #fff; border-bottom:2px solid #eee }
 
 .zone > .name { width: 128px; }
 .zone > .status { width: 77px; }
@@ -21,7 +21,7 @@ body { background-color: #fff; }
 .device { padding-left: 3px; padding-right: 3px; background-color: #fff; border-left: 8px solid #eee; border-right: 8px solid #eee;  }
 
 .device .name { width: 121px; }
-.device .status { width: 75px; }
+.device .status { width: 70px; }
 
 .switch .status { width: 24px; background-color: #000; color: #fff; padding-left: 7px; padding-top: 3px; padding-bottom: 3px; }
 .dimmer .status { width: 24px; background-color: #000; color: #fff; padding-left: 7px; padding-top: 3px; padding-bottom: 3px; }

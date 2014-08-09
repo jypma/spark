@@ -18,7 +18,7 @@ import nl.ypmania.fs20.Switch;
 import nl.ypmania.rf12.Doorbell;
 import nl.ypmania.rf12.ElectricityMeter;
 import nl.ypmania.rf12.HumidityRoomSensor;
-import nl.ypmania.rf12.RoomSensor;
+import nl.ypmania.rgb.LampColor;
 import nl.ypmania.rgb.RGBLamp;
 import nl.ypmania.visonic.DoorSensor;
 import nl.ypmania.visonic.SensorDTO;
@@ -97,6 +97,7 @@ public class Home extends Environment {
 //  Switch xmasLights = new Switch(kitchen, "X-Mas Lights", new FS20Address(HOUSE, 2211));
   
   Switch rgbLamp = new Switch(livingRoom, "RGB Lamp", new FS20Address(HOUSE, 1411), DININGROOM);
+  RGBLamp kitchenLeds = new RGBLamp(kitchen, "Kitchen LEDs", (int)'L', (int)'K');
   
   DateTime lastDoorbellEmail = null;
   private final Doorbell doorbell = new Doorbell(carport, 'D','B') {
@@ -162,6 +163,7 @@ public class Home extends Environment {
       livingRoomCornerLamp,
       
       bryggersSpots,
+      kitchenLeds,
       new Dimmer(entree, "Guest bathroom", new FS20Address(HOUSE, 1212), MASTER, ALL_LIGHTS, BRYGGERS),
       
       new Dimmer(bedRoom, "Cupboards", new FS20Address(HOUSE, 1311), MASTER, ALL_LIGHTS, BEDROOM),
@@ -243,6 +245,9 @@ public class Home extends Environment {
       new VisonicMotionSensor(kitchen, "Kitchen", new VisonicAddress(0x04, 0x05, 0x03)) {
         protected void motion() {
           if (isDark() && !settings.isNoAutoLightsKitchen()) {
+            if (!kitchenLeds.isOn()) {
+              kitchenLeds.timedOn(new LampColor(1, 1, 1, 1), 900);              
+            }
   //          xmasLights.timedOn(900);
           }
         }

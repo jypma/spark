@@ -1,0 +1,5 @@
+<span class="name">{{device.name}}</span>
+<span class="status on" ng-show="device.brightness == 16">&#x2600;</span>
+<span class="status dim" ng-show="device.brightness < 16 && device.brightness > 0">&#x2600;</span>
+<span class="status off" ng-show="!device.on">&#x2022;</span>
+<span class="time" ng-show="device.timedOnMinutesLeft">({{device.timedOnMinutesLeft}} min)</span>

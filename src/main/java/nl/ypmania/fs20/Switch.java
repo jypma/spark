@@ -6,7 +6,7 @@ import nl.ypmania.env.ZoneEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Switch extends Actuator {
+public class Switch extends FS20Actuator {
   private static final Logger log = LoggerFactory.getLogger(Switch.class);
   
   private boolean on = false;
@@ -18,8 +18,12 @@ public class Switch extends Actuator {
   }
   
   @Override
-  protected Command getOnCommand() {
-    return Command.ON_PREVIOUS;
+  protected Runnable getOnCommand() {
+    return new Runnable() {
+      public void run() {
+        dispatch(new FS20Packet (getPrimaryAddress(), Command.ON_PREVIOUS));
+      }
+    };
   }
 
   @Override

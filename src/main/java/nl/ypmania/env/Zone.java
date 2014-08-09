@@ -86,6 +86,10 @@ public class Zone {
       case MOVIE:
         action(event);
         break;
+        
+      case COUNT:
+        // Electricity ping does not cause action
+        break;
     }
   }
   

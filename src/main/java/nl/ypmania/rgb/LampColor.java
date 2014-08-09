@@ -48,4 +48,8 @@ public class LampColor {
   public String toString() {
     return "RGB(" + r + "," + g + "," + b + "x" + q + ")";
   }
+
+  public int getLevel() {
+    return (r + g + b) / 3;
+  }
 }

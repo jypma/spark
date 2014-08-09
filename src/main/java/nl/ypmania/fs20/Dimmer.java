@@ -5,7 +5,7 @@ import nl.ypmania.env.Zone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Dimmer extends Actuator {
+public class Dimmer extends FS20Actuator {
   private static final Logger log = LoggerFactory.getLogger(Dimmer.class);
   
   private int oldBrightness = 16;
