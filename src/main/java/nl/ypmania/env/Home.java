@@ -80,8 +80,9 @@ public class Home extends Environment {
   Zone studio = new Zone(this, "Studio");
   Zone livingRoom = new Zone(this, "Livingroom");
   Zone bedRoom = new Zone(this, "Bedroom");
+  Zone mainBathRoom = new Zone(this, "Main bathroom");
   Zone day = new Zone(this, "Day", bryggers, entree, guestRoom, office, kitchen, studio, livingRoom);
-  Zone night = new Zone(this, "Night", bedRoom);
+  Zone night = new Zone(this, "Night", bedRoom, mainBathRoom);
   Zone inside = new Zone(this, "Inside", day, night);
   Zone home = new Zone(this, "Area", inside, outside);
   
@@ -94,7 +95,7 @@ public class Home extends Environment {
   Switch livingRoomReadingLamp = new Switch(livingRoom, "Reading lamp", new FS20Address(HOUSE, 1113), MASTER, ALL_LIGHTS, LIVING_ROOM);
   Switch livingRoomCornerLamp = new Switch(livingRoom, "Corner lamp", new FS20Address(HOUSE, 1114), MASTER, ALL_LIGHTS, LIVING_ROOM);
   
-//  Switch xmasLights = new Switch(kitchen, "X-Mas Lights", new FS20Address(HOUSE, 2211));
+  Switch xmasLights = new Switch(kitchen, "X-Mas Lights", new FS20Address(HOUSE, 2211));
   
   Switch rgbLamp = new Switch(livingRoom, "RGB Lamp", new FS20Address(HOUSE, 1411), DININGROOM);
   RGBLamp kitchenLeds = new RGBLamp(kitchen, "Kitchen LEDs", (int)'L', (int)'K');
@@ -172,7 +173,7 @@ public class Home extends Environment {
       rgbLamp,
       carportSpots,
       carportFlood,
-//      xmasLights,
+      xmasLights,
       
       new FS20Route(new FS20Address(BUTTONS, 1111), Command.OFF) {
         protected void handle() {
@@ -244,11 +245,17 @@ public class Home extends Environment {
       new VisonicMotionSensor(guestRoom, "Guestroom", new VisonicAddress(0x03, 0x04, 0x83)),
       new VisonicMotionSensor(kitchen, "Kitchen", new VisonicAddress(0x04, 0x05, 0x03)) {
         protected void motion() {
+          if (!settings.isNoAutoLightsKitchen()) {
+            xmasLights.timedOn(30 * 60);            
+          }
+          log.debug("Considering turning on kitchen={}, dark={}", kitchenLeds.isOn(), isDark());
+          if (kitchenLeds.isOn()) {
+            kitchenLeds.timedOn(1200);
+          } else
           if (isDark() && !settings.isNoAutoLightsKitchen()) {
             if (!kitchenLeds.isOn()) {
-              kitchenLeds.timedOn(new LampColor(1, 1, 1, 1), 900);              
+              kitchenLeds.timedOn(new LampColor(1, 1, 1, 1), 1200);              
             }
-  //          xmasLights.timedOn(900);
           }
         }
       },
@@ -292,7 +299,9 @@ public class Home extends Environment {
       new ElectricityMeter(bryggers, (int)'1', "El_Power", "El_Energy"),
       
       new RGBLamp(livingRoom, "Plantlamp", (int)'R', (int)'G'),
-      new RGBLamp(bedRoom, "Sleepstrip", (int)'L', (int)'2')
+      new RGBLamp(bedRoom, "Sleepstrip", (int)'L', (int)'2'),
+      
+      new Dimmer(mainBathRoom, "Spots", new FS20Address(HOUSE, 2111), new FS20Address(HOUSE, 2144), ALL_LIGHTS, MASTER)
     );
     
     xbmcService.setLocation(livingRoom);

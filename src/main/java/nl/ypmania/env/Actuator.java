@@ -2,9 +2,16 @@ package nl.ypmania.env;
 
 import java.util.TimerTask;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class Actuator extends Device {
+  private static final Logger log = LoggerFactory.getLogger(Actuator.class);
+  
   private TimerTask offTask = null;
   private long offTaskTime;
+  
+  protected abstract String getName();
   
   protected Actuator() { super(null); }
   
@@ -41,6 +48,7 @@ public abstract class Actuator extends Device {
   public abstract boolean isOn();
 
   public synchronized void timedOnMillis (Runnable onCommand, long durationMillis) {
+    log.debug("Turning {} on for {}ms.", getName(), durationMillis);
     onCommand.run();
     if (offTaskTime > System.currentTimeMillis() + durationMillis) return;
     cancelOff();

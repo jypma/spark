@@ -58,17 +58,20 @@ public class RGBLamp extends Actuator {
       if (packet.getContents().get(0) == id1 &&
           packet.getContents().get(1) == id2) {
         if (packet.getContents().get(4) == 5) { // ping
+          log.debug("{} received ping.", getName());
           sendNextColor();
         } else if (packet.getContents().get(4) == 6 && packet.getContents().size() >= 8) { // current color
           synchronized(this) {
             if (packet.getContents().get(5) == 0 &&
                 packet.getContents().get(6) == 0 &&
                 packet.getContents().get(7) == 0) { // off
+              log.debug("{} has been turned off.", getName());
               on = false;
             } else {
               on = true;
               int q = (packet.getContents().size() >= 9) ? packet.getContents().get(8) : 127;
               color = new LampColor(packet.getContents().get(5), packet.getContents().get(6), packet.getContents().get(7), q);
+              log.debug("{} has been turned on to {}.", getName(), color);
               nextColor = color;
             }
           }
@@ -87,7 +90,7 @@ public class RGBLamp extends Actuator {
   }
   
   public synchronized void setColor (LampColor newColor) {
-    if (on && nextColor.equals(newColor)) return;
+    //if (on && nextColor.equals(newColor)) return;
     on = true;
     log.info ("Queueing change from {} to {}", color, newColor);
     boolean waiting = !nextColor.equals(color);
