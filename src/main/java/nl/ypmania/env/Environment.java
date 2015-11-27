@@ -174,19 +174,19 @@ public abstract class Environment {
     timer.schedule(runRf868, new Date(rf868UsageEnd));
   }
   
-  public void receive (FS20Packet packet) {
+  public synchronized void receive (FS20Packet packet) {
     for (Receiver receiver: receivers) {
       receiver.receive(packet);
     }
   }
   
-  public void receive (VisonicPacket packet) {
+  public synchronized void receive (VisonicPacket packet) {
     for (Receiver receiver: receivers) {
       receiver.receive(packet);
     }    
   }
 
-  public void receive(RF12Packet packet) {
+  public synchronized void receive(RF12Packet packet) {
     for (Receiver receiver: receivers) {
       receiver.receive(packet);
     }    

@@ -24,6 +24,9 @@
 	<category name="nl.ypmania.node.NodeService">
 		<priority value="warn" />
 	</category>
+  <category name="nl.ypmania.node.ProxyService">
+    <priority value="info" />
+  </category>
   <category name="nl.ypmania.visonic.VisonicService">
     <priority value="warn" />
   </category>
