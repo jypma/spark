@@ -14,21 +14,27 @@ import org.apache.commons.lang3.ArrayUtils;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RF12Packet {
   private List<Integer> contents;
+  private int header;
   
   protected RF12Packet() {}
   
-  public RF12Packet(int[] contents) {
+  public RF12Packet(int header, int[] contents) {
+    this.header = header;
     this.contents = new ArrayList<Integer>(contents.length);
     for (int i: contents) this.contents.add(i);
   }
 
+  public int getHeader() {
+    return header;
+  }
+  
   public List<Integer> getContents() {
     return contents;
   }
   
   @Override
   public String toString() {
-    return "RF12:" + Arrays.toString(contents.toArray());
+    return "RF12:" + header + ":" + Arrays.toString(contents.toArray());
   }
   
   @Override

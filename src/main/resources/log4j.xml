@@ -22,12 +22,15 @@
 	</category>
 
 	<category name="nl.ypmania.node.NodeService">
-		<priority value="warn" />
+		<priority value="info" />
 	</category>
   <category name="nl.ypmania.node.ProxyService">
     <priority value="info" />
   </category>
   <category name="nl.ypmania.visonic.VisonicService">
+    <priority value="debug" />
+  </category>
+  <category name="nl.ypmania.visonic.VisonicDecoder">
     <priority value="warn" />
   </category>
   <category name="nl.ypmania.visonic.VisonicRoute">
@@ -35,7 +38,7 @@
   </category>
 
   <category name="nl.ypmania.fs20.FS20Service">
-    <priority value="info" />
+    <priority value="debug" />
   </category>
 	<category name="nl.ypmania.fs20.FS20Decoder">
 		<priority value="warn" />

@@ -27,7 +27,7 @@ public class VisonicService {
       if (recentPackets.getIfPresent(packet) != null) {
         log.debug("Received duplicate.");
       } else {
-        environment.setRf868UsageEnd(260); 
+        environment.setRf868UsageEnd(280);
         log.info("Received {}", packet);
         environment.receive(packet);        
         recentPackets.put(packet, packet);

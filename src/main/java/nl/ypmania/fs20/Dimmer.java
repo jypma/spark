@@ -17,6 +17,10 @@ public class Dimmer extends FS20Actuator {
     super (zone, name, primaryAddress, otherAddresses);
   }
   
+  public Dimmer (Zone zone, Zone receiverZone, String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
+    super (zone, receiverZone, name, primaryAddress, otherAddresses);
+  }
+  
   @Override
   public void receive (FS20Packet packet) {
     if (!getAddresses().contains(packet.getAddress())) return;

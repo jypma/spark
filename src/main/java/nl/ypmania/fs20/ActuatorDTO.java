@@ -4,6 +4,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import nl.ypmania.rgb.RGBLamp;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ActuatorDTO {
@@ -30,6 +32,15 @@ public class ActuatorDTO {
     on = d.getBrightness() > 0;
     brightness = d.getBrightness();
   }
+  
+  public ActuatorDTO(RGBLamp d) {
+    type = "rgblamp";
+    name = d.getName();
+    zoneName = d.getZone().getName();
+    on = d.getBrightness() > 0;
+    brightness = d.getBrightness();
+  }
+
   public String getZoneName() {
     return zoneName;
   }

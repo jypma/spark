@@ -5,8 +5,10 @@ import nl.ypmania.visonic.VisonicDecoder;
 import nl.ypmania.visonic.VisonicPacket;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class AlarmDecoderTest {
   private VisonicDecoder decoder;
   

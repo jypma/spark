@@ -17,6 +17,10 @@ public class Switch extends FS20Actuator {
     super (zone, name, primaryAddress, otherAddresses);
   }
   
+  public Switch (Zone zone, Zone receiverZone, String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
+    super (zone, receiverZone, name, primaryAddress, otherAddresses);
+  }
+  
   @Override
   protected Runnable getOnCommand() {
     return new Runnable() {

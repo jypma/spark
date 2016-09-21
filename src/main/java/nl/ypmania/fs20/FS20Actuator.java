@@ -12,6 +12,7 @@ public abstract class FS20Actuator extends nl.ypmania.env.Actuator {
   private FS20Address primaryAddress;
   private Set<FS20Address> addresses = new HashSet<FS20Address>();
   private String name;
+  private Zone receiverZone;
   
   protected FS20Actuator() { super(null); }
   
@@ -19,12 +20,17 @@ public abstract class FS20Actuator extends nl.ypmania.env.Actuator {
     return primaryAddress;
   }
   
-  public FS20Actuator (Zone zone, String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
+  public FS20Actuator (Zone zone, Zone receiverZone, String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
     super(zone);
+    this.receiverZone = receiverZone;
     this.name = name;
     this.primaryAddress = primaryAddress;
     this.addresses.add(primaryAddress);
     this.addresses.addAll(Arrays.asList(otherAddresses));
+  }
+  
+  public FS20Actuator (Zone zone, String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
+    this(zone, zone, name, primaryAddress, otherAddresses);
   }
   
   public void timedOn (Command onCommand, long durationSeconds) {
@@ -42,7 +48,7 @@ public abstract class FS20Actuator extends nl.ypmania.env.Actuator {
   }
   
   protected void dispatch (final FS20Packet packet) {
-    getEnvironment().getFs20Service().queueFS20(packet);
+    getEnvironment().getFs20Service().queueFS20(receiverZone, packet);      
   }
   
   @Override

@@ -50,6 +50,6 @@ public class LampColor {
   }
 
   public int getLevel() {
-    return (r + g + b) / 3;
+    return (r + g + b) / 3 * q / 255;
   }
 }

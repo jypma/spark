@@ -10,7 +10,7 @@ public class VisonicPacket {
   public VisonicPacket(int byte1, int byte2, int byte3, int byte4, int byte5) {
     this.address = new VisonicAddress(byte1, byte2, byte3);
     this.byte4 = byte4;
-    this.byte5 = byte5 & 0xF0; // ignore the lo nibble, its just parity
+    this.byte5 = byte5; 
     this.hashCode = new HashCodeBuilder().append(address).append(this.byte4).append(this.byte5).toHashCode();
   }
 
@@ -18,7 +18,7 @@ public class VisonicPacket {
   public String toString() {
     
     return "" + address + ":" + bits(byte4) + "-" + bits(byte5)
-        + "/" + hex(byte4) + "-" + hex(byte5);
+        + "/" + byte4 + "-" + byte5;
   }
 
   public static String hex(int b) {

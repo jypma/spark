@@ -1,6 +1,7 @@
 package nl.ypmania.env;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TimerTask;
 
@@ -19,6 +20,7 @@ public class Zone {
   private Zone parent;
   private List<Zone> subZones = new ArrayList<Zone>();
   private List<Device> devices = new ArrayList<Device>();
+  private List<String> preferredProxies = new ArrayList<>();
   
   private Double temperature;
   private Double calculatedTemperature;
@@ -31,6 +33,13 @@ public class Zone {
   private TimerTask tempResetTask, humResetTask;
   
   public Zone(Environment env, String name, Zone... subZones) {
+    this(env, name, Arrays.<String>asList(), subZones);
+  }
+  
+  public Zone(Environment env, String name, List<String> proxies, Zone... subZones) {
+    for (String s: proxies) {
+      preferredProxies.add(s);
+    }
     this.env = env;
     env.addZone(this);
     this.name = name;
@@ -41,6 +50,15 @@ public class Zone {
   }
   
   protected Zone() {}
+  
+  @XmlTransient
+  public Zone getParent() {
+    return parent;
+  }
+  
+  public Iterable<String> getPreferredProxies() {
+    return preferredProxies;
+  }
   
   void addDevice(Device device) {
     this.devices.add(device);
@@ -94,7 +112,11 @@ public class Zone {
   }
   
   private synchronized void scheduleResetTemp() {
-    if (tempResetTask != null) tempResetTask.cancel();
+    if (tempResetTask != null) {
+      try {
+        tempResetTask.cancel();
+      } catch (IllegalStateException x) {} // Timer already cancelled is OK.
+    }
     tempResetTask = new TimerTask() {
       public void run() {
         setTemperature(null);
@@ -104,7 +126,11 @@ public class Zone {
   }
 
   private synchronized void scheduleResetHum() {
-    if (humResetTask != null) humResetTask.cancel();
+    if (humResetTask != null) {
+      try {
+          humResetTask.cancel();
+      } catch (IllegalStateException x) {} // Timer already cancelled is OK.          
+    }
     humResetTask = new TimerTask() {
       public void run() {
         setHumidity(null);
@@ -190,6 +216,14 @@ public class Zone {
   
   public String getName() {
     return name;
+  }
+  
+  public String getPath() {
+    if (parent == null) {
+      return getName();
+    } else {
+      return parent.getPath() + "." + getName();
+    }
   }
   
   public Double getTemperature() {

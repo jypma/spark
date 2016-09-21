@@ -2,6 +2,7 @@ package nl.ypmania.rgb;
 
 import nl.ypmania.env.Actuator;
 import nl.ypmania.env.Zone;
+import nl.ypmania.env.ZoneEvent;
 import nl.ypmania.rf12.RF12Packet;
 
 import org.slf4j.Logger;
@@ -61,6 +62,7 @@ public class RGBLamp extends Actuator {
           log.debug("{} received ping.", getName());
           sendNextColor();
         } else if (packet.getContents().get(4) == 6 && packet.getContents().size() >= 8) { // current color
+          getZone().event(ZoneEvent.buttonPressed());
           synchronized(this) {
             if (packet.getContents().get(5) == 0 &&
                 packet.getContents().get(6) == 0 &&
@@ -90,7 +92,6 @@ public class RGBLamp extends Actuator {
   }
   
   public synchronized void setColor (LampColor newColor) {
-    //if (on && nextColor.equals(newColor)) return;
     on = true;
     log.info ("Queueing change from {} to {}", color, newColor);
     boolean waiting = !nextColor.equals(color);
@@ -108,10 +109,10 @@ public class RGBLamp extends Actuator {
     getEnvironment().onRf868Clear(new Runnable() {
       @Override
       public void run() {
-        getEnvironment().setRf868UsageEnd(100);
-        RF12Packet packet = new RF12Packet(new int[] { 1,1,id1,id2,nextColor.getR(),nextColor.getG(),nextColor.getB(),nextColor.getQ(),0,0,0,0 });
+        RF12Packet packet = new RF12Packet(1, new int[] { 1,1,id1,id2,nextColor.getR(),nextColor.getG(),nextColor.getB(),nextColor.getQ(),0,0,0,0 });
         log.info("On: sending {}", packet);
-        getEnvironment().getNodeService().sendRF12(packet);
+        
+        getEnvironment().getRf12Service().queue(getZone(), packet);
         color = nextColor;
       }
     });
@@ -121,7 +122,7 @@ public class RGBLamp extends Actuator {
   protected Runnable getOnCommand() {
     return new Runnable() {
       public void run() {
-        sendNextColor();
+        setBrightness(16);
       }
     };
   }
@@ -132,9 +133,9 @@ public class RGBLamp extends Actuator {
       @Override
       public void run() {
         getEnvironment().setRf868UsageEnd(100);
-        RF12Packet packet = new RF12Packet(new int[] { 1,1,id1,id2,0,0,0,0,0,0,0,0 });
+        RF12Packet packet = new RF12Packet(1, new int[] { 1,1,id1,id2,0,0,0,0,0,0,0,0 });
         log.info("Off: sending {}", packet);
-        getEnvironment().getNodeService().sendRF12(packet);
+        getEnvironment().getRf12Service().queue(getZone(), packet);
         synchronized(this) {
           on = false;          
         }
@@ -145,5 +146,18 @@ public class RGBLamp extends Actuator {
   @Override
   public synchronized boolean isOn() {
     return on;
+  }
+
+  public void setBrightness(int brightness) {
+    if (brightness < 0) brightness = 0;
+    if (brightness >= 16) brightness = 16;
+    if (brightness == 0) {
+      setColor(new LampColor(0,0,0,0));
+    } else if (brightness == 16) {
+      setColor(new LampColor(255,255,255,255));
+    } else {
+      int b = BRIGHTNESS_THRESHOLDS[brightness - 1];
+      setColor(new LampColor(255, 255, 255, b));
+    }
   }
 }

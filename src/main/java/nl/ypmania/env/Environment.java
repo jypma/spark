@@ -17,17 +17,21 @@ import nl.ypmania.NotifyService;
 import nl.ypmania.cosm.CosmService;
 import nl.ypmania.fs20.FS20Packet;
 import nl.ypmania.fs20.FS20Service;
-import nl.ypmania.node.NodeService;
+import nl.ypmania.node.ProxyService;
 import nl.ypmania.rf12.RF12Packet;
 import nl.ypmania.rf12.RF12Service;
 import nl.ypmania.visonic.VisonicPacket;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
+import com.timgroup.statsd.NonBlockingStatsDClient;
+import com.timgroup.statsd.StatsDClient;
 
 public abstract class Environment {
   private static final Logger log = LoggerFactory.getLogger(Environment.class);
@@ -40,13 +44,15 @@ public abstract class Environment {
   private @Autowired RF12Service rf12Service;
   private @Autowired CosmService cosmService;
   private @Autowired EMailService emailService;
-  private @Autowired NodeService nodeService;
+  private @Autowired BeanFactory beanFactory;
   
   private long rf868UsageEnd = System.currentTimeMillis();
   private ConcurrentLinkedQueue<Runnable> rf868Actions = new ConcurrentLinkedQueue<Runnable>();
   private Timer timer = new Timer();
   private TimerTask runRf868 = null;
   private List<TimedTask> timedTasks = new ArrayList<TimedTask>();
+  private StatsDClient statsd = new NonBlockingStatsDClient("spark", 
+      StringUtils.defaultString(System.getProperty("statsd.ip"), "localhost"), 8125);
   
   private SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(new Location("55.683334", "12.55"), "GMT");
   
@@ -74,8 +80,8 @@ public abstract class Environment {
     return emailService;
   }
   
-  public NodeService getNodeService() {
-    return nodeService;
+  public ProxyService getProxyService() {
+    return beanFactory.getBean(ProxyService.class);
   }
   
   protected synchronized void scheduleTimedTasks() {
@@ -127,6 +133,10 @@ public abstract class Environment {
   
   public List<Zone> getZones() {
     return zones;
+  }
+  
+  public StatsDClient getStatsd() {
+    return statsd;
   }
   
   public void setReceivers (Receiver... receivers) {
@@ -289,4 +299,16 @@ public abstract class Environment {
   }
 
   public abstract boolean isAlarmArmed(Zone zone);
+
+  public void gauge(Zone zone, String name, long value) {
+    statsd.gauge(getStatsDAspect(zone, name), value);
+  }
+
+  public void increment(Zone zone, String name) {
+     statsd.increment(getStatsDAspect(zone, name));
+  }
+
+  private String getStatsDAspect(Zone zone, String name) {
+    return (zone.getPath() + "." + name).replaceAll(" -/", "_");
+  }
 }

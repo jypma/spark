@@ -26,6 +26,11 @@
 	</build>
 
 	<dependencies>
+    <dependency>
+      <groupId>com.timgroup</groupId>
+      <artifactId>java-statsd-client</artifactId>
+      <version>3.0.1</version>
+    </dependency>
 		<dependency> <!-- This one has source & javadoc in maven, the Sun dependency doesn't -->
 			<groupId>org.glassfish</groupId>
 			<artifactId>javax.servlet</artifactId>

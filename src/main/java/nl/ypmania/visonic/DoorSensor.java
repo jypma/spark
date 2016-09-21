@@ -26,15 +26,15 @@ public class DoorSensor extends Device {
   @Override
   public void receive(VisonicPacket packet) {
     if (packet.getAddress().equals(address)) {
-      boolean open = (packet.getByte4() & 0x04) == 0;
+      boolean open = (packet.getByte4() & 0x02) == 0;
       if (open && opened == null) {
         opened = DateTime.now();
       } else if (!open) {
         opened = null;
       }
-      lowBattery = (packet.getByte4() & 0x02) == 1;
-      tamper = (packet.getByte4() & 0x08) == 1;
-      boolean event = (packet.getByte4() & 0x01) == 1;
+      lowBattery = (packet.getByte4() & 0x04) == 0;
+      tamper = (packet.getByte4() & 0x01) == 0;
+      boolean event = (packet.getByte4() & 0x08) > 0;
       String debug = (event ? " *event* " : " ") + (lowBattery ? " *low battery* " : "") + (tamper ? " *tamper* " : "") + (open ? "*open*" : "*closed*");
       log.debug (name + ": " + VisonicPacket.bits(packet.getByte4()) + "-" + VisonicPacket.bits(packet.getByte5()) + debug);
       if (event) {

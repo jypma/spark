@@ -1,0 +1,5 @@
+<span class="name">Valve {{device.id}}</span>
+<span class="status">
+    <input type="checkbox" ng-model="device.on" ng-change="toggle(device.zoneName, device.id, device.on)">
+</span>
+<span class="time" ng-show="device.minutesLeft">({{device.minutesLeft}} min)</span>

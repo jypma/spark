@@ -5,6 +5,7 @@ function ZonesCntl($scope, $http, $timeout) {
 		var load = function() {
 			$http.get('./rest/home/zone').success(function(data) {
 				$scope.zone = data;
+				console.log(data);
 				$timeout(load, 3000);
 			}).error(function(){
 				$timeout(load, 6000);
@@ -14,7 +15,12 @@ function ZonesCntl($scope, $http, $timeout) {
 	}
 }
 
-function ZoneCntl($scope) {
+function ZoneCntl($scope, $http) {
 	var indent = $scope.indent;
 	$scope.indent = (indent === undefined) ? 0 : indent + 1;
+	
+	$scope.toggle = function(zoneName, name, state) {
+		console.log("valve " + name  + " in " + zoneName + " has just been toggled " + state);
+		$http.post('./rest/toggle', {zoneName: zoneName, name: name, on: state});
+	};	
 }

@@ -9,7 +9,17 @@ function DimmersCntl($scope, $http) {
 	$scope.dim = function(zoneName, name, brightness) {
 		console.log("" + name  + " has just been toggled " + brightness);
 		$http.post('./rest/fs20', {zoneName: zoneName, name: name, brightness: brightness});
-	}
+	};
+	
+	$http.get('./rest/rgblamps').success(function(data) {
+		console.log(data);
+		$scope.rgblamps = data.items;
+	});
+	
+	$scope.dimRGB = function(zoneName, name, brightness) {
+		console.log("" + name  + " has just been toggled " + brightness);
+		$http.post('./rest/rgblamps', {zoneName: zoneName, name: name, brightness: brightness});
+	};
 	
 	$http.get('./rest/fs20/switches').success(function(data) {
 		console.log(data);
@@ -19,5 +29,5 @@ function DimmersCntl($scope, $http) {
 	$scope.toggle = function(zoneName, name, state) {
 		console.log("" + name  + " has just been toggled " + state);
 		$http.post('./rest/fs20', {zoneName: zoneName, name: name, on: state});
-	}	
+	};
 }

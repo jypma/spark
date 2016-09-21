@@ -36,6 +36,7 @@ public class FS20MotionSensor extends Device {
     event(ZoneEvent.motion());
     lastMovement = DateTime.now();
     motion();
+    getEnvironment().increment(getZone(), name + ".movement");
   }
   
   public String getName() {

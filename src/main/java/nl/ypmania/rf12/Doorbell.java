@@ -39,6 +39,7 @@ public class Doorbell extends Device {
       ring();
       event(ZoneEvent.ring());
       getEnvironment().getNotifyService().doorbell();
+      getEnvironment().increment(getZone(), "doorbell.button");
     } else if (packet.getContents().size() >= 9 && 
        packet.getContents().get(0) == id1 && 
        packet.getContents().get(1) == id2 &&
@@ -62,6 +63,7 @@ public class Doorbell extends Device {
         packet.getContents().get(4) == 4) {
        
         int v = (packet.getContents().get(6).byteValue()) * 256 + packet.getContents().get(5);
+        getEnvironment().gauge(getZone(), "doorbell.temp", v / 10);
         double temp = v / 100.0;
         log.info("Got temperature {}.", temp);
          
@@ -95,7 +97,7 @@ public class Doorbell extends Device {
     contents[2] = 'D';
     contents[3] = 'B';
     contents[4] = 2;
-    getEnvironment().getRf12Service().queue(new RF12Packet(contents));
+    getEnvironment().getRf12Service().queue(getZone(), new RF12Packet(1, contents));
   }
 
   protected void ring() {}

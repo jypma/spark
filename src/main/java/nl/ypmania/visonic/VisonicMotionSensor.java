@@ -27,14 +27,15 @@ public class VisonicMotionSensor extends Device {
   @Override
   public void receive(VisonicPacket packet) {
     if (packet.getAddress().equals(address)) {
-      movement = (packet.getByte4() & 0x01) == 1;
-      lowBattery = (packet.getByte4() & 0x02) == 1;
-      tamper = (packet.getByte4() & 0x08) == 1;
-      boolean ping = (packet.getByte4() & 0x04) == 1;
+      movement = (packet.getByte4() & 0x08) > 0;
+      lowBattery = (packet.getByte4() & 0x04) == 0;
+      boolean ping = (packet.getByte4() & 0x02) > 0;
+      tamper = (packet.getByte4() & 0x01) == 0;
       String debug = (movement ? " *movement* " : " ") + (lowBattery ? " *low battery* " : "") + (tamper ? " *tamper* " : "") + (ping ? "*ping*" : "");
       log.debug (name + ": " + VisonicPacket.bits(packet.getByte4()) + "-" + VisonicPacket.bits(packet.getByte5()) + debug);
       if (movement) {
         lastMovement = DateTime.now();
+        getEnvironment().increment(getZone(), name + ".movement");
         event(ZoneEvent.motion());
         motion();
       }

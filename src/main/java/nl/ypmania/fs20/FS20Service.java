@@ -3,7 +3,7 @@ package nl.ypmania.fs20;
 import java.util.concurrent.TimeUnit;
 
 import nl.ypmania.env.Environment;
-import nl.ypmania.node.NodeService;
+import nl.ypmania.env.Zone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,15 +21,31 @@ public class FS20Service {
       .expireAfterWrite(150, TimeUnit.MILLISECONDS)
       .build();
   
-  @Autowired private NodeService nodeService;
+  public void queueFS20(final Zone zone, final FS20Packet packet) {
+    queueFS20(zone, packet, 3);
+  }
   
-  public void queueFS20(final FS20Packet packet) {
+  private void queueFS20(final Zone zone, final FS20Packet packet, final int repeat) {
     environment.onRf868Clear(new Runnable() {
       @Override
       public void run() {
         environment.setRf868UsageEnd(200);
-        log.info("Sending {}", packet);
-        nodeService.sendFS20(packet);
+        boolean sent = false;
+        for (String proxyId: environment.getProxyService().selectProxies(zone)) {
+          recentPackets.put(packet, packet);
+          if (environment.getProxyService().trySend(proxyId, packet)) {
+            if (repeat > 0) {
+              queueFS20(zone, packet, repeat - 1);
+              return;
+            } else {
+              sent = true;
+              break;              
+            }
+          }
+        }
+        if (!sent) {
+          log.warn("No proxy available to send {}", packet);            
+        }
         environment.receive(packet);
       }
     });

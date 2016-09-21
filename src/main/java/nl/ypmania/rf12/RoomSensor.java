@@ -42,6 +42,7 @@ public class RoomSensor extends Device {
     
     int v = packet.getContents().get(6) * 256 + packet.getContents().get(5);
     double temp = v / 100.0;
+    getEnvironment().gauge(getZone(), name + ".temp", v / 10);
     log.info("Got temperature {} in {}.", temp, getZone().getName());
     
     if (temp > -30 && temp < 40)
@@ -53,11 +54,13 @@ public class RoomSensor extends Device {
     }
     
     if (packet.getContents().size() >= 9) {
-      battery = (packet.getContents().get(8).byteValue() * 256.0 + packet.getContents().get(7));
+      int bat = (packet.getContents().get(8).byteValue() * 256 + packet.getContents().get(7));
       if (batteryIsPercentage) {
         // already OK
+        battery = bat * 1.0;
       } else {
-        battery = battery / 100; // now in Volt
+        getEnvironment().gauge(getZone(), name + ".supply", bat * 10);
+        battery = bat / 100.0; // now in Volt
         log.info("Battery of {} is {}V.", getZone().getName(), battery);
         if (battery > 4.2) battery = 4.2;
         if (battery < 3.0) battery = 3.0;
@@ -71,6 +74,7 @@ public class RoomSensor extends Device {
     
     if (packet.getContents().size() >= 11) {
       int h = packet.getContents().get(10) * 256 + packet.getContents().get(9);
+      getEnvironment().gauge(getZone(), name + ".humidity", h / 10); // tenths of percent, 625 for 62.5
       double humidity = h / 100.0;
       log.info("Got humidity {} in {}.", humidity, getZone().getName());
       event(ZoneEvent.humidity(humidity));

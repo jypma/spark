@@ -1,0 +1,20 @@
+<html ng-app>
+<head>
+<meta name="viewport" content="width=320, initial-scale=1"/>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js"></script>
+<script src="valves.js"></script>
+</head>
+
+<body ng-controller="ValvesCntl">
+  <h2>Valves</h2>
+  <div ng-repeat="s in valves">
+    <input type="checkbox" ng-model="s.target1" ng-change="toggle(s)">
+    Valves {{s.name}} in {{s.zoneName}} ({{s.count}} valves)
+    <span class="time" ng-show="s.on == 0">(currently off)</span>
+    <span class="time" ng-show="s.on > 0">(currently valve {{s.on}} on)</span>
+    <input type="checkbox" ng-model="s.test" ng-change="toggle(s)">
+    Test mode (will turn valve on on each request, rather than only daily)
+  </div>
+  <a href="index.html">Menu</a>  
+</body>
+</html>
