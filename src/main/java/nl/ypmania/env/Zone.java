@@ -28,7 +28,7 @@ public class Zone {
   private Double humidity;
   private Double calculatedHumidity;
   
-  private DateTime lastAction;
+  private volatile DateTime lastAction;
   private Environment env;
   private TimerTask tempResetTask, humResetTask;
   
@@ -50,6 +50,11 @@ public class Zone {
   }
   
   protected Zone() {}
+  
+  @Override
+  public String toString() {
+    return name;
+  }
   
   @XmlTransient
   public Zone getParent() {

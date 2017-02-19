@@ -45,6 +45,7 @@ public abstract class Environment {
   private @Autowired CosmService cosmService;
   private @Autowired EMailService emailService;
   private @Autowired BeanFactory beanFactory;
+  private @Autowired SFX sfx;
   
   private long rf868UsageEnd = System.currentTimeMillis();
   private ConcurrentLinkedQueue<Runnable> rf868Actions = new ConcurrentLinkedQueue<Runnable>();

@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import com.google.protobuf.CodedInputStream;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RF12Packet {
@@ -47,5 +49,13 @@ public class RF12Packet {
   @Override
   public int hashCode() {
     return contents.hashCode();
+  }
+
+  public byte[] getContentsBytes() {
+    byte[] result = new byte[contents.size()];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = (byte) (contents.get(i) & 0xFF);
+    }
+    return result;
   }
 }

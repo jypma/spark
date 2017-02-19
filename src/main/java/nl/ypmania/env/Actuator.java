@@ -52,17 +52,25 @@ public abstract class Actuator extends Device {
     onCommand.run();
     if (offTaskTime > System.currentTimeMillis() + durationMillis) return;
     cancelOff();
-    offTask = new TimerTask() {
+    offTask = offTask(5);
+    offTaskTime = System.currentTimeMillis() + durationMillis;
+    getEnvironment().getTimer().schedule(offTask, durationMillis);
+  }
+  
+  private TimerTask offTask(final int repeats) {
+    return new TimerTask() {
       @Override
       public void run() {
         turnOff();
-        synchronized(this) {
-          offTaskTime = 0;          
+        if (repeats > 0) {
+          getEnvironment().getTimer().schedule(offTask(repeats - 1), System.currentTimeMillis() + 1000);
+        } else {
+          synchronized(this) {
+            offTaskTime = 0;          
+          }          
         }
       }
     };
-    offTaskTime = System.currentTimeMillis() + durationMillis;
-    getEnvironment().getTimer().schedule(offTask, durationMillis);
   }
   
   protected synchronized void cancelOff() {

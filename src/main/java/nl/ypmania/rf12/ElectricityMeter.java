@@ -1,41 +1,48 @@
 package nl.ypmania.rf12;
 
-import org.joda.time.DateTime;
+import nl.ypmania.env.Device;
+import nl.ypmania.env.Zone;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.ypmania.cosm.CosmService.DataPoint;
-import nl.ypmania.env.Device;
-import nl.ypmania.env.Zone;
+import com.github.os72.protobuf.dynamic.DynamicSchema;
+import com.github.os72.protobuf.dynamic.MessageDefinition;
+import com.google.protobuf.Descriptors.DescriptorValidationException;
+import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 public class ElectricityMeter extends Device {
   private static final int sensorId = (int) 'R';
   private static final Logger log = LoggerFactory.getLogger(ElectricityMeter.class);
+
+  private static final MessageDefinition msgDef = MessageDefinition.newBuilder("Packet") 
+      .addField("optional", "uint32", "sender", 1)
+      .addField("optional", "uint32", "seq", 8)
+      .addField("optional", "uint32", "electricity", 9)
+      .build();
+
+  private static DynamicSchema schema() {
+    DynamicSchema.Builder schemaBuilder = DynamicSchema.newBuilder();
+    schemaBuilder.setName("MeterBoxSensorPacket.proto");
+    schemaBuilder.addMessageDefinition(msgDef);
+    try {
+      return schemaBuilder.build();
+    } catch (DescriptorValidationException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  private static final DynamicSchema schema = schema();
   
   private final int roomId;
-  private final String powerStream;
-  private final String energyStream;
-  private long electricityWh = 0;
-  private long electricityWhOffset = 0;
-  private long electricityWhTime = 0;
+  private long electricityWh = -1;
+  private long electricityWhTime = -1;
+  
   private long electricityW;
-  private boolean bigIncrement = false;
 
-  public ElectricityMeter (Zone zone, int roomId, String powerStream, String energyStream) {
+  public ElectricityMeter (Zone zone, int roomId) {
     super(zone);
     this.roomId = roomId;
-    this.powerStream = powerStream;
-    this.energyStream = energyStream;
-    DataPoint pt = getEnvironment().getCosmService().getDatapoint(energyStream);
-    if (pt != null && pt.asLong() != null) {
-      Long Wh = pt.asLong();
-      if (Wh != null) {
-        DateTime time = pt.getTime();
-        this.electricityWh = Wh;
-        this.electricityWhTime = (time == null) ? System.currentTimeMillis() : time.getMillis();         
-        log.debug("Initial energy is {} Wh", Wh);
-      }
-    }
   }
 
   @Override
@@ -53,6 +60,25 @@ public class ElectricityMeter extends Device {
   
   @Override
   public void receive(RF12Packet packet) {
+    try {
+      DynamicMessage message = DynamicMessage.parseFrom(schema.getMessageDescriptor("Packet"), packet.getContentsBytes());
+      receiveProtobuf(message);
+    } catch (InvalidProtocolBufferException e) {
+      receiveLegacy(packet);
+    }
+  }  
+  
+  private void receiveProtobuf(DynamicMessage message) {
+    int sender = (Integer) message.getField(schema.getMessageDescriptor("Packet").findFieldByName("sender"));
+    if (sender == ((sensorId << 8) | roomId)) {
+      int seq = (Integer) message.getField(schema.getMessageDescriptor("Packet").findFieldByName("seq"));
+      int electricity = (Integer) message.getField(schema.getMessageDescriptor("Packet").findFieldByName("electricity"));
+      log.debug("{} received seq {}, electricity {}", new Object[] { roomId, seq, electricity });
+      receiveWh(electricity);
+    }    
+  }
+
+  private void receiveLegacy(RF12Packet packet) {
     if (packet.getContents().size() >= 13 &&
         packet.getContents().get(0) == sensorId &&
         packet.getContents().get(1) == roomId &&
@@ -70,35 +96,24 @@ public class ElectricityMeter extends Device {
         ((long)packet.getContents().get(9) << 32) |
         ((long)packet.getContents().get(10) << 40) |
         ((long)packet.getContents().get(11) << 48) |
-        ((long)packet.getContents().get(12) << 56)
-    ;
-    log.debug("Received electricity: {} Wh", Wh);
-    if (Wh + electricityWhOffset > electricityWh + 1000) {
-      if (bigIncrement) {
-        log.warn ("Second time, more than 1000 Wh above current electrity. Resetting to new values.");
-        electricityWhOffset = (electricityWh - Wh);
-        return;
+        ((long)packet.getContents().get(12) << 56);
+    receiveWh(Wh);
+  }
+
+  private void receiveWh(long Wh) {
+    if (electricityWh == -1 || Wh < electricityWh) {
+      // first packet, or just rolled over
+      electricityW = 0;
+    } else {
+      long ms = System.currentTimeMillis() - electricityWhTime;
+      electricityW = (Wh - electricityWh) * 3600000 / ms;
+      if (electricityW < 12000) {
+        getEnvironment().gauge(getZone(), "electricity.power", electricityW);        
       }
-      log.warn ("More than 1000 Wh above current electrity. Ignoring bogus packet.");
-      bigIncrement = true;
-      return;
     }
-    if (Wh + electricityWhOffset < electricityWh) {
-      log.debug ("Received {} smaller than existing {}. Assuming difference as offset.", Wh, electricityWh);
-      electricityWhOffset = (electricityWh - Wh);
-    }
-    Wh += electricityWhOffset;
-    log.debug("Actual electricity: {} Wh", Wh);    
-    final long now = System.currentTimeMillis();
-    if (this.electricityWhTime != 0) {
-      long ms = now - electricityWhTime;
-      long W = (Wh - electricityWh) * 3600000 / ms;
-      getEnvironment().getCosmService().updateDatapoint(powerStream, W);
-      this.electricityW = W;
-    }
-    getEnvironment().getCosmService().updateDatapoint(energyStream, Wh);
-    bigIncrement = false;
-    this.electricityWhTime = now;
-    this.electricityWh = Wh;
+    electricityWh = Wh;
+    electricityWhTime = System.currentTimeMillis();
+    
+    log.debug("Now consuming {} W", electricityW);
   }
 }

@@ -29,6 +29,11 @@ public abstract class FS20Actuator extends nl.ypmania.env.Actuator {
     this.addresses.addAll(Arrays.asList(otherAddresses));
   }
   
+  @Override
+  public String toString() {
+    return name + ":" + primaryAddress;
+  }
+  
   public FS20Actuator (Zone zone, String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
     this(zone, zone, name, primaryAddress, otherAddresses);
   }

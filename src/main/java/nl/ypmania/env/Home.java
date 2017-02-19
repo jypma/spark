@@ -20,6 +20,7 @@ import nl.ypmania.rf12.Doorbell;
 import nl.ypmania.rf12.ElectricityMeter;
 import nl.ypmania.rf12.GardenValve;
 import nl.ypmania.rf12.HumidityRoomSensor;
+import nl.ypmania.rf12.MultiButton;
 import nl.ypmania.rf12.OutdoorSensor;
 import nl.ypmania.rgb.LampColor;
 import nl.ypmania.rgb.RGBLamp;
@@ -80,7 +81,7 @@ public class Home extends Environment {
   Zone carport = new Zone(this, "Carport", Arrays.asList(SHED_PROXY, KITCHEN_PROXY));
   Zone shed = new Zone(this, "Shed", Arrays.asList(SHED_PROXY, KITCHEN_PROXY));
   Zone outside = new Zone(this, "Outside", drivewayLeft, drivewayRight, carport, shed);
-  Zone bryggers = new Zone(this, "Bryggers", Arrays.asList(SHED_PROXY, KITCHEN_PROXY));
+  Zone bryggers = new Zone(this, "Bryggers", Arrays.asList(KITCHEN_PROXY, SHED_PROXY));
   Zone entree = new Zone(this, "Entree", Arrays.asList(KITCHEN_PROXY, SHED_PROXY, LIVING_ROOM_PROXY));
   Zone office = new Zone(this, "Office", Arrays.asList(KITCHEN_PROXY, LIVING_ROOM_PROXY, SHED_PROXY));
   Zone kidsRoom = new Zone(this, "Kid's room", Arrays.asList(KITCHEN_PROXY, LIVING_ROOM_PROXY, SHED_PROXY));
@@ -107,7 +108,7 @@ public class Home extends Environment {
   Switch livingRoomCornerLamp = new Switch(livingRoom, "Corner lamp", new FS20Address(HOUSE, 1114), MASTER, ALL_LIGHTS, LIVING_ROOM);
   
   GardenValve valve1 = new GardenValve(outside, studio, '1', 5);
-  //Switch xmasLights = new Switch(kitchen, "X-Mas Lights", new FS20Address(HOUSE, 2211));
+  Switch xmasLights = new Switch(kitchen, "X-Mas Lights", new FS20Address(HOUSE, 2211));
   
   //Switch rgbLamp = new Switch(livingRoom, "RGB Lamp", new FS20Address(HOUSE, 1411), DININGROOM);
   RGBLamp kitchenLeds = new RGBLamp(kitchen, "Kitchen LEDs", (int)'L', (int)'K');
@@ -186,7 +187,7 @@ public class Home extends Environment {
       //rgbLamp,
       carportSpots,
       carportFlood,
-      //xmasLights,
+      xmasLights,
       
       new OutdoorSensor(outside, "strawberries", 'a'),
       new OutdoorSensor(outside, "grapes", 'b'),
@@ -262,7 +263,7 @@ public class Home extends Environment {
       new VisonicMotionSensor(kitchen, "Kitchen", new VisonicAddress(3, 10, 28)) {
         protected void motion() {
           if (!settings.isNoAutoLightsKitchen()) {
-            //xmasLights.timedOn(30 * 60);            
+            xmasLights.timedOn(30 * 60);            
           }
           log.debug("Considering turning on kitchen={}/{}, dark={}", new Object[] { kitchenLeds.isOn(), kitchenLeds.getColor(), isDark() });
           if (kitchenLeds.isOn()) {
@@ -312,14 +313,20 @@ public class Home extends Environment {
 //      new RoomSensor(bryggers, "Bryggers", (int)'1'),
       new HumidityRoomSensor(livingRoom, "Stue", "Stue_H", (int)'2'),
       new HumidityRoomSensor(bedRoom, "Bedroom_T", "Bedroom_H", (int)'4'),
-      new HumidityRoomSensor(studio, null, null, (int)'5'),
-      new HumidityRoomSensor(office, null, null, (int)'6'),
-      new ElectricityMeter(bryggers, (int)'1', "El_Power", "El_Energy"),
+      new HumidityRoomSensor(studio, "Studio", null, (int)'5'),
+      new HumidityRoomSensor(office, "Office", null, (int)'6'),
+      new ElectricityMeter(bryggers, (int)'1'),
       
       //new RGBLamp(livingRoom, "Plantlamp", (int)'R', (int)'G'),
       new RGBLamp(bedRoom, "Sleepstrip", (int)'L', (int)'2'),
       
-      new Dimmer(mainBathRoom, "Spots", new FS20Address(HOUSE, 2111), new FS20Address(HOUSE, 2144), ALL_LIGHTS, MASTER)
+      new Dimmer(mainBathRoom, "Spots", new FS20Address(HOUSE, 2111), new FS20Address(HOUSE, 2144), ALL_LIGHTS, MASTER),
+      
+      new MultiButton(entree, "colorbuttons", '1') {
+        protected void onButton(int i) {
+          sfx.play("button" + i + ".wav");
+        };
+      }
     );
     
     xbmcService.setLocation(livingRoom);
