@@ -15,16 +15,19 @@ import nl.ypmania.fs20.FS20MotionSensor;
 import nl.ypmania.fs20.FS20Packet;
 import nl.ypmania.fs20.FS20Route;
 import nl.ypmania.fs20.FS20Service;
-import nl.ypmania.fs20.Switch;
+import nl.ypmania.fs20.FS20Switch;
 import nl.ypmania.rf12.Doorbell;
 import nl.ypmania.rf12.ElectricityMeter;
 import nl.ypmania.rf12.GardenValve;
 import nl.ypmania.rf12.HumidityRoomSensor;
 import nl.ypmania.rf12.MultiButton;
+import nl.ypmania.rf12.NimhCharger;
 import nl.ypmania.rf12.OutdoorSensor;
+import nl.ypmania.rf12.RF12DoorSensor;
+import nl.ypmania.rf12.RFSwitch;
 import nl.ypmania.rgb.LampColor;
 import nl.ypmania.rgb.RGBLamp;
-import nl.ypmania.visonic.DoorSensor;
+import nl.ypmania.visonic.VisonicDoorSensor;
 import nl.ypmania.visonic.SensorDTO;
 import nl.ypmania.visonic.VisonicAddress;
 import nl.ypmania.visonic.VisonicMotionSensor;
@@ -67,6 +70,7 @@ public class Home extends Environment {
   private static final String LIVING_ROOM_PROXY = "18:FE:34:9F:50:92";
   private static final String SHED_PROXY = "18:FE:34:9F:50:DB";
   private static final String KITCHEN_PROXY = "18:FE:34:9F:52:05";
+  private static final String BACKGARDEN_PROXY = "18:FE:34:F5:18:34";
   
   private @Autowired FS20Service fs20Service;
   private @Autowired SFX sfx;
@@ -80,7 +84,8 @@ public class Home extends Environment {
   Zone drivewayRight = new Zone(this, "Driveway, r", Arrays.asList(SHED_PROXY, KITCHEN_PROXY));
   Zone carport = new Zone(this, "Carport", Arrays.asList(SHED_PROXY, KITCHEN_PROXY));
   Zone shed = new Zone(this, "Shed", Arrays.asList(SHED_PROXY, KITCHEN_PROXY));
-  Zone outside = new Zone(this, "Outside", drivewayLeft, drivewayRight, carport, shed);
+  Zone playHouse = new Zone(this, "Playhhouse", Arrays.asList(BACKGARDEN_PROXY));
+  Zone outside = new Zone(this, "Outside", drivewayLeft, drivewayRight, carport, shed, playHouse);
   Zone bryggers = new Zone(this, "Bryggers", Arrays.asList(KITCHEN_PROXY, SHED_PROXY));
   Zone entree = new Zone(this, "Entree", Arrays.asList(KITCHEN_PROXY, SHED_PROXY, LIVING_ROOM_PROXY));
   Zone office = new Zone(this, "Office", Arrays.asList(KITCHEN_PROXY, LIVING_ROOM_PROXY, SHED_PROXY));
@@ -88,8 +93,8 @@ public class Home extends Environment {
   Zone guestRoom = new Zone(this, "Guestroom", Arrays.asList(KITCHEN_PROXY, SHED_PROXY, LIVING_ROOM_PROXY));
   Zone kitchen = new Zone(this, "Kitchen", Arrays.asList(KITCHEN_PROXY, LIVING_ROOM_PROXY, SHED_PROXY));
   Zone studio = new Zone(this, "Studio", Arrays.asList(KITCHEN_PROXY, LIVING_ROOM_PROXY));
-  Zone livingRoom = new Zone(this, "Livingroom", Arrays.asList(LIVING_ROOM_PROXY, KITCHEN_PROXY));
-  Zone bedRoom = new Zone(this, "Bedroom", Arrays.asList(LIVING_ROOM_PROXY, KITCHEN_PROXY));
+  Zone livingRoom = new Zone(this, "Livingroom", Arrays.asList(LIVING_ROOM_PROXY, BACKGARDEN_PROXY, KITCHEN_PROXY));
+  Zone bedRoom = new Zone(this, "Bedroom", Arrays.asList(LIVING_ROOM_PROXY, BACKGARDEN_PROXY, KITCHEN_PROXY));
   Zone mainBathRoom = new Zone(this, "Main bathroom", Arrays.asList(LIVING_ROOM_PROXY, KITCHEN_PROXY));
   Zone day = new Zone(this, "Day", bryggers, entree, office, kidsRoom, guestRoom, kitchen, studio, livingRoom);
   Zone night = new Zone(this, "Night", bedRoom, mainBathRoom);
@@ -97,21 +102,24 @@ public class Home extends Environment {
   Zone home = new Zone(this, "Area", inside, outside);
   
   Dimmer bedroomCupboards = new Dimmer(bedRoom, "Cupboards", new FS20Address(HOUSE, 1311), MASTER, ALL_LIGHTS, BEDROOM);
-  Switch bedroomLEDs = new Switch(bedRoom, "LED strip", new FS20Address(HOUSE, 1312), MASTER, ALL_LIGHTS, BEDROOM);
+  FS20Switch bedroomLEDs = new FS20Switch(bedRoom, "LED strip", new FS20Address(HOUSE, 1312), MASTER, ALL_LIGHTS, BEDROOM);
   Dimmer carportSpots = new Dimmer(carport, entree, "Spots", CARPORT_SPOTS);
-  Switch carportFlood = new Switch(carport, entree, "Floodlight", new FS20Address(HOUSE, 3112), MASTER, ALL_LIGHTS, CARPORT);
-  Switch bryggersSpots = new Switch(bryggers, "Ceiling", new FS20Address(HOUSE, 1211), MASTER, ALL_LIGHTS, BRYGGERS);
+  FS20Switch carportFlood = new FS20Switch(carport, entree, "Floodlight", new FS20Address(HOUSE, 3112), MASTER, ALL_LIGHTS, CARPORT);
+  FS20Switch bryggersSpots = new FS20Switch(bryggers, "Ceiling", new FS20Address(HOUSE, 1211), MASTER, ALL_LIGHTS, BRYGGERS);
   
   Dimmer livingRoomCeiling = new Dimmer(livingRoom, "Ceiling", new FS20Address(HOUSE, 1111), MASTER, ALL_LIGHTS, LIVING_ROOM);
-  Switch livingRoomTableLamp = new Switch(livingRoom, "Table lamp", new FS20Address(HOUSE, 1112), MASTER, ALL_LIGHTS, LIVING_ROOM);
-  Switch livingRoomReadingLamp = new Switch(livingRoom, "Reading lamp", new FS20Address(HOUSE, 1113), MASTER, ALL_LIGHTS, LIVING_ROOM);
-  Switch livingRoomCornerLamp = new Switch(livingRoom, "Corner lamp", new FS20Address(HOUSE, 1114), MASTER, ALL_LIGHTS, LIVING_ROOM);
+  FS20Switch livingRoomTableLamp = new FS20Switch(livingRoom, "Table lamp", new FS20Address(HOUSE, 1112), MASTER, ALL_LIGHTS, LIVING_ROOM);
+  FS20Switch livingRoomReadingLamp = new FS20Switch(livingRoom, "Reading lamp", new FS20Address(HOUSE, 1113), MASTER, ALL_LIGHTS, LIVING_ROOM);
+  FS20Switch livingRoomCornerLamp = new FS20Switch(livingRoom, "Corner lamp", new FS20Address(HOUSE, 1114), MASTER, ALL_LIGHTS, LIVING_ROOM);
   
   GardenValve valve1 = new GardenValve(outside, studio, '1', 5);
-  Switch xmasLights = new Switch(kitchen, "X-Mas Lights", new FS20Address(HOUSE, 2211));
+  FS20Switch xmasLights = new FS20Switch(kitchen, "X-Mas Lights", new FS20Address(HOUSE, 2211));
   
-  //Switch rgbLamp = new Switch(livingRoom, "RGB Lamp", new FS20Address(HOUSE, 1411), DININGROOM);
+  //FS20Switch rgbLamp = new FS20Switch(livingRoom, "RGB Lamp", new FS20Address(HOUSE, 1411), DININGROOM);
   RGBLamp kitchenLeds = new RGBLamp(kitchen, "Kitchen LEDs", (int)'L', (int)'K');
+  
+  //RFSwitch bedroomLights = new RFSwitch(this, bedRoom, '1', "nBedroomSleepStrip", "nBedroomReading", null, null);
+  NimhCharger playCharger = new NimhCharger(this, playHouse, 1, "Porch", null, null, null);
   
   DateTime lastDoorbellEmail = null;
   private final Doorbell doorbell = new Doorbell(carport, 'D','B') {
@@ -133,7 +141,7 @@ public class Home extends Environment {
     boolean obvious = office.actionSinceSeconds(15) || kitchen.actionSinceSeconds(15) || kidsRoom.actionSinceSeconds(15);
     if (!settings.isMuteDoors() && !obvious) {
       doorOpenNotified = DateTime.now();
-      sfx.play("tngchime.wav");         
+      sfx.play("opendoor.wav");         
       getTimer().schedule(new TimerTask(){
         @Override
         public void run() {
@@ -153,7 +161,7 @@ public class Home extends Environment {
     doorOpenNotified = null;
   }
   
-  DoorSensor bryggersDoor = new DoorSensor(bryggers, "Bryggers door", BRYGGERS_DOOR) {
+  VisonicDoorSensor bryggersDoor = new VisonicDoorSensor(bryggers, "BryggersDoor", BRYGGERS_DOOR) {
     protected void opened() {
       handleOpenDoor();
       if (isDark()) {
@@ -171,6 +179,13 @@ public class Home extends Environment {
   public void started() {
     
     setReceivers(
+      //bedroomLights,
+      //bedroomLights.getChannel1(),
+      //bedroomLights.getChannel2(),
+      
+      playCharger,
+      playCharger.getChannel1(),
+        
       livingRoomCeiling,  
       livingRoomTableLamp,  
       livingRoomReadingLamp,  
@@ -191,7 +206,33 @@ public class Home extends Environment {
       
       new OutdoorSensor(outside, "strawberries", 'a'),
       new OutdoorSensor(outside, "grapes", 'b'),
-      
+   
+      /*
+      new FS20Route(new FS20Address(HOUSE, 1344), Command.ON_PREVIOUS) {
+        @Override
+        protected void handle() {
+          bedroomLights.getChannel1().onFull();
+        }
+      },
+      new FS20Route(new FS20Address(HOUSE, 1344), Command.OFF) {
+        @Override
+        protected void handle() {
+          bedroomLights.getChannel1().off();          
+        }
+      },
+      new FS20Route(new FS20Address(HOUSE, 1313), Command.ON_PREVIOUS) {
+        @Override
+        protected void handle() {
+          bedroomLights.getChannel2().onFull();
+        }
+      },
+      new FS20Route(new FS20Address(HOUSE, 1313), Command.OFF) {
+        @Override
+        protected void handle() {
+          bedroomLights.getChannel2().off();          
+        }
+      },
+      */
       new FS20Route(new FS20Address(BUTTONS, 1111), Command.OFF) {
         protected void handle() {
           livingRoom.event(ZoneEvent.buttonPressed());
@@ -271,7 +312,8 @@ public class Home extends Environment {
           } else
           if (isDark() && !settings.isNoAutoLightsKitchen()) {
             if (!kitchenLeds.isOn()) {
-              kitchenLeds.timedOn(new LampColor(255, 255, 255, 4), 30 * 60);              
+              int intensity = livingRoom.getLux() > 600 ? 255 : 4;
+              kitchenLeds.timedOn(new LampColor(255, 255, 255, intensity), 30 * 60);              
             }
           }
         }
@@ -298,11 +340,27 @@ public class Home extends Environment {
           }
         }
       },
-      new DoorSensor(entree, "Main door", MAIN_DOOR) {
+      new VisonicDoorSensor(entree, "MainDoor", MAIN_DOOR) {
         protected void opened() {
           handleOpenDoor();
         }
         protected void closed() {
+          handleCloseDoor();
+        }
+      },
+      new RF12DoorSensor(shed, "BackDoor", (int)'1') {
+        @Override protected void opened() {
+          handleOpenDoor();
+        }
+        @Override protected void closed() {
+          handleCloseDoor();
+        }
+      },
+      new RF12DoorSensor(shed, "FrontDoor", (int)'2') {
+        @Override protected void opened() {
+          handleOpenDoor();
+        }
+        @Override protected void closed() {
           handleCloseDoor();
         }
       },
@@ -362,10 +420,16 @@ public class Home extends Environment {
         bryggersSpots.timedOnMillis(duration);
       }
     });
-    register(new TimedTask(SUNSET.plusHours(-2), new FixedTime(23,00)) {
+    register(new TimedTask(SUNSET.plusHours(-2), new FixedTime(22,00)) {
       @Override
       protected void start(long duration) {
         bryggersSpots.timedOnMillis(duration);
+      }
+    });
+    register(new TimedTask(SUNSET.plusHours(-1), new FixedTime(23,00)) {
+      @Override
+      protected void start(long duration) {
+        playCharger.getChannel1().timedOnMillis(duration);
       }
     });
     /*
@@ -401,9 +465,31 @@ public class Home extends Environment {
     });
     */
     new LightWatchdog(this, carport);
+    
+    getTimer().schedule(new TimerTask() {
+        @Override
+        public void run() {
+            alertIfDoorOpenLong();
+        }
+    }, 1000 * 60 * 30, 1000 * 60 * 30);
   }
   
-  @Override
+  protected void alertIfDoorOpenLong() {
+    for (VisonicDoorSensor d: getAll(VisonicDoorSensor.class)) {
+      if (d.isOpenAtLeastSeconds(60 * 30)) {
+        log.warn("{} has been open since {}", d.getName(), d.getOpenSince());
+        sfx.play("opendoor.wav");                 
+      }
+    }
+    for (RF12DoorSensor d: getAll(RF12DoorSensor.class)) {
+      if (d.isOpenAtLeastSeconds(60 * 30)) {
+        log.warn("{} has been open since {}", d.getName(), d.getOpenSince());
+        sfx.play("opendoor.wav");                 
+      }
+    }
+  }
+
+@Override
   public boolean isAlarmArmed(Zone zone) {
     String alarm = settings.getAlarmMode();
     if (alarm != null) {

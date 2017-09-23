@@ -9,6 +9,7 @@ import javax.ws.rs.Path;
 
 import nl.ypmania.ListWrapper;
 import nl.ypmania.env.Environment;
+import nl.ypmania.env.Switch;
 import nl.ypmania.visonic.SensorDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;

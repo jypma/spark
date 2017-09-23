@@ -10,8 +10,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.google.protobuf.CodedInputStream;
-
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RF12Packet {

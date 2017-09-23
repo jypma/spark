@@ -30,3 +30,5 @@ body { background-color: #fff; font-family: sans-self; font-size: 10px }
 .status.off { padding-left: 12px; width: 19px; padding-top: 6px; padding-bottom: 6px; }
 
 .time { padding-left: 10px; }
+
+.doorsensor_true { background: #ffc4c4; }

@@ -145,7 +145,7 @@ public class RGBLamp extends Actuator {
 
   @Override
   public synchronized boolean isOn() {
-    return on;
+    return on && (color.getB() > 0 || color.getR() > 0 || color.getB() > 0);
   }
 
   public void setBrightness(int brightness) {

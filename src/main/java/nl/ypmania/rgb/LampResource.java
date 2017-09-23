@@ -11,15 +11,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
-import nl.ypmania.ListWrapper;
-import nl.ypmania.env.Environment;
-import nl.ypmania.fs20.ActuatorDTO;
-import nl.ypmania.fs20.Switch;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sun.jersey.api.NotFoundException;
+
+import nl.ypmania.ListWrapper;
+import nl.ypmania.env.Environment;
+import nl.ypmania.fs20.ActuatorDTO;
 
 @Component
 @Path("rgblamps")

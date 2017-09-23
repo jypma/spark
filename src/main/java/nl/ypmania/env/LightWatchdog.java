@@ -7,8 +7,6 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.ypmania.fs20.FS20Actuator;
-
 public class LightWatchdog {
   private static final Logger log = LoggerFactory.getLogger(LightWatchdog.class);
   
@@ -26,10 +24,10 @@ public class LightWatchdog {
           if (zone.noActionSinceMinutes(25)) {
             for (Device device: zone.getDevices()) {
               if (!ignores.contains(device)) {
-                if (device instanceof FS20Actuator) {
+                if (device instanceof Actuator) {
                   log.debug("Turning off {} in {}, since no movement since {}",
                       new Object[] {device, zone, zone.getLastAction()} );
-                  ((FS20Actuator)device).off();
+                  ((Actuator)device).off();
                 }
               }
             }

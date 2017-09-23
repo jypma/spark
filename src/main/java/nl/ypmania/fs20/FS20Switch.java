@@ -1,23 +1,24 @@
 package nl.ypmania.fs20;
 
+import nl.ypmania.env.Switch;
 import nl.ypmania.env.Zone;
 import nl.ypmania.env.ZoneEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Switch extends FS20Actuator {
-  private static final Logger log = LoggerFactory.getLogger(Switch.class);
+public class FS20Switch extends FS20Actuator implements Switch {
+  private static final Logger log = LoggerFactory.getLogger(FS20Switch.class);
   
   private boolean on = false;
   
-  protected Switch() {}
+  protected FS20Switch() {}
   
-  public Switch (Zone zone, String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
+  public FS20Switch (Zone zone, String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
     super (zone, name, primaryAddress, otherAddresses);
   }
   
-  public Switch (Zone zone, Zone receiverZone, String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
+  public FS20Switch (Zone zone, Zone receiverZone, String name, FS20Address primaryAddress, FS20Address... otherAddresses) {
     super (zone, receiverZone, name, primaryAddress, otherAddresses);
   }
   

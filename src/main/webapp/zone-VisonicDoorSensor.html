@@ -1,0 +1,5 @@
+<span class="name {{'doorsensor_' + device.open}}">{{device.name}}</span>
+<span class="status {{'doorsensor_' + device.open}}">
+  {{device.open ? 'OPEN' : 'closed'}}
+</span>
+<span class="time {{'doorsensor_' + device.open}}" ng-show="device.openSince">{{device.openSince}}</span>

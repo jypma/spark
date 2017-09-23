@@ -165,6 +165,7 @@ public class RoomSensor extends Device {
         }
       }
       if (message.hasField(schema.getMessageDescriptor("Packet").findFieldByName("supply"))) {
+        battery = supply / 1000.0;
         if (supply > 20) {
           getEnvironment().gauge(getZone(), name + ".supply", supply);                        
         } else {
@@ -180,6 +181,7 @@ public class RoomSensor extends Device {
       }
       if (message.hasField(schema.getMessageDescriptor("Packet").findFieldByName("lux"))) {
         getEnvironment().gauge(getZone(), name + ".lux", lux);
+        getZone().setLux(lux);
       }
       if (motion > 0) {
         event(ZoneEvent.motion());

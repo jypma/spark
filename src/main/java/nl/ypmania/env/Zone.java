@@ -24,6 +24,7 @@ public class Zone {
   
   private Double temperature;
   private Double calculatedTemperature;
+  private double lux;
   
   private Double humidity;
   private Double calculatedHumidity;
@@ -229,6 +230,14 @@ public class Zone {
     } else {
       return parent.getPath() + "." + getName();
     }
+  }
+  
+  public void setLux(double lux) {
+    this.lux = lux;
+  }
+  
+  public double getLux() {
+    return lux;
   }
   
   public Double getTemperature() {
