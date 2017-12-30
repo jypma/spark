@@ -16,7 +16,7 @@ import nl.ypmania.env.Device;
 import nl.ypmania.env.Environment;
 import nl.ypmania.env.Switch;
 import nl.ypmania.env.Zone;
-import nl.ypmania.rf12.state.TxState;
+import nl.ypmania.rf12.state.RxTxState;
 
 public class NimhCharger extends Device {
   private static final Logger log = LoggerFactory.getLogger(NimhCharger.class);
@@ -66,7 +66,7 @@ public class NimhCharger extends Device {
   private final Channel channel2;
   private final Channel channel3;
   private final Channel channel4;
-  private final TxState state;
+  private final RxTxState state;
   private final int senderId;
   private final int id;
   
@@ -79,7 +79,7 @@ public class NimhCharger extends Device {
     this.channel3 = (channel1 == null) ? null : new Channel(channel3, 2);
     this.channel4 = (channel1 == null) ? null : new Channel(channel4, 3);
     senderId = 'n' << 8 | id;
-    this.state = new TxState(env, zone, senderId, toProtobuf(outputs));
+    this.state = new RxTxState(env, zone, senderId, toProtobuf(outputs));
   }
   
   @Override

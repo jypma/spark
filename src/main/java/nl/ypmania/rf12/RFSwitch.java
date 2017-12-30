@@ -3,19 +3,20 @@ package nl.ypmania.rf12;
 import com.github.os72.protobuf.dynamic.DynamicSchema;
 import com.github.os72.protobuf.dynamic.MessageDefinition;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Descriptors.DescriptorValidationException;
+import com.google.protobuf.DynamicMessage;
 
 import nl.ypmania.env.Actuator;
 import nl.ypmania.env.Environment;
 import nl.ypmania.env.Receiver;
 import nl.ypmania.env.Switch;
 import nl.ypmania.env.Zone;
-import nl.ypmania.rf12.state.TxState;
+import nl.ypmania.rf12.state.RxState;
+import nl.ypmania.rf12.state.RxTxState;
 
 public class RFSwitch extends Receiver {
   private static final MessageDefinition msgDef = MessageDefinition.newBuilder("Packet") 
-      .addField("optional", "uint32", "outputs", 1)
+      .addField("optional", "uint32", "values", 1)
       .build();
 
   private static DynamicSchema schema() {
@@ -31,13 +32,15 @@ public class RFSwitch extends Receiver {
   private static final DynamicSchema schema = schema();
 
   private volatile int outputs = 0;
+  private volatile int inputs = 0;
   
   private final Zone zone;
   private final Channel channel1;
   private final Channel channel2;
   private final Channel channel3;
   private final Channel channel4;
-  private final TxState state;
+  private final RxTxState outputState;
+  private final RxState inputState;
   
   public RFSwitch(Environment env, Zone zone, int id, String channel1, String channel2, String channel3, String channel4) {
     this.zone = zone;
@@ -45,12 +48,14 @@ public class RFSwitch extends Receiver {
     this.channel2 = (channel1 == null) ? null : new Channel(channel2, 1);
     this.channel3 = (channel1 == null) ? null : new Channel(channel3, 2);
     this.channel4 = (channel1 == null) ? null : new Channel(channel4, 3);
-    this.state = new TxState(env, zone, 'r' << 8 | id, toProtobuf(outputs));
+    this.outputState = new RxTxState(env, zone, 'r' << 8 | id, toProtobuf(outputs));
+    this.inputState = new RxState(env, zone, 'f' << 8 | id, toProtobuf(inputs));
   }
 
   @Override
   public void receive(RF12Packet packet) {
-    state.receive(packet);
+    outputState.receive(packet);
+    inputState.receive(packet);
   }
   
   private ByteString toProtobuf(int outputs) {
@@ -88,12 +93,12 @@ public class RFSwitch extends Receiver {
     @Override
     protected void turnOff() {
       outputs &= ~(1 << bit);
-      state.setState(toProtobuf(outputs));      
+      outputState.setState(toProtobuf(outputs));      
     }
     
     public void turnOn() {
       outputs |= (1 << bit);
-      state.setState(toProtobuf(outputs));
+      outputState.setState(toProtobuf(outputs));
     }
 
     @Override

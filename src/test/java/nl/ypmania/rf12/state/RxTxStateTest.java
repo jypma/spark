@@ -217,7 +217,23 @@ public class RxTxStateTest {
   }
   
   @Test
-  public void should_send_latest_state_when_receiving_req() {
+  public void should_send_latest_state_when_receiving_req_but_not_resend_when_unacked() {
+    RF12Packet rq = new RF12Packet(4, new int[] {
+        1 << 3, 15    // nodeId = 15 
+    });
+    state.receive(rq);
     
+    ArgumentCaptor<RF12Packet> packet = ArgumentCaptor.forClass(RF12Packet.class);
+    verify(rf12Service).queue(eq(zone), packet.capture());
+    assertEquals(2, packet.getValue().getHeader());
+    assertEquals(Arrays.asList(
+        1 << 3, 15,    // nodeId = 15 
+        2 << 3, 0,     // seq = 0 
+        3 << 3 | 2, 7, // body, length 5
+          105, 110, 105, 116, 105, 97, 108  // "initial"
+    ), packet.getValue().getContents());
+
+    // No re-sending should occur, since the node will re-send a request if communication was unsuccessful.
+    verifyNoMoreInteractions(timer);
   }
 }

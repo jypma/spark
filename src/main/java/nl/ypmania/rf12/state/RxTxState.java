@@ -42,7 +42,7 @@ public class RxTxState {
       state = s;
       resendCount = 0;
       log.info("Setting new state for {}/{}, seq now {}", new Object[] { zone, nodeId, seq });
-      send();      
+      send(true);      
     }
   }
   
@@ -70,6 +70,12 @@ public class RxTxState {
       log.info("Sending ack for {}/{}, seq now {}", new Object[] { zone, nodeId, seq } );
       env.getRf12Service().queue(zone, new Ack(nodeId, seq).toRF12Packet());      
     }
+    
+    Request request = Request.fromRF12OrNull(p);
+    if (request != null && request.getNodeId() == nodeId) {
+      log.debug("Received resend request nodeId={}", nodeId);
+      send(false);
+    }
   }
 
   private void cancelSend() {
@@ -81,34 +87,45 @@ public class RxTxState {
     resendCount = 0;
   }
   
-  private synchronized void send() {
-    log.debug("Going to send state for {}/{}, attempt {}", new Object[] { zone, nodeId, resendCount });
-    final Packet p = new Packet(Packet.Direction.Tx, nodeId, seq, state);
-    tx = true;
+  private void send(final boolean allowResend) {
+    final Packet p;
+    synchronized(this) {
+      log.debug("Going to send state for {}/{}, attempt {}", new Object[] { zone, nodeId, resendCount });
+      p = new Packet(Packet.Direction.Tx, nodeId, seq, state);
+      tx = true;      
+    }
     env.onRf868Clear(new Runnable() {
       public void run() {
+        log.info("Sending state for {}/{}, attempt {}", new Object[] { zone, nodeId, resendCount });
+        env.getRf12Service().queue(zone, p.toRF12Packet());
         synchronized(RxTxState.this) {
-          log.info("Sending state for {}/{}, attempt {}", new Object[] { zone, nodeId, resendCount });
-          env.getRf12Service().queue(zone, p.toRF12Packet());
           if (resend != null) {
             resend.cancel();
           }
-          resend = new TimerTask() {
-            public void run() {
-              synchronized(RxTxState.this) {
-                if (tx) {
-                  if (resendCount < MAX_RESEND) {
-                    resendCount++;
-                    send();              
-                  } else {
-                    log.error("Giving up sending state for {}/{}", zone, nodeId);                    
+          if (allowResend) {
+            resend = new TimerTask() {
+              public void run() {
+                boolean again = false;
+                synchronized(RxTxState.this) {
+                  if (tx) {
+                    if (resendCount < MAX_RESEND) {
+                      resendCount++;
+                      again = true;          
+                    } else {
+                      log.error("Giving up sending state for {}/{}", zone, nodeId);                    
+                    }
                   }
                 }
+                if (again) {
+                  send(true);
+                }
               }
-            }
-          };
-          int delayIdx = Math.min(resendCount, RESEND_DELAYS.length - 1);
-          env.getTimer().schedule(resend, 10 * (RESEND_DELAYS[delayIdx] + resendOffset));
+            };
+            int delayIdx = Math.min(resendCount, RESEND_DELAYS.length - 1);
+            env.getTimer().schedule(resend, 10 * (RESEND_DELAYS[delayIdx] + resendOffset));            
+          } else {
+            resend = null;
+          }
         }
       }
     });
